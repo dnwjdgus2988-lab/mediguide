@@ -1,0 +1,8 @@
+streamlit>=1.40
+plotly>=5.20
+pandas>=2.0
+pymupdf>=1.24
+kiwipiepy>=0.18
+fpdf2>=2.7
+boto3>=1.34
+semgrep>=1.80   # 로컬 개발용 대체 엔진. EC2에서는 OpenGrep 설치를 권장
