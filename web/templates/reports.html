@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+{{ pagehead('리포트', ['리포트']) }}
+<div class="kpis k6" id="kp">
+  {{ kpi('var(--k-purple)', 'report', rows|length, '전체 리포트', filt='g:') }}
+  {{ kpi('var(--k-green)', '', cnt['A'], 'A 등급', filt='g:A', letter='A') }}
+  {{ kpi('var(--k-steel)', '', cnt['B'], 'B 등급', filt='g:B', letter='B') }}
+  {{ kpi('var(--k-gold)', '', cnt['C'], 'C 등급', filt='g:C', letter='C') }}
+  {{ kpi('var(--k-red)', '', cnt['D'], 'D 등급', filt='g:D', letter='D') }}
+  {{ kpi('var(--k-gray)', 'file-off', cnt['폐기'], '폐기', filt='g:폐기') }}
+</div>
+<div class="card" data-dt data-kpis="#kp">
+  <div class="tbl-tools">
+    <button class="btn-reset" type="button" data-dt-reset>{{ icon('filter', 14) }} 필터 초기화</button><div class="grow"></div>
+    <div class="search">{{ icon('search') }}<input data-dt-search placeholder="리포트 검색..."></div>
+  </div>
+  <table class="tbl">
+    <thead><tr><th>리포트 ID</th><th>기기명</th><th>유형</th><th>생성일</th><th>점수</th><th>등급</th><th>상태</th></tr></thead>
+    <tbody>{% for r in rows %}
+      <tr data-row data-f-g="{{ '폐기' if r.status == '폐기' else r.grade }}" data-href="/reports/{{ r.code }}">
+        <td>{{ r.code }}</td><td>{{ r.device_name }}</td><td>{{ r.kind }}</td><td>{{ dt(r.created_at) }}</td>
+        <td style="font-weight:700;color:{{ '#2e7d32' if (r.score or 0) >= 80 else ('#c68a1e' if (r.score or 0) >= 70 else '#c62828') }}">{{ '%.1f'|format(r.score or 0) }}</td>
+        <td>{{ grade(r.grade) }}</td><td>{{ status(r.status) }}</td></tr>
+    {% endfor %}</tbody>
+  </table>
+  {{ pager() }}
+</div>
+{% endblock %}

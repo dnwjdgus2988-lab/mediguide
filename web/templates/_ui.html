@@ -1,0 +1,54 @@
+{# 공통 화면 부품 #}
+{% macro pagehead(title, crumbs=[], extra='') -%}
+<div class="pagehead">
+  <h1>{{ title }}{{ extra|safe }}</h1>
+  <div class="crumb">
+    <a href="/dashboard">{{ icon('home') }}</a>
+    {% for c in crumbs %}
+      {{ icon('chev-right') }}
+      {% if c is string %}<span class="{{ 'cur' if loop.last }}">{{ c }}</span>
+      {% else %}<a href="{{ c[1] }}">{{ c[0] }}</a>{% endif %}
+    {% endfor %}
+  </div>
+</div>
+{%- endmacro %}
+
+{% macro kpi(color, ic, num, label, filt=None, letter=None, info=False) -%}
+<div class="kpi" {% if filt is not none %}data-kpi="{{ filt }}"{% endif %}>
+  <div class="ic" style="background:{{ color }}">{% if letter %}<span class="letter">{{ letter }}</span>{% else %}{{ icon(ic) }}{% endif %}</div>
+  <div class="tx"><div class="num">{{ num }}</div><div class="lb">{{ label }}</div></div>
+  {% if info %}<span class="info">{{ icon('info') }}</span>{% endif %}
+</div>
+{%- endmacro %}
+
+{% macro sevchip(sev) -%}{% if sev %}<span class="chip sev-{{ sev }}">{{ sev }}</span>{% else %}<span class="muted">—</span>{% endif %}{%- endmacro %}
+
+{% macro sevbox(c, h, m, l) -%}
+<span class="sevbox"><span class="{{ 'c' if c }}">{{ c or 0 }}</span><span class="{{ 'h' if h }}">{{ h or 0 }}</span><span class="{{ 'm' if m }}">{{ m or 0 }}</span><span class="{{ 'l' if l }}">{{ l or 0 }}</span></span>
+{%- endmacro %}
+
+{% macro status(s) -%}
+{%- set cls = {'완료':'ok','승인완료':'ok','발행완료':'ok','등록완료':'gray','활성':'ok','충족':'ok','적합':'ok',
+  '진행중':'info','작성중':'info','검토대기':'warn','조건부 적합':'warn','보완 필요':'bad','검토 필요':'warn','증빙 미비':'warn',
+  '반려':'bad','실패':'bad','폐기':'gray','비활성':'gray','부적합':'bad','해당 없음':'gray','판정 불가':'gray','미충족':'bad',
+  '미응답':'gray','비적용':'gray','미제출':'gray','제출':'ok','확인된 결함':'bad','약점':'warn','오탐':'gray','연기':'info','검토 필요 ':'warn'}.get(s, 'gray') -%}
+<span class="chip {{ cls }}">{{ s }}</span>
+{%- endmacro %}
+
+{% macro grade(g, lg=False) -%}<span class="grade {{ g or 'none' }} {{ 'lg' if lg }}">{{ (g ~ ' 등급') if lg and g else (g or '—') }}</span>{%- endmacro %}
+
+{% macro pager() -%}
+<div class="pager" data-pager>
+  <span>rows per page:</span>
+  <select data-pp><option>10</option><option>25</option><option>50</option></select>
+  <span data-range>0–0 of 0</span>
+  <span class="pg" data-pages></span>
+</div>
+{%- endmacro %}
+
+{% macro fda(v) -%}
+{%- set cls = {'적합':'ok','조건부 적합':'solid-gold','부적합':'bad','해당 없음':'gray','판정 불가':'gray'}.get(v,'gray') -%}
+<span class="chip {{ cls }}">{{ v }}</span>
+{%- endmacro %}
+
+{% macro dt(d, time=False) -%}{% if d %}{{ d[:4] }}. {{ d[5:7] }}. {{ d[8:10] }}.{% if time %} {{ d[11:16] }}{% endif %}{% else %}—{% endif %}{%- endmacro %}

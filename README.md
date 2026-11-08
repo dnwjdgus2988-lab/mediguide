@@ -3,50 +3,65 @@
 **의료기기 보안 점검 · AI 조치 매뉴얼 검색 서비스**
 2026 동북권 개발자 대상 오픈소스 아이디어 경진대회 · 8팀 무한루프 · 주제 06-02 (AI 기반 산업현장 작업 매뉴얼 검색 서비스)
 
-의료기기 소프트웨어 소스코드를 올리면 오픈소스 정적분석으로 취약점을 찾고, 취약점마다 식약처·FDA 규제 문서에서
-관련 요구사항과 조치 방법을 **근거(문서명·쪽)와 함께** 찾아 안내합니다. 근거가 없으면 지어내지 않고
-"제공된 문서에서 근거를 찾을 수 없습니다"라고 답합니다.
+의료기기 소프트웨어 소스코드를 올리면 오픈소스 정적분석(OpenGrep)으로 취약점을 찾고, 보안 체크리스트(20문항)·증빙 13종·
+표준화 요구항목으로 인허가 제출 준비도를 평가해 **보안성 검증 리포트**와 **관할별 결과보고서(식약처·FDA·EU)** 를 만듭니다.
+취약점마다 식약처·FDA 규제 문서에서 조치 방법을 **근거(문서명·쪽)와 함께** 찾아 주는 **AI 조치 매뉴얼**이 붙어 있으며,
+근거가 없으면 지어내지 않고 「제공된 문서에서 근거를 찾을 수 없습니다」라고 답합니다.
 
-## 주요 기능
+## 화면 구성
 
-| 화면 | 기능 |
+| 메뉴 | 기능 |
 |---|---|
-| 대시보드 | 등록 장비·완료 점검·발견 취약점 지표, 심각도 분포, 고위험 기기 Top 5, 최근 점검 |
-| 의료기기 관리 | 점검 대상 기기 등록·목록 |
-| 점검 실행 | 소스 압축파일(.zip) 업로드 → OpenGrep/Semgrep 정적분석 → 100점 만점 점수·A~D 등급 |
-| 점검 결과 | 취약점별 코드 위치·설명·의료기기 영향·조치 방법, **AI 조치 매뉴얼 찾기** |
-| 매뉴얼 검색 | 규제 문서 근거 인용형 AI 질의응답 (식약처/FDA 범위 선택, 영문 문서 확장 검색) |
-| 결과 리포트 | 점검 결과 + AI 조치 매뉴얼을 담은 PDF 리포트 |
-| 시스템 설정 | 엔진·AI·색인 상태, 색인 재생성 |
+| 대시보드 | 등록 장비·완료 스캔·발견 취약점·진행중 평가, 심각도 분포, 고위험 기기 Top 5, 최근 스캔 |
+| 의료기기 관리 | FDA 적합성(적합·조건부 적합·부적합·해당 없음·판정 불가)별 목록, 자산 등록 |
+| └ 기기 상세 | **기본 정보**(장비 정보, 제출 정보·§524B(c) 사이버 기기 판정, 평가 회차·리포트, 변경 이력) · **스캔 결과**(회차 비교) · **증빙 자료**(소스 업로드 → 7단계 분석 진행 표시, 증빙 D01~D13) · **체크리스트**(SPDF 4개 영역 20문항, 문서 충족률·등급 상한) · **표준화**(요구항목 12개, 4축 지표, FDA·MFDS·MDR·IMDRF 판정) · 제출 패키지(zip) |
+| 보안 평가 ▸ 정적분석 결과 | 스캔 목록, 스캔 상세(검출 목록 → 코드·설명·의료기기 영향·조치, **AI 조치 매뉴얼**, 검출 처분 기록) |
+| 평가 관리 | 평가 회차 목록, 작성중 → 검토대기 → 승인완료/반려 흐름, 승인 시 리포트 자동 발행 |
+| 리포트 | 9절 보안성 검증 리포트(화면·인쇄·PDF), 재발행·폐기, **관할별 결과보고서** 식약처 시험성적서 / FDA Test Report / EU Test Report |
+| AI 매뉴얼 검색 | 규제 문서 근거 인용형 질의응답 (식약처/FDA 범위, 영문 확장 검색) |
+| 관리자 | 사용자 관리(관리자·검증자·열람자), 감사 로그(CSV), 정책값(배점·적용조건·등급 구간·상한·CVSS 구간), 시스템 설정 |
+
+## 판정 산식 (화면·리포트에 공개)
+
+- **문서 충족률** = 충족 배점 / 적용 배점 × 100. 「예」는 연계 증빙이 없으면 배점의 50%만 인정, 「비적용」·적용조건 밖 문항은 분모에서 제외
+- **등급** A ≥ 90 · B ≥ 80 · C ≥ 70 · D. Critical·High 취약점이 남아 있으면 **등급 상한 D**
+- **FDA 제출 적합성** — §524B 법정 요건(SBOM Q16·D08, 취약점 모니터링 Q17·D09, 보안 업데이트 절차 Q18·D13) 중 하나라도 미충족이면 부적합, 충족 + 등급 A·B면 적합, 그 외 조건부 적합
+- 모든 값은 관리자 ▸ 정책값에서 바꿀 수 있고, 발행된 리포트는 발행 당시 값을 유지합니다.
 
 ## 구조
 
 ```
-app/            Streamlit 화면 (main.py가 진입점, pages/ 에 화면별 파일)
-core/           핵심 로직
-  scanner.py    OpenGrep(없으면 Semgrep) 실행·결과 정리
-  grading.py    점수·등급 산식 (화면·리포트에 공개)
-  rag.py        규제 문서 쪽 단위 색인, Kiwi 형태소 + BM25 검색
-  llm.py        근거 인용형 답변 (Ollama / Bedrock 전환), 근거 검증 후처리
-  report.py     PDF 리포트 (fpdf2)
-  db.py         SQLite 저장소 (별도 DB 서버 불필요)
-scripts/        색인 생성, 시연 데이터, 시험 스크립트
-data_local/     규칙·규제 원문·시연 펌웨어 (Git 제외 — 아래 참고)
-storage/        실행 중 생성 파일 (Git 제외)
+web/              FastAPI 웹 서버 (main.py), 화면 템플릿(templates/), 스타일·스크립트(static/)
+core/
+  service.py      업무 로직 (기기·증빙·스캔·평가·리포트·대시보드)
+  scanner.py      OpenGrep(없으면 Semgrep) 실행, 제외 경로·언어 분포·해시 기록
+  checklist.py    체크리스트 20문항·증빙 13종·충족률·등급·FDA 적합성
+  standards.py    표준화 요구항목 12개 자동 판정, 4축 지표, 관할별 판정
+  forms.py        관할별 결과보고서(식약처·FDA·EU) 데이터 구성
+  policy.py       정책값 저장소
+  rag.py · llm.py 규제 문서 검색(Kiwi + BM25) · 근거 인용형 답변(Ollama / Bedrock)
+  pdf.py          HTML → PDF (헤드리스 Chrome/Chromium)
+  db.py           SQLite (별도 DB 서버 불필요)
+scripts/          색인 생성, 시연 데이터, 시험 스크립트
+data_local/       규칙·규제 원문·시연 펌웨어 (Git 제외 — 아래 참고)
+storage/          실행 중 생성 파일 (Git 제외)
 ```
 
 ## 실행 방법 (로컬)
 
 ```bash
 pip install -r requirements.txt
-python scripts/build_index.py      # 규제 문서 검색 색인 (약 6초)
-python scripts/seed_demo.py        # (선택) 시연용 기기·점검 데이터
-streamlit run app/main.py
+python scripts/build_index.py              # 규제 문서 검색 색인 (약 6초)
+python -X utf8 scripts/seed_demo.py --reset  # (선택) 시연 데이터: SecPump 취약판·보완판
+python -X utf8 -m uvicorn web.main:app --port 8501
 ```
+
+브라우저에서 `http://localhost:8501` 접속. 초기 계정은 `scripts/seed_demo.py` 상단 주석 참고
+(배포 시 `MG_ADMIN_PASSWORD`, `MG_VERIFIER_PASSWORD`, `MG_SECRET` 환경변수로 반드시 바꿀 것).
 
 로컬 AI는 [Ollama](https://ollama.com)의 `exaone3.5:7.8b` 모델을 기본으로 사용합니다 (`ollama pull exaone3.5:7.8b`).
 
-## AI 전환 (환경변수)
+## 환경변수
 
 | 변수 | 값 |
 |---|---|
@@ -54,14 +69,16 @@ streamlit run app/main.py
 | `MG_OLLAMA_MODEL` | 기본 `exaone3.5:7.8b` |
 | `MG_BEDROCK_MODEL` | 운영진이 안내한 Bedrock 모델 ID |
 | `AWS_REGION` | 기본 `ap-northeast-2` |
+| `MG_SECRET` | 세션 서명 키 (배포 시 필수 변경) |
+| `MG_CHROME` | PDF 변환용 Chrome/Chromium 경로 (자동 탐색 실패 시) |
 
 같은 코드로 **클라우드형(Bedrock)** 과 **온프레미스 폐쇄망형(Ollama)** 을 모두 시연할 수 있습니다.
 
 ## EC2 배포 메모
 
 - OpenGrep 설치 후 `opengrep` 명령이 있으면 Semgrep 대신 자동으로 사용합니다.
-- 리포트 한글 글꼴: `sudo apt install fonts-nanum` (또는 `MG_FONT`로 글꼴 경로 지정)
-- 외부 공개 실행: `streamlit run app/main.py --server.address 0.0.0.0 --server.port 8501`
+- PDF: `sudo apt install chromium-browser fonts-nanum` (없으면 브라우저 인쇄 화면으로 PDF 저장 안내)
+- 외부 공개 실행: `uvicorn web.main:app --host 0.0.0.0 --port 8501`
 
 ## data_local/ 에 대해 (중요)
 
@@ -71,9 +88,9 @@ streamlit run app/main.py
 
 ## 활용 오픈소스
 
-Streamlit · Plotly · PyMuPDF · Kiwi(kiwipiepy) · fpdf2 · OpenGrep / Semgrep · Ollama · EXAONE 3.5 · pandas · boto3
+FastAPI · Uvicorn · Jinja2 · OpenGrep / Semgrep · PyMuPDF · Kiwi(kiwipiepy) · Ollama · EXAONE 3.5 · boto3 · Chromium(PDF)
 
 ## 유의사항
 
-본 서비스의 결과는 규칙 기반 정적분석과 공개 규제 문서 검색에 기반한 참고 자료입니다.
+본 서비스의 결과는 규칙 기반 정적분석과 공개 규제 문서 검색에 기반한 참고 자료이며 규제 판정이 아닙니다.
 실제 인허가 제출 전에는 반드시 보안·인허가 전문가의 검토를 받아야 합니다.

@@ -1,4 +1,9 @@
-"""SQLite 저장소: 의료기기, 점검(스캔), 취약점. EC2 디스크에 파일로 저장되어 별도 DB 신청이 필요 없다."""
+"""SQLite 저장소. EC2 디스크에 파일로 저장되어 별도 DB 서버·신청이 필요 없다.
+
+테이블: users, devices, device_history, scans, findings, evidence, assessments,
+        reports, std_status, policies, audit_logs, ai_cache
+"""
+import json
 import sqlite3
 from contextlib import contextmanager
 from datetime import datetime
@@ -8,42 +13,92 @@ from core.config import DB_PATH
 SEVERITIES = ["Critical", "High", "Medium", "Low"]
 
 SCHEMA = """
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL, email TEXT, role TEXT NOT NULL,      -- 관리자 | 검증자 | 열람자
+    org TEXT, phone TEXT, pw_hash TEXT NOT NULL, active INTEGER DEFAULT 1,
+    last_login TEXT, created_at TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS devices (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    code TEXT UNIQUE NOT NULL,
-    name TEXT NOT NULL,
-    model TEXT, maker TEXT, category TEXT, description TEXT,
-    created_at TEXT NOT NULL
+    code TEXT UNIQUE NOT NULL, name TEXT NOT NULL, model TEXT, maker TEXT, name_en TEXT, maker_en TEXT,
+    device_class TEXT, sw_version TEXT, fw_version TEXT, description TEXT,
+    target_market TEXT DEFAULT '미국 FDA', submission_path TEXT DEFAULT '510(k)',
+    is_modification INTEGER DEFAULT 0,
+    has_software INTEGER, internet INTEGER, vuln_tech INTEGER,        -- 사이버 기기 판정 3문항 (1/0/NULL)
+    status TEXT DEFAULT '등록완료', created_at TEXT NOT NULL, updated_at TEXT
+);
+CREATE TABLE IF NOT EXISTS device_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, device_id INTEGER NOT NULL,
+    field TEXT, old TEXT, new TEXT, user TEXT, at TEXT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS scans (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    code TEXT UNIQUE NOT NULL,
-    device_id INTEGER NOT NULL REFERENCES devices(id),
-    version TEXT, source_name TEXT,
-    status TEXT NOT NULL,              -- 진행중 | 완료 | 실패
-    engine TEXT, files_scanned INTEGER DEFAULT 0,
-    score INTEGER, grade TEXT,
-    n_critical INTEGER DEFAULT 0, n_high INTEGER DEFAULT 0,
-    n_medium INTEGER DEFAULT 0, n_low INTEGER DEFAULT 0,
-    error TEXT,
-    started_at TEXT NOT NULL, finished_at TEXT
+    code TEXT UNIQUE NOT NULL, device_id INTEGER NOT NULL REFERENCES devices(id),
+    version TEXT, source_name TEXT, source_sha256 TEXT, uploader TEXT,
+    status TEXT NOT NULL,                               -- 진행중 | 완료 | 실패
+    engine TEXT, engine_version TEXT, ruleset TEXT, ruleset_sha256 TEXT,
+    files_scanned INTEGER DEFAULT 0, lines_scanned INTEGER DEFAULT 0, languages TEXT,
+    excluded_files INTEGER DEFAULT 0, duration_sec REAL,
+    n_critical INTEGER DEFAULT 0, n_high INTEGER DEFAULT 0, n_medium INTEGER DEFAULT 0,
+    n_low INTEGER DEFAULT 0, n_other INTEGER DEFAULT 0,
+    steps TEXT, error TEXT, started_at TEXT NOT NULL, finished_at TEXT
 );
 CREATE TABLE IF NOT EXISTS findings (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     scan_id INTEGER NOT NULL REFERENCES scans(id),
-    rule_id TEXT, cwe TEXT, severity TEXT, title TEXT,
-    file TEXT, line INTEGER, end_line INTEGER, code TEXT, message TEXT
+    rule_id TEXT, cwe TEXT, severity TEXT, title TEXT, cvss TEXT,
+    file TEXT, line INTEGER, end_line INTEGER, code TEXT, snippet TEXT, snippet_start INTEGER,
+    message TEXT,
+    disposition TEXT DEFAULT '검토 필요',                 -- 확인된 결함 | 약점 | 오탐 | 연기 | 검토 필요
+    assessed_severity TEXT, rationale TEXT, action TEXT, triaged_by TEXT, triaged_at TEXT
+);
+CREATE TABLE IF NOT EXISTS evidence (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, device_id INTEGER NOT NULL,
+    slot TEXT NOT NULL, filename TEXT, stored TEXT, size INTEGER, sha256 TEXT,
+    version TEXT, uploader TEXT, uploaded_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS assessments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    code TEXT UNIQUE NOT NULL, device_id INTEGER NOT NULL, round INTEGER NOT NULL,
+    answers TEXT NOT NULL, score REAL, grade TEXT, progress REAL,
+    status TEXT NOT NULL,                               -- 작성중 | 검토대기 | 승인완료 | 반려 | 완료
+    evaluator TEXT, requested_by TEXT, requested_at TEXT,
+    reviewer TEXT, reviewed_at TEXT, review_comment TEXT,
+    created_at TEXT NOT NULL, updated_at TEXT
+);
+CREATE TABLE IF NOT EXISTS reports (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    code TEXT UNIQUE NOT NULL, device_id INTEGER NOT NULL,
+    assessment_id INTEGER, scan_id INTEGER, kind TEXT DEFAULT '보안성 검증 리포트',
+    score REAL, grade TEXT, status TEXT DEFAULT '발행완료',   -- 발행완료 | 폐기
+    snapshot TEXT NOT NULL, issued_by TEXT, created_at TEXT NOT NULL, revoked_at TEXT
+);
+CREATE TABLE IF NOT EXISTS std_status (
+    device_id INTEGER NOT NULL, req_id TEXT NOT NULL, status TEXT, memo TEXT,
+    user TEXT, at TEXT, PRIMARY KEY(device_id, req_id)
+);
+CREATE TABLE IF NOT EXISTS policies (
+    key TEXT PRIMARY KEY, description TEXT, value TEXT, category TEXT,
+    basis_org TEXT, basis_ref TEXT, updated_by TEXT, updated_at TEXT
+);
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT NOT NULL, user TEXT, action TEXT,
+    target TEXT, ip TEXT
+);
+CREATE TABLE IF NOT EXISTS ai_cache (
+    key TEXT PRIMARY KEY, answer TEXT, hits TEXT, not_found INTEGER, at TEXT
 );
 """
 
 
-def _now():
+def now():
     return datetime.now().isoformat(timespec="seconds")
 
 
 @contextmanager
 def conn():
-    c = sqlite3.connect(DB_PATH)
+    c = sqlite3.connect(DB_PATH, timeout=30)
     c.row_factory = sqlite3.Row
     try:
         yield c
@@ -54,116 +109,51 @@ def conn():
 
 def init_db():
     with conn() as c:
+        c.execute("PRAGMA journal_mode=WAL")
         c.executescript(SCHEMA)
 
 
-# ── 의료기기 ────────────────────────────────────────────────
-def add_device(name, model="", maker="", category="", description=""):
+def q(sql, args=()):
     with conn() as c:
-        n = c.execute("SELECT COUNT(*) FROM devices").fetchone()[0] + 1
-        code = f"DEV-{n:03d}"
-        c.execute(
-            "INSERT INTO devices(code,name,model,maker,category,description,created_at) VALUES(?,?,?,?,?,?,?)",
-            (code, name, model, maker, category, description, _now()),
-        )
-        return code
+        return [dict(r) for r in c.execute(sql, args)]
 
 
-def list_devices():
+def one(sql, args=()):
+    rows = q(sql, args)
+    return rows[0] if rows else None
+
+
+def run(sql, args=()):
     with conn() as c:
-        return [dict(r) for r in c.execute(
-            """SELECT d.*, COUNT(s.id) AS scan_count, MAX(s.started_at) AS last_scan
-               FROM devices d LEFT JOIN scans s ON s.device_id=d.id
-               GROUP BY d.id ORDER BY d.id DESC""")]
-
-
-def get_device(device_id):
-    with conn() as c:
-        r = c.execute("SELECT * FROM devices WHERE id=?", (device_id,)).fetchone()
-        return dict(r) if r else None
-
-
-# ── 점검 ────────────────────────────────────────────────────
-def create_scan(device_id, version, source_name):
-    with conn() as c:
-        dev = c.execute("SELECT code FROM devices WHERE id=?", (device_id,)).fetchone()
-        n = c.execute("SELECT COUNT(*) FROM scans WHERE device_id=?", (device_id,)).fetchone()[0] + 1
-        code = f"{dev['code']}-SCN-{n}"
-        cur = c.execute(
-            "INSERT INTO scans(code,device_id,version,source_name,status,started_at) VALUES(?,?,?,?,?,?)",
-            (code, device_id, version, source_name, "진행중", _now()),
-        )
+        cur = c.execute(sql, args)
         return cur.lastrowid
 
 
-def finish_scan(scan_id, findings, score, grade, engine, files_scanned, error=None):
-    counts = {s: sum(1 for f in findings if f["severity"] == s) for s in SEVERITIES}
-    with conn() as c:
-        c.executemany(
-            """INSERT INTO findings(scan_id,rule_id,cwe,severity,title,file,line,end_line,code,message)
-               VALUES(?,?,?,?,?,?,?,?,?,?)""",
-            [(scan_id, f["rule_id"], f["cwe"], f["severity"], f["title"], f["file"],
-              f["line"], f["end_line"], f["code"], f["message"]) for f in findings],
-        )
-        c.execute(
-            """UPDATE scans SET status=?, engine=?, files_scanned=?, score=?, grade=?,
-               n_critical=?, n_high=?, n_medium=?, n_low=?, error=?, finished_at=? WHERE id=?""",
-            ("실패" if error else "완료", engine, files_scanned, score, grade,
-             counts["Critical"], counts["High"], counts["Medium"], counts["Low"], error, _now(), scan_id),
-        )
+def insert(table, data: dict):
+    cols = ",".join(data)
+    marks = ",".join("?" * len(data))
+    return run(f"INSERT INTO {table}({cols}) VALUES({marks})", tuple(data.values()))
 
 
-def list_scans(limit=None, device_id=None):
-    q = """SELECT s.*, d.name AS device_name, d.code AS device_code
-           FROM scans s JOIN devices d ON d.id=s.device_id"""
-    args = []
-    if device_id:
-        q += " WHERE s.device_id=?"
-        args.append(device_id)
-    q += " ORDER BY s.id DESC"
-    if limit:
-        q += f" LIMIT {int(limit)}"
-    with conn() as c:
-        return [dict(r) for r in c.execute(q, args)]
+def update(table, row_id, data: dict, key="id"):
+    if not data:
+        return
+    sets = ",".join(f"{k}=?" for k in data)
+    run(f"UPDATE {table} SET {sets} WHERE {key}=?", (*data.values(), row_id))
 
 
-def get_scan(scan_id):
-    with conn() as c:
-        r = c.execute(
-            """SELECT s.*, d.name AS device_name, d.code AS device_code, d.model, d.maker, d.category
-               FROM scans s JOIN devices d ON d.id=s.device_id WHERE s.id=?""", (scan_id,)).fetchone()
-        return dict(r) if r else None
+def jload(s, default=None):
+    if not s:
+        return default
+    try:
+        return json.loads(s)
+    except (TypeError, ValueError):
+        return default
 
 
-def findings_for_scan(scan_id):
-    order = "CASE severity WHEN 'Critical' THEN 0 WHEN 'High' THEN 1 WHEN 'Medium' THEN 2 ELSE 3 END"
-    with conn() as c:
-        return [dict(r) for r in c.execute(
-            f"SELECT * FROM findings WHERE scan_id=? ORDER BY {order}, file, line", (scan_id,))]
+def jdump(o):
+    return json.dumps(o, ensure_ascii=False)
 
 
-# ── 대시보드 집계 ───────────────────────────────────────────
-def stats():
-    with conn() as c:
-        devices = c.execute("SELECT COUNT(*) FROM devices").fetchone()[0]
-        done = c.execute("SELECT COUNT(*) FROM scans WHERE status='완료'").fetchone()[0]
-        running = c.execute("SELECT COUNT(*) FROM scans WHERE status='진행중'").fetchone()[0]
-        sev = {s: 0 for s in SEVERITIES}
-        for r in c.execute("SELECT severity, COUNT(*) n FROM findings GROUP BY severity"):
-            if r["severity"] in sev:
-                sev[r["severity"]] = r["n"]
-        return {"devices": devices, "scans_done": done, "scans_running": running,
-                "findings": sum(sev.values()), "severity": sev}
-
-
-def top_risky_devices(n=5):
-    """기기별 '가장 최근 완료 점검' 기준 위험도 상위 n개."""
-    with conn() as c:
-        rows = c.execute(
-            """SELECT d.name, d.code, s.code AS scan_code, s.grade, s.score,
-                      s.n_critical, s.n_high, s.n_medium, s.n_low
-               FROM devices d JOIN scans s ON s.id = (
-                   SELECT id FROM scans WHERE device_id=d.id AND status='완료' ORDER BY id DESC LIMIT 1)
-               ORDER BY (s.n_critical*1000 + s.n_high*100 + s.n_medium*10 + s.n_low) DESC
-               LIMIT ?""", (n,)).fetchall()
-        return [dict(r) for r in rows]
+def audit(user, action, target="", ip=""):
+    insert("audit_logs", {"at": now(), "user": user or "system", "action": action, "target": target, "ip": ip or ""})

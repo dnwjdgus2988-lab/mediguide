@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block content %}
+{{ pagehead('대시보드', ['대시보드']) }}
+<div class="kpis k4">
+  {{ kpi('var(--k-purple)', 'device', d.n_devices, '등록 장비', info=True) }}
+  {{ kpi('var(--k-blue)', 'scan', d.n_scans_done, '완료 스캔', info=True) }}
+  {{ kpi('var(--k-red)', 'alert', d.n_vulns, '발견 취약점', info=True) }}
+  {{ kpi('var(--k-gold)', 'clipboard', d.n_assess_open, '진행중 평가', info=True) }}
+</div>
+<div class="grid2">
+  <div class="card">
+    <h3>취약점 심각도 분포</h3>
+    {% set tot = d.n_vulns %}
+    {% set cols = {'Critical':'#991b1b','High':'#b91c1c','Medium':'#b45309','Low':'#64748b'} %}
+    <div class="donut-wrap">
+      <svg width="130" height="130" viewBox="0 0 42 42" style="flex:none">
+        <circle cx="21" cy="21" r="15.915" fill="none" stroke="#eef2f6" stroke-width="5"/>
+        {% set ns = namespace(off=25) %}
+        {% for k in ['Critical','High','Medium','Low'] %}{% set v = d.sev_total[k] %}{% if tot and v %}
+          {% set pct = v / tot * 100 %}
+          <circle cx="21" cy="21" r="15.915" fill="none" stroke="{{ cols[k] }}" stroke-width="5"
+                  stroke-dasharray="{{ pct }} {{ 100 - pct }}" stroke-dashoffset="{{ ns.off }}"/>
+          {% set ns.off = ns.off - pct %}
+        {% endif %}{% endfor %}
+        <text x="21" y="21" text-anchor="middle" font-size="6" font-weight="700" fill="#121926">{{ tot }}</text>
+        <text x="21" y="26.5" text-anchor="middle" font-size="3" fill="#364152">취약점</text>
+      </svg>
+      <div class="legend">
+        {% for k in ['Critical','High','Medium','Low'] %}{% set v = d.sev_total[k] %}
+        <div class="row"><span class="dot" style="background:{{ cols[k] }}"></span>{{ k }}<span class="v">{{ v }} <small>({{ ((v / tot * 100) if tot else 0)|round|int }}%)</small></span></div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>고위험 기기 Top 5</h3>
+    <table class="tbl" style="font-size:12.5px">
+      <thead><tr><th class="l" style="background:none;border-bottom:1px solid var(--line)">의료기기</th><th style="background:none;border-bottom:1px solid var(--line)">최고 심각도</th><th style="background:none;border-bottom:1px solid var(--line)">심각도별</th><th style="background:none;border-bottom:1px solid var(--line)">최신 스캔</th></tr></thead>
+      <tbody>
+      {% for t in d.top %}
+        <tr data-href="/devices/{{ t.device.code }}?tab=scans"><td class="l" style="background:none">{{ t.device.name }}<span class="sub">{{ t.device.code }}</span></td>
+          <td style="background:none">{{ sevchip(t.worst) }}</td>
+          <td style="background:none">{{ sevbox(t.scan.n_critical, t.scan.n_high, t.scan.n_medium, t.scan.n_low) }}</td>
+          <td style="background:none">{{ dt(t.scan.finished_at or t.scan.started_at) }}</td></tr>
+      {% else %}<tr><td colspan="4" class="empty">아직 완료된 스캔이 없습니다.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+    <div style="text-align:center;margin-top:12px"><a class="linkbtn" href="/devices">전체 보기 {{ icon('arrow-right') }}</a></div>
+  </div>
+</div>
+<div class="card mt16">
+  <h3>최근 스캔 <span class="cnt-pill">전체 {{ d.n_scans }}건</span><span class="right"><a class="linkbtn" href="/scans">전체 스캔 목록 {{ icon('arrow-right') }}</a></span></h3>
+  <table class="tbl">
+    <thead><tr><th>스캔 ID</th><th>대상 장비</th><th>버전</th><th>업로드일</th><th>심각도</th><th>상태</th></tr></thead>
+    <tbody>
+    {% for s in d.recent %}
+      <tr data-href="/scans/{{ s.code }}"><td>{{ s.code }}</td><td>{{ s.device_name }}</td><td>{{ s.version }}</td><td>{{ dt(s.started_at) }}</td>
+        <td>{{ sevbox(s.n_critical, s.n_high, s.n_medium, s.n_low) }}</td><td>{{ status(s.status) }}</td></tr>
+    {% else %}<tr><td colspan="6" class="empty">스캔 기록이 없습니다. 의료기기 관리에서 기기를 등록하고 소스코드를 올려 보세요.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% from '_ui.html' import status, grade as gbadge, dt with context %}
+<div class="modal-h"><b>{{ a.code }}</b> <span class="muted">{{ a.device_name }} ({{ a.device_code }})</span><span class="right">{{ status(a.status) }}</span></div>
+<div class="modal-b">
+  <div style="display:flex;gap:16px;align-items:center">
+    <div style="text-align:center;width:120px">
+      <div style="font-size:24px;font-weight:700;color:var(--ink)">{{ res.rate }}%</div>
+      <div class="muted small">문서 충족률</div>
+      <div style="margin-top:6px"><span class="grade {{ grade }} lg">{{ grade }} 등급</span></div>
+    </div>
+    <div style="flex:1">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+        {% for k, c in [('충족','#2e7d32'),('증빙 미비','#c68a1e'),('미충족','#c62828'),('미응답','#616161')] %}
+        <div style="border:1px solid {{ c }};border-radius:8px;text-align:center;padding:8px 0"><div style="font-weight:700;color:{{ c }}">{{ res.counts[k] }}</div><div class="small" style="color:var(--ink2)">{{ k }}</div></div>
+        {% endfor %}
+      </div>
+      <div class="muted small" style="margin-top:6px">문항 20개 · 비적용 {{ res.counts['비적용'] }}개 · 충족 배점 {{ res.got }} / 적용 배점 {{ res.max|sc }}점</div>
+    </div>
+  </div>
+  <h4 style="margin-top:16px;display:flex">응답 진행률 <span style="margin-left:auto;font-weight:400">{{ res.progress }}%</span></h4>
+  <div class="bar" style="height:7px"><i style="width:{{ res.progress }}%"></i></div>
+  {% if res.legal_gaps %}<div class="alert bad">법정 제출요건 미충족 — {% for g in res.legal_gaps %}{{ g.name }} {{ g.ref }}{{ ', ' if not loop.last }}{% endfor %}</div>{% endif %}
+  <h4>검토 기록</h4>
+  <div class="small" style="line-height:1.7">
+    작성 {{ a.evaluator }} · {{ dt(a.created_at) }}<br>
+    {% if a.requested_at %}검토 요청 {{ a.requested_by }} · {{ dt(a.requested_at) }}<br>{% endif %}
+    {% if a.reviewed_at %}{{ '승인' if a.status == '승인완료' else '반려' }} {{ a.reviewer }} · {{ dt(a.reviewed_at) }}<br>{% endif %}
+    {% if a.review_comment %}<span class="muted">의견: {{ a.review_comment }}</span>{% endif %}
+    {% if not a.requested_at and not a.reviewed_at %}<span class="muted">{{ '시스템이 정적분석 후 자동 생성한 평가입니다 (미응답).' if a.evaluator == '시스템' else '아직 검토 요청 전입니다.' }}</span>{% endif %}
+  </div>
+  <h4>반영한 리포트</h4>
+  <div class="small">{% if report %}<a href="/reports/{{ report.code }}" style="color:var(--primary);text-decoration:underline">{{ report.code }}</a>{% else %}<span class="muted">없음 — 승인되면 리포트가 발행됩니다.</span>{% endif %}</div>
+  {% if a.status == '검토대기' and user.role in ('관리자','검증자') %}
+  <form method="post" id="rv-form" style="margin-top:14px"><input type="hidden" name="next" value="/assessments">
+    <div class="field"><label>검토 의견</label><textarea name="comment" placeholder="승인·반려 사유"></textarea></div></form>
+  {% endif %}
+</div>
+<div class="modal-f">
+  <a class="btn outline" href="/devices/{{ a.device_code }}?tab=checklist">{{ icon('clipboard') }} 체크리스트 열기</a>
+  {% if a.status in ('작성중','반려') and user.role in ('관리자','검증자') %}
+  <form method="post" action="/assessments/{{ a.code }}/request" style="margin:0"><button class="btn primary">{{ icon('send') }} 검토 요청</button></form>{% endif %}
+  {% if a.status == '검토대기' and user.role in ('관리자','검증자') %}
+  <button class="btn danger" form="rv-form" formaction="/assessments/{{ a.code }}/reject">{{ icon('undo') }} 반려</button>
+  <button class="btn green" form="rv-form" formaction="/assessments/{{ a.code }}/approve">{{ icon('check') }} 승인 · 리포트 발행</button>{% endif %}
+  <button type="button" class="btn outline" data-close>닫기</button>
+</div>

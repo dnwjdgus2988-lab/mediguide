@@ -1,0 +1,38 @@
+<div class="modal-h"><span class="chip sev-{{ f.severity }}">{{ f.severity }}</span> <b>{{ f.cwe }}</b> <span class="muted">{{ f.title }}</span>
+  {% set cls = {'확인된 결함':'bad','약점':'warn','오탐':'gray','연기':'info'}.get(f.disposition, 'warn') %}
+  <span class="right"><span class="chip {{ cls }}">{{ f.disposition or '검토 필요' }}</span></span></div>
+<div class="modal-b">
+  <h4>메시지</h4><div>{{ f.message }}</div>
+  <h4>코드</h4><div class="mono small muted" style="margin-bottom:6px">{{ f.file }}:{{ f.line }}</div>
+  <pre class="codebox">{% for ln in (f.snippet or f.code or '').split('\n') %}{% set no = (f.snippet_start or f.line) + loop.index0 %}<span class="ln {{ 'hit' if no == f.line else '' }}"><i>{{ no }}</i>{{ ln }}</span>{% endfor %}</pre>
+  <h4>룰 ID</h4><div class="mono small">rulesets.{{ f.rule_id }}</div>
+  {% if meta %}
+  <h4>취약점 설명</h4><div>{{ meta.description_ko }}</div>
+  <h4>의료기기 영향</h4><div>{{ meta.device_impact_ko }}</div>
+  <h4>조치 방법 <span class="muted small" style="font-weight:400">· CVSS {{ meta.cvss }} · {{ meta.deadline_ko }}</span></h4>
+  <ul style="margin:0;padding-left:18px">{% for r in meta.remediation_ko %}<li>{{ r }}</li>{% endfor %}</ul>
+  {% endif %}
+  <div class="ai-box" id="ai-f{{ f.id }}" {% if not cached %}hidden{% endif %}>
+    <div class="hd">{{ icon('sparkles', 16) }} AI 조치 매뉴얼 <span class="muted small" style="font-weight:400">식약처·FDA 규제 문서 근거 인용</span></div>
+    <div class="ai-ans">{% if cached %}{{ cached.answer|cite }}{% endif %}</div>
+    <div class="ai-src">{% if hits %}<details><summary>근거 원문 보기 ({{ hits|length }}건)</summary>{% for h in hits %}<div class="s"><b>[{{ loop.index }}]</b>{{ h.org }} · {{ h.title }}, {{ h.page }}쪽<span class="t">{{ h.text }}</span></div>{% endfor %}</details>{% endif %}</div>
+    <div class="ai-note">규제 문서 검색 결과를 바탕으로 AI가 정리한 참고 자료입니다. 근거 번호의 원문을 확인하세요.</div>
+  </div>
+
+  {% if user.role != '열람자' %}
+  <form method="post" action="/findings/{{ f.id }}/triage" class="sect" style="margin:16px 0 0">
+    <div class="sh">검출 처분 기록 <small>코드 검토 결과 — 관할별 결과보고서의 처분·평가 심각도에 반영</small>
+      {% if f.triaged_by %}<span class="right muted small">{{ f.triaged_by }} · {{ (f.triaged_at or '')[:16]|replace('T', ' ') }}</span>{% endif %}</div>
+    <div class="sb"><div class="grid2" style="gap:0 14px">
+      <div class="field"><label>처분</label><select name="disposition">{% for d in ['검토 필요','확인된 결함','약점','오탐','연기'] %}<option {{ 'selected' if (f.disposition or '검토 필요') == d else '' }}>{{ d }}</option>{% endfor %}</select></div>
+      <div class="field"><label>평가 심각도 (코드 검토)</label><select name="assessed_severity">{% for d in ['Critical','High','Medium','Low','None'] %}<option {{ 'selected' if (f.assessed_severity or f.severity) == d else '' }}>{{ d }}</option>{% endfor %}</select></div>
+      <div class="field" style="grid-column:1/3"><label>내용·근거</label><textarea name="rationale" placeholder="보고 줄과 실제 문제 줄, 외부 입력 경로, 인증 여부, 치료 영향 등">{{ f.rationale or '' }}</textarea></div>
+      <div class="field" style="grid-column:1/3"><label>권고 조치</label><textarea name="action" style="min-height:50px">{{ f.action or '' }}</textarea></div>
+    </div><button class="btn dark sm">처분 저장</button></div>
+  </form>
+  {% endif %}
+</div>
+<div class="modal-f">
+  <button type="button" class="btn primary" data-ai-run="#ai-f{{ f.id }}" data-url="/api/ai/finding/{{ f.id }}">{{ icon('sparkles') }} {{ 'AI 조치 매뉴얼 다시 찾기' if cached else 'AI 조치 매뉴얼 찾기' }}</button>
+  <button type="button" class="btn outline" data-close>닫기</button>
+</div>

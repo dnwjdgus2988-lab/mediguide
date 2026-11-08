@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+{{ pagehead('AI 매뉴얼 검색', ['AI 매뉴얼 검색']) }}
+<div class="grid2" style="grid-template-columns:2fr 1fr">
+  <div class="card">
+    <h3>{{ icon('sparkles', 17) }} 규제 문서 근거 인용형 질의응답
+      <span class="right small muted" style="font-weight:400">{{ ai_label }} · {% if ai_ok %}<span style="color:var(--ok)">● 사용 가능</span>{% else %}<span style="color:var(--bad)">● 꺼짐</span>{% endif %}</span></h3>
+    <div style="display:flex;gap:14px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+      <div class="selectbox"><label>검색 범위</label><select id="org"><option value="">전체 (식약처 + FDA)</option><option>식약처</option><option>FDA</option></select></div>
+      <label class="small" style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="expand" checked> FDA 영문 문서 확장 검색 (질문을 영어 키워드로 바꿔 함께 검색)</label>
+    </div>
+    <div class="examples">
+      {% for q in ['의료기기 사이버보안 허가 신청 시 제출해야 하는 자료는?', 'SBOM에는 어떤 정보를 포함해야 하나?', '취약점 모니터링 및 대응 계획은 어떻게 작성하나?',
+                   '버퍼 오버플로우 취약점 조치 후 어떤 시험 자료가 필요한가?', '하드코딩된 비밀번호는 어떻게 관리해야 하나?', '보안 업데이트 및 패치 절차의 요구사항은?'] %}
+      <button type="button" data-ex>{{ q }}</button>{% endfor %}
+    </div>
+    <div class="chat" id="chat" style="margin-top:16px"></div>
+    <form class="askbar" id="askf"><input id="q" placeholder="예: 인슐린펌프 무선 통신 보안 요구사항은?" autocomplete="off"><button class="btn primary" style="height:40px">{{ icon('send') }} 질문</button></form>
+    <p class="ai-note">답변은 아래 규제 문서의 해당 쪽을 근거로만 작성하며, 근거가 없으면 「제공된 문서에서 근거를 찾을 수 없습니다.」라고 답합니다. 근거 번호를 눌러 원문을 확인하세요.</p>
+  </div>
+  <div class="card">
+    <h3>{{ icon('book', 17) }} 검색 대상 문서 <span class="right small muted" style="font-weight:400">{{ index.chunks if index else 0 }}개 조각</span></h3>
+    {% if index %}
+    <table class="tbl" style="font-size:12px"><thead><tr><th>기관</th><th class="l">문서</th><th>조각</th></tr></thead><tbody>
+      {% for d in index.docs %}<tr><td>{{ d.org }}</td><td class="l">{{ d.title }}</td><td>{{ d.chunks }}</td></tr>{% endfor %}
+    </tbody></table>
+    {% else %}<div class="alert warn">검색 색인이 없습니다. 관리자 ▸ 시스템 설정에서 색인을 만드세요.</div>{% endif %}
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+(function(){
+  const chat = document.getElementById('chat'), q = document.getElementById('q');
+  function ask(text){
+    if(!text.trim()) return;
+    const qd = document.createElement('div'); qd.className='q'; qd.textContent=text; chat.appendChild(qd);
+    const box = document.createElement('div'); box.className='a ai-box';
+    box.innerHTML = '<div class="hd">AI 매뉴얼 답변</div><div class="ai-ans"></div><div class="ai-src"></div>';
+    chat.appendChild(box); q.value='';
+    aiStream('/api/ai/ask', {q:text, org:document.getElementById('org').value, expand:document.getElementById('expand').checked}, box)
+      .then(()=>box.scrollIntoView({behavior:'smooth', block:'nearest'}));
+  }
+  document.getElementById('askf').addEventListener('submit', e=>{e.preventDefault(); ask(q.value);});
+  document.querySelectorAll('[data-ex]').forEach(b=>b.addEventListener('click', ()=>ask(b.textContent)));
+})();
+</script>
+{% endblock %}

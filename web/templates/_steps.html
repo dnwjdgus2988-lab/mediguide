@@ -1,0 +1,5 @@
+<ul class="steps">{% for st in s.steps_l %}
+  <li class="{{ st.state }}"><span class="st">{% if st.state == 'done' %}✓{% elif st.state == 'run' %}<span class="spin"></span>{% elif st.state == 'fail' %}✕{% elif st.state == 'skip' %}–{% else %}○{% endif %}</span>
+    {{ st.label }}{% if st.detail %} <small>({{ st.detail }})</small>{% endif %}</li>
+{% endfor %}</ul>
+{% if s.status == '실패' and s.error %}<div class="alert bad" style="margin-top:0">{{ s.error }}</div>{% endif %}

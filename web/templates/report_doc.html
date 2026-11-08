@@ -1,0 +1,158 @@
+{# 의료기기 보안성 검증 리포트 본문 — 화면(리포트 상세)과 인쇄·PDF에서 함께 쓴다. s = 발행 당시 스냅샷 #}
+{% set dev = s.device %}{% set cl = s.checklist %}{% set g = s.grade %}{% set sc = s.scan %}
+{% set SEVKO = {'Critical':'치명','High':'높음','Medium':'보통','Low':'낮음'} %}
+{% macro d(v) %}{% if v %}{{ v[:4] }}. {{ v[5:7] }}. {{ v[8:10] }}. {{ v[11:16] }}{% else %}—{% endif %}{% endmacro %}
+
+{% if dev.target_market == '미국 FDA' %}
+<div class="fdabox {{ 'bad' if s.fda == '부적합' else ('warn' if s.fda in ('조건부 적합','판정 불가') else 'ok') }}">
+  <div class="t">FDA 제출 적합성 : {{ s.fda }} <small>§524B 법정 요건 기준</small></div>
+  {% if cl.legal_gaps %}
+  <div>법정 제출요건 {{ cl.legal_gaps|length }}건이 미충족되어 제출이 성립하지 않습니다.</div>
+  <ul>{% for gp in cl.legal_gaps %}<li>{{ gp.name }} 미충족 — {{ gp.ref }}</li>{% endfor %}</ul>
+  {% elif s.fda == '조건부 적합' %}<div>법정 제출요건은 충족했으나 개선관리 지표가 {{ g.final }}입니다{% if g.cap %} ({{ g.cap_reason }}){% endif %}. 보완 후 제출을 권고합니다.</div>
+  {% elif s.fda == '적합' %}<div>법정 제출요건을 충족했고 개선관리 지표가 {{ g.final }}입니다.</div>
+  {% elif s.fda == '해당 없음' %}<div>사이버 기기에 해당하지 않아 §524B 법정 요건이 적용되지 않습니다.</div>{% endif %}
+</div>
+{% endif %}
+<div class="cap">표준화 판정 (요구항목 DB 기준)</div>
+<div class="vcards">{% for v in s.standards.verdicts %}
+  <div class="vcard {{ {'부적합':'bad','조건부 적합':'warn','적합':'ok'}[v.verdict] }} {{ 'sel' if v.juris == dev.target_market or (v.juris == '유럽 CE · MDR' and dev.target_market == '유럽 CE · MDR') }}">
+    <div class="j">{{ v.juris }}</div><div class="v">{{ v.verdict }}</div><div class="n">{{ v.n }}건 중 미충족 {{ v.unmet }}건</div></div>
+{% endfor %}</div>
+
+<h1 class="dtitle">의료기기 보안성 검증 리포트</h1>
+<div class="dsub">Medical Device Cybersecurity Assessment Report</div>
+<table class="info">
+  <tr><th>리포트 ID</th><td>{{ r.code }}</td><th>기기명</th><td>{{ dev.name }}</td></tr>
+  <tr><th>제조사</th><td>{{ dev.maker or '—' }}</td><th>의료기기유형</th><td>{{ dev.device_class or '—' }}</td></tr>
+  <tr><th>생성일</th><td>{{ d(r.created_at) }}</td><th>발행자</th><td>{{ r.issued_by }}</td></tr>
+</table>
+
+<div class="gradebox">
+  <div class="gb-l"><div class="k">개선관리 지표 (내부 기준)</div><div class="big g{{ g.final }}">{{ g.final }}</div></div>
+  <div class="gb-r">
+    <div>문서 충족률 <b>{{ cl.rate }}</b> / 100</div>
+    <div>기본 등급 {{ g.base }}</div>
+    {% if g.cap %}<div>등급 상한 {{ g.cap }} — {{ g.cap_reason }}</div>{% endif %}
+    <div>→ 최종 <b>{{ g.final }}</b></div>
+    <div class="muted">등급 구간 A ≥ {{ s.policies['grade.band.A'] }} · B ≥ {{ s.policies['grade.band.B'] }} · C ≥ {{ s.policies['grade.band.C'] }}<span class="tag">정책</span> · 상한<span class="tag">정책</span></div>
+    <div class="muted">심각도 구간: FIRST CVSS v3.1 · 점수는 룰별 예비 분류값(개별 벡터 미산정)<span class="tag std">표준</span></div>
+  </div>
+</div>
+<p class="note">위 등급은 내부 개선관리 지표이며 규제 판정이 아닙니다.</p>
+
+<h2>1. 기기 정보</h2>
+<table class="kv4">
+  <tr><th>기기 ID</th><td>{{ dev.code }}</td><th>기기명</th><td>{{ dev.name }}</td></tr>
+  <tr><th>모델명</th><td>{{ dev.model or '—' }}</td><th>제조사명</th><td>{{ dev.maker or '—' }}</td></tr>
+  <tr><th>의료기기유형</th><td>{{ dev.device_class or '—' }}</td><th>소프트웨어 버전</th><td>{{ dev.sw_version or '—' }}</td></tr>
+  <tr><th>펌웨어 버전</th><td>{{ dev.fw_version or '—' }}</td><th>변경 신청</th><td>{{ '예' if dev.is_modification else '아니오' }}</td></tr>
+  <tr><th>목표 시장</th><td>{{ dev.target_market }}</td><th>제출 경로</th><td>{{ dev.submission_path }}</td></tr>
+  <tr><th>사이버 기기 판정</th><td colspan="3">소프트웨어 포함 {{ {1:'예',0:'아니오'}.get(dev.has_software, '미응답') }} · 인터넷 연결 가능 {{ {1:'예',0:'아니오'}.get(dev.internet, '미응답') }} · 위협 취약 특성 {{ {1:'예',0:'아니오'}.get(dev.vuln_tech, '미응답') }} → {{ s.cyber }}{% if s.section524b %} — FD&amp;C Act §524B 법정 요건이 적용됩니다.{% endif %}</td></tr>
+</table>
+
+<h2>2. 보안 체크리스트 (SPDF 4개 영역)</h2>
+{% if s.assessment %}<p class="note">반영한 평가 {{ s.assessment.code }}{% if s.assessment.reviewer %} · 승인 {{ s.assessment.reviewer }} ({{ d(s.assessment.reviewed_at) }}){% else %} · {{ s.assessment.evaluator }} 작성{% endif %}</p>{% endif %}
+{% if cl.legal_gaps %}<div class="warnline">법정 제출요건 미충족 — {% for gp in cl.legal_gaps %}{{ gp.name }} {{ gp.ref }}{{ ', ' if not loop.last }}{% endfor %}</div>{% endif %}
+<p class="note">문서 충족률 {{ cl.rate }} / 100 · 충족 배점 {{ cl.got }} / 적용 배점 {{ '%g'|format(cl.max) }}점 (비적용 문항은 분모에서 제외)<br>배점<span class="tag">정책</span> · 「예」는 연계 증빙이 없으면 배점의 50% 인정<span class="tag">정책</span></p>
+{% for a, aname in s.areas.items() %}{% set ar = cl.areas[a|string] if cl.areas[a|string] is defined else cl.areas[a] %}
+<table class="cl">
+  <tr class="ah"><td colspan="2">영역 {{ a }} — {{ aname }}</td><td class="r">{{ '%g'|format(ar.got|round(1)) }} / {{ '%g'|format(ar.max) }}점</td></tr>
+  {% for q in cl.rows if q.area|string == a|string %}
+  <tr><td class="q">{{ q.id }}. {{ q.text }}{% if q.legal %}<span class="legal">법정</span>{% endif %}</td>
+    <td class="a">{% if q.state == '비적용' %}비적용{% elif q.answer == '예' %}예{% if q.state == '증빙 미비' %} (증빙 미비){% endif %}{% elif q.answer == '아니오' %}아니오{% else %}<span class="muted">미응답</span>{% endif %}</td>
+    <td class="r">{% if q.state == '비적용' %}—{% else %}{{ '%g'|format(q.got) }} / {{ '%g'|format(q.pts) }}{% endif %}</td></tr>
+  {% endfor %}
+</table>
+{% endfor %}
+
+<h2>3. 정적분석 결과 요약</h2>
+{% if sc %}
+<table class="kv4">
+  <tr><th>스캔 ID</th><td>{{ sc.code }}</td><th>적용 룰셋</th><td>{{ sc.ruleset }}</td></tr>
+  <tr><th>분석일</th><td>{{ d(sc.started_at) }}</td><th>총 취약점 수</th><td>{{ s.findings|length }}건</td></tr>
+</table>
+<div class="cap" style="text-align:left;margin-top:10px">분석 범위</div>
+<table class="kv2">
+  <tr><th>룰셋 버전</th><td>{{ sc.ruleset }}</td></tr>
+  <tr><th>도구 버전</th><td>{{ sc.engine_version or sc.engine }}</td></tr>
+  <tr><th>분석 대상</th><td>{{ sc.files_scanned }}파일 / {{ '{:,}'.format(sc.lines_scanned or 0) }}행 ({% for k, v in sc.languages.items() %}{{ k }} {{ v }}{{ ', ' if not loop.last }}{% endfor %})</td></tr>
+  <tr><th>제외 경로</th><td>{{ sc.excluded_files or 0 }}파일 (서드파티·빌드: {{ s.policies['scan.exclude_paths']|replace(',', ', ') }}) · 이 경로의 검출은 본 집계에서 제외</td></tr>
+  <tr><th>소스 파일</th><td>{{ sc.source_name }} · SHA-256 <span class="mono">{{ sc.source_sha256 }}</span></td></tr>
+  <tr><th>룰셋 해시</th><td>SHA-256 <span class="mono">{{ sc.ruleset_sha256 }}</span></td></tr>
+  <tr><th>미검사 범위</th><td>없음</td></tr>
+</table>
+<div class="sevrow">{% for k in ['Critical','High','Medium','Low'] %}<div class="sv {{ k }}"><b>{{ s.sev[k] }}</b>{{ k }}</div>{% endfor %}</div>
+
+<h2>4. 주요 취약점 상세 (상위 {{ [s.findings|length, 20]|min }}건)</h2>
+<table class="grid">
+  <tr><th>#</th><th>CWE ID</th><th>취약점명</th><th>심각도<span class="tag std">표준</span></th><th>파일:라인</th></tr>
+  {% for f in s.findings[:20] %}
+  <tr><td class="c">{{ loop.index }}</td><td class="c">{{ f.cwe }}</td><td>{{ f.title }}</td>
+    <td class="c"><span class="sevt {{ f.severity }}">{{ f.severity }}</span>{% if f.cvss %}<br><small>CVSS {{ f.cvss }}</small>{% endif %}</td><td class="mono small">{{ f.file }}:{{ f.line }}</td></tr>
+  {% else %}<tr><td colspan="5" class="c muted">검출된 취약점이 없습니다.</td></tr>{% endfor %}
+</table>
+
+<h2>5. 권고사항</h2>
+{% for g2 in s.recs %}
+<div class="rec">
+  <div class="rh"><span class="sevt {{ g2.severity }}">{{ g2.severity }}</span>{% if g2.cvss %} <small>CVSS {{ g2.cvss }}</small>{% endif %} <b>{{ g2.cwe }} — {{ g2.title }}</b></div>
+  <div class="rk">발견 위치</div><div>{% for l in g2.locs %}{{ l.file }}({{ l.lines|join('번, ') }}번 라인){{ '<br>'|safe if not loop.last }}{% endfor %}</div>
+  {% if g2.description %}<div class="rk">취약점 설명</div><div>{{ g2.description }}</div>{% endif %}
+  {% if g2.cvss %}<div class="rk">위험도</div><div>CVSS 점수: {{ g2.cvss }} ({{ g2.severity }}){% if g2.impact_scope %}<br>영향 범위: {{ g2.impact_scope }}{% endif %}</div>{% endif %}
+  {% if g2.device_impact %}<div class="rk">의료기기 영향</div><div>{{ g2.device_impact }}</div>{% endif %}
+  {% if g2.remediation %}<div class="rk">조치 방법</div><ul>{% for x in g2.remediation %}<li>{{ x }}</li>{% endfor %}</ul>{% endif %}
+  <div class="rk">조치 시급성<span class="tag">정책</span></div><div>{{ g2.deadline }}</div>
+  {% if g2.ai %}<div class="rk ai">AI 조치 매뉴얼 (규제 문서 근거)</div><div class="aians">{{ g2.ai.answer|cite }}</div>
+    <div class="aisrc">{% for h in g2.ai.hits %}<div>[{{ loop.index }}] {{ h.org }} · {{ h.title }}, {{ h.page }}쪽</div>{% endfor %}</div>{% endif %}
+</div>
+{% else %}<p class="muted">권고할 취약점이 없습니다.</p>{% endfor %}
+{% else %}
+<p class="muted">정적분석 기록이 없습니다. 증빙 자료 탭에서 소스코드를 올려 분석하세요.</p>
+{% endif %}
+
+<h2>6. 사이버보안 관리 계획</h2>
+{% set q18 = cl.rows|selectattr('id','equalto','Q18')|first %}
+{% set evmap = {} %}{% for e in s.evidence %}{% set _ = evmap.update({e.code: e}) %}{% endfor %}
+<table class="kv2">
+  <tr><th>계획 수립 여부</th><td>{{ {'예':'예','아니오':'아니오','비적용':'비적용'}.get(q18.answer, '미응답') }}</td></tr>
+  <tr><th>첨부 문서</th><td>{% if evmap['D09'].file or evmap['D13'].file %}{% for c in ['D09','D13'] %}{% if evmap[c].file %}{{ c }} {{ evmap[c].file.filename }}<br>{% endif %}{% endfor %}{% else %}문서 미제출{% endif %}</td></tr>
+</table>
+
+<h2>7. 첨부 증빙 자료</h2>
+{% set miss = s.evidence|selectattr('file','none')|selectattr('level','in',['법정','필수'])|list %}
+{% if miss %}<div class="warnline">⚠ 필수 문서 {{ miss|length }}종 미제출 — {{ miss|map(attribute='name')|join(', ') }}</div>{% endif %}
+<p class="note">제출 서류 {{ s.evidence|rejectattr('file','none')|list|length }} / 13</p>
+<table class="grid">
+  <tr><th>문서 종류</th><th>파일명</th><th>크기</th><th>제출일</th><th>버전</th></tr>
+  {% for e in s.evidence %}
+  <tr><td>{{ e.code }} {{ e.name }} <span class="lv">{{ e.level }}</span></td>
+    {% if e.file %}<td>{{ e.file.filename }}</td><td class="c">{{ '%.1f'|format(e.file.size / 1024) }} KB</td><td class="c">{{ e.file.uploaded_at[:10] }}</td><td class="c">{{ e.file.version }}</td>
+    {% else %}<td colspan="4" class="c muted">미제출</td>{% endif %}</tr>
+  {% endfor %}
+</table>
+
+<h2>8. 표준화 검증</h2>
+<p class="note">관할 : {{ dev.target_market }}</p>
+<h3>8-1 4축 지표</h3>
+<table class="kv2">{% for name, val in s.standards.axes %}
+  <tr><th>{{ name }}</th><td>{% if val[0] is not none %}{{ val[0] }}% ({{ val[2] }}건 중 {{ val[1] }}건){% else %}산출 불가 (적용 대상 0건){% endif %}</td></tr>{% endfor %}
+</table>
+<h3>8-2 미충족 항목</h3>
+{% set unmet = s.standards.rows|rejectattr('status','in',['충족','해당 없음'])|rejectattr('id','equalto','MH-COVERAGE-01')|list %}
+<table class="grid">
+  <tr><th>항목</th><th>근거조항</th><th>의무</th><th>요구증빙</th></tr>
+  {% for x in unmet %}<tr><td>{{ x.title }}</td><td>{{ x.clause }}</td><td class="c">{{ x.duty }}</td><td>{{ x.evidence_req[0] }}{% if x.evidence_req|length > 1 %} 외 {{ x.evidence_req|length - 1 }}종{% endif %}</td></tr>
+  {% else %}<tr><td colspan="4" class="c muted">미충족 항목이 없습니다.</td></tr>{% endfor %}
+</table>
+<h3>8-3 판정</h3>
+{% set vj = (s.standards.verdicts|selectattr('juris','equalto',dev.target_market)|first) or s.standards.verdicts[0] %}
+<p><b>{{ vj.juris }} : {{ vj.verdict }}</b> — 법정 {{ vj.legal_unmet }}건 미충족 (전체 미충족 {{ vj.unmet }}건)</p>
+<p class="note">산출 기준: 요구항목 DB v0.2 (FD&amp;C Act §524B, FDA 사이버보안 가이던스 2026, IEC 81001-5-1·62304, ISO 14971 메타데이터).</p>
+
+<h2>9. 서명</h2>
+<table class="sign">
+  <tr><th>평가자</th><th>검토자</th><th>승인자</th></tr>
+  <tr><td>{{ s.assessment.evaluator if s.assessment else '' }}<br><br>날짜: ________</td><td><br><br>날짜: ________</td><td>{{ s.assessment.reviewer if s.assessment and s.assessment.reviewer else '' }}<br><br>날짜: ________</td></tr>
+</table>
+<p class="foot">메디가이드 v{{ ver }} · 본 리포트는 규칙 기반 정적분석과 공개 규제 문서 검색에 기반한 참고 자료이며, 실제 인허가 제출 전에는 보안·인허가 전문가의 검토가 필요합니다.</p>

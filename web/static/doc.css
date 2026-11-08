@@ -1,0 +1,71 @@
+/* 보안성 검증 리포트 문서 (화면·인쇄 공용) */
+.doc { font-family: "Noto Sans KR", "Malgun Gothic", "NanumGothic", sans-serif; color: #1f2937; font-size: 12.5px; line-height: 1.6; }
+.doc h1.dtitle { text-align: center; font-size: 24px; margin: 28px 0 2px; color: #111827; letter-spacing: -.3px; }
+.doc .dsub { text-align: center; color: #6b7280; font-size: 12px; margin-bottom: 16px; }
+.doc h2 { font-size: 15px; color: #111827; border-bottom: 2px solid #33504a; padding-bottom: 5px; margin: 26px 0 10px; break-after: avoid; }
+.doc h3 { font-size: 13px; margin: 14px 0 6px; color: #33504a; }
+.doc table { width: 100%; border-collapse: collapse; margin: 6px 0; break-inside: auto; }
+.doc tr { break-inside: avoid; }
+.doc th, .doc td { border: 1px solid #d5dbe3; padding: 6px 8px; vertical-align: top; text-align: left; }
+.doc th { background: #f3f5f8; font-weight: 600; color: #374151; }
+.doc .c { text-align: center; }
+.doc .r { text-align: right; white-space: nowrap; }
+.doc .muted { color: #9ca3af; }
+.doc .small, .doc small { font-size: 11px; }
+.doc .mono { font-family: Consolas, "D2Coding", monospace; font-size: 11px; word-break: break-all; }
+.doc .note { color: #6b7280; font-size: 11.5px; margin: 6px 0; }
+.doc .cap { text-align: center; color: #6b7280; font-size: 11.5px; margin: 14px 0 6px; }
+.doc .tag { display: inline-block; font-size: 9.5px; padding: 0 4px; border-radius: 3px; background: #ede7f6; color: #5e35b1; margin-left: 3px; vertical-align: 1px; }
+.doc .tag.std { background: #e3f2fd; color: #1565c0; }
+.doc .fdabox { border: 1.5px solid #c62828; border-radius: 6px; padding: 12px 16px; margin: 4px 30px; color: #374151; }
+.doc .fdabox.warn { border-color: #c68a1e; } .doc .fdabox.ok { border-color: #2e7d32; }
+.doc .fdabox .t { font-size: 15px; font-weight: 700; color: #b91c1c; margin-bottom: 4px; }
+.doc .fdabox.warn .t { color: #b26a00; } .doc .fdabox.ok .t { color: #2e7d32; }
+.doc .fdabox .t small { font-size: 11px; font-weight: 400; color: #6b7280; margin-left: 4px; }
+.doc .fdabox ul { margin: 4px 0 0; padding-left: 16px; }
+.doc .vcards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 0 0 6px; }
+.doc .vcard { border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px 10px; }
+.doc .vcard.sel { border: 2px solid #33504a; }
+.doc .vcard .j { font-size: 10.5px; color: #6b7280; } .doc .vcard .v { font-size: 15px; font-weight: 700; } .doc .vcard .n { font-size: 10.5px; color: #6b7280; }
+.doc .vcard.bad .v { color: #b91c1c; } .doc .vcard.warn .v { color: #b26a00; } .doc .vcard.ok .v { color: #2e7d32; }
+.doc table.info { width: 70%; margin: 0 auto 14px; }
+.doc table.info th, .doc table.info td { border: 0; border-bottom: 1px solid #eef0f3; background: none; }
+.doc table.info th { color: #6b7280; font-weight: 500; width: 18%; }
+.doc .gradebox { display: flex; border: 1px solid #d5dbe3; border-radius: 8px; overflow: hidden; margin: 10px 0 4px; break-inside: avoid; }
+.doc .gb-l { width: 180px; background: #f8fafc; text-align: center; padding: 14px 8px; border-right: 1px solid #d5dbe3; }
+.doc .gb-l .k { font-size: 11px; color: #6b7280; }
+.doc .gb-l .big { font-size: 48px; font-weight: 800; line-height: 1.1; margin-top: 4px; }
+.doc .big.gA { color: #2e7d32; } .doc .big.gB { color: #1e63b5; } .doc .big.gC { color: #c68a1e; } .doc .big.gD { color: #c62828; }
+.doc .gb-r { padding: 12px 16px; flex: 1; }
+.doc .warnline { background: #fdecec; color: #8e1c1c; border: 1px solid #f5c6c6; border-radius: 5px; padding: 7px 10px; font-size: 12px; margin: 6px 0; }
+.doc table.cl { margin: 8px 0; }
+.doc table.cl tr.ah td { background: #eef2f6; font-weight: 700; }
+.doc table.cl td.q { width: 68%; } .doc table.cl td.a { width: 18%; }
+.doc .legal { display: inline-block; font-size: 9.5px; color: #fff; background: #c62828; border-radius: 3px; padding: 0 4px; margin-left: 4px; vertical-align: 1px; }
+.doc table.kv4 th { width: 15%; } .doc table.kv4 td { width: 35%; }
+.doc table.kv2 th { width: 22%; }
+.doc .sevrow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 10px 0; }
+.doc .sv { border-radius: 6px; padding: 8px; text-align: center; color: #fff; font-size: 11px; }
+.doc .sv b { display: block; font-size: 20px; }
+.doc .sv.Critical { background: #991b1b; } .doc .sv.High { background: #b91c1c; } .doc .sv.Medium { background: #b45309; } .doc .sv.Low { background: #64748b; }
+.doc .sevt { display: inline-block; font-size: 10.5px; font-weight: 700; padding: 0 6px; border-radius: 3px; border: 1px solid; }
+.doc .sevt.Critical { color: #991b1b; background: #fbeaea; } .doc .sevt.High { color: #b91c1c; background: #fdecec; }
+.doc .sevt.Medium { color: #b45309; background: #fdf3e6; } .doc .sevt.Low { color: #64748b; background: #f1f4f8; }
+.doc .rec { border: 1px solid #d5dbe3; border-radius: 8px; padding: 10px 14px; margin: 10px 0; break-inside: avoid; }
+.doc .rec .rh { font-size: 13px; margin-bottom: 4px; }
+.doc .rec .rk { font-weight: 700; color: #33504a; margin-top: 8px; font-size: 12px; }
+.doc .rec .rk.ai { color: #5e35b1; }
+.doc .rec ul { margin: 2px 0; padding-left: 18px; }
+.doc .aians { white-space: pre-wrap; background: #fbf9ff; border: 1px solid #e3dbf5; border-radius: 6px; padding: 8px 10px; }
+.doc .aians .cite { display: inline-block; font-size: 9.5px; font-weight: 700; color: #5e35b1; background: #ede7f6; border-radius: 3px; padding: 0 3px; }
+.doc .aisrc { font-size: 10.5px; color: #6b7280; margin-top: 4px; }
+.doc .lv { font-size: 10px; color: #6b7280; border: 1px solid #d5dbe3; border-radius: 3px; padding: 0 4px; margin-left: 4px; }
+.doc table.sign td { height: 70px; text-align: center; vertical-align: bottom; color: #6b7280; }
+.doc table.sign th { text-align: center; }
+.doc .foot { margin-top: 20px; font-size: 10.5px; color: #9ca3af; text-align: center; }
+@media print {
+  @page { size: A4; margin: 16mm 14mm; }
+  body { margin: 0; background: #fff; }
+  .doc { font-size: 11.5px; }
+  .noprint { display: none !important; }
+}

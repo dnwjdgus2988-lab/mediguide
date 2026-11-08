@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+{{ pagehead('감사 로그', ['관리자', '감사 로그']) }}
+<div class="card" data-dt>
+  <form class="tbl-tools" method="get">
+    <input type="date" name="start" value="{{ start }}" style="height:34px;border:1px solid #cdd5df;border-radius:8px;padding:0 8px"> ~
+    <input type="date" name="end" value="{{ end }}" style="height:34px;border:1px solid #cdd5df;border-radius:8px;padding:0 8px">
+    <div class="selectbox"><label>작업</label><select name="action"><option value="">전체</option>{% for a in actions %}<option {{ 'selected' if a == action else '' }}>{{ a }}</option>{% endfor %}</select></div>
+    <label class="small" style="display:flex;gap:6px;align-items:center"><input type="checkbox" name="logins" value="1" {{ 'checked' if logins else '' }}> 로그인 기록 표시</label>
+    <button class="btn outline sm">조회</button>
+    <div class="grow"></div>
+    <div class="search">{{ icon('search') }}<input data-dt-search placeholder="결과 내 검색..."></div>
+    <a class="btn outline" href="/admin/audit-logs.csv?start={{ start }}&end={{ end }}&action={{ action }}&logins={{ logins }}">{{ icon('download') }} CSV 내보내기</a>
+  </form>
+  <table class="tbl">
+    <thead><tr><th>시간</th><th>사용자</th><th>작업</th><th class="l">대상</th><th>IP</th></tr></thead>
+    <tbody>{% for r in rows %}
+      <tr data-row><td class="mono">{{ r.at|replace('T', ' ') }}</td><td>{{ r.user }}</td><td><span class="chip purple">{{ r.action }}</span></td><td class="l">{{ r.target }}</td><td class="mono">{{ r.ip }}</td></tr>
+    {% endfor %}</tbody>
+  </table>
+  {{ pager() }}
+</div>
+{% endblock %}

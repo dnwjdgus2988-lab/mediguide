@@ -1,8 +1,10 @@
-streamlit>=1.40
-plotly>=5.20
-pandas>=2.0
-pymupdf>=1.24
-kiwipiepy>=0.18
-fpdf2>=2.7
-boto3>=1.34
-semgrep>=1.80   # 로컬 개발용 대체 엔진. EC2에서는 OpenGrep 설치를 권장
+fastapi==0.128.0        # 웹 서버 (상위 버전은 Semgrep의 opentelemetry 버전과 충돌)
+starlette==0.50.0
+uvicorn>=0.30
+jinja2>=3.1
+python-multipart>=0.0.9
+itsdangerous>=2.1
+pymupdf>=1.24           # 규제 문서 PDF 쪽 단위 추출
+kiwipiepy>=0.18         # 한국어 형태소 분석 (검색 색인)
+boto3>=1.34             # Amazon Bedrock (MG_LLM=bedrock)
+semgrep>=1.80           # 로컬 개발용 대체 엔진. EC2에서는 OpenGrep 설치를 권장

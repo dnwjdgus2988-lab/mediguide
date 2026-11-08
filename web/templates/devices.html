@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block content %}
+{{ pagehead('의료기기 관리', ['의료기기 관리']) }}
+<div class="kpis k6" id="kp">
+  {{ kpi('var(--k-purple)', 'device', rows|length, '전체 의료기기', filt='fda:') }}
+  {{ kpi('var(--k-green)', 'check-circle', cnt['적합'], '적합', filt='fda:적합') }}
+  {{ kpi('var(--k-gold)', 'check', cnt['조건부 적합'], '조건부 적합', filt='fda:조건부 적합') }}
+  {{ kpi('var(--k-red)', 'alert', cnt['부적합'], '부적합', filt='fda:부적합') }}
+  {{ kpi('var(--k-steel)', 'minus', cnt['해당 없음'], '해당 없음', filt='fda:해당 없음') }}
+  {{ kpi('var(--k-gray)', 'question', cnt['판정 불가'], '판정 불가', filt='fda:판정 불가') }}
+</div>
+<div class="card" data-dt data-kpis="#kp">
+  <div class="tbl-tools">
+    <button class="btn-reset" type="button" data-dt-reset>{{ icon('filter', 14) }} 필터 초기화</button>
+    <div class="grow"></div>
+    <div class="search">{{ icon('search') }}<input data-dt-search placeholder="기기 검색..."></div>
+    <div class="selectbox"><label>FDA 적합성</label><select data-dt-filter="fda">
+      <option value="">전체</option>{% for k in ['적합','조건부 적합','부적합','해당 없음','판정 불가'] %}<option>{{ k }}</option>{% endfor %}</select></div>
+    {% if user.role != '열람자' %}<button class="btn green" type="button" data-modal-tpl="#tpl-add">{{ icon('plus') }} 자산 등록</button>{% endif %}
+  </div>
+  <table class="tbl">
+    <thead><tr><th>장비 ID</th><th>기기명</th><th>FDA 적합성</th><th>모델명</th><th>제조사명</th><th>의료기기유형</th><th>SW 버전</th><th>상태</th><th>스캔</th><th>취약점</th></tr></thead>
+    <tbody>
+    {% for d in rows %}
+      <tr data-row data-f-fda="{{ d.fda }}" data-href="/devices/{{ d.code }}">
+        <td>{{ d.code }}</td><td><span class="ellip" style="max-width:210px">{{ d.name }}</span></td><td>{{ fda(d.fda) }}</td>
+        <td>{{ d.model or '—' }}</td><td><span class="ellip" style="max-width:150px">{{ d.maker or '—' }}</span></td>
+        <td>{% if d.device_class %}<span class="chip solid-gold">{{ d.device_class }}</span>{% else %}—{% endif %}</td>
+        <td>{{ d.sw_version or '—' }}</td><td>{{ status(d.status) }}</td><td>{{ d.scan_count }}</td><td>{{ d.vuln_count }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {{ pager() }}
+</div>
+
+<template id="tpl-add">
+  <form method="post" action="/devices">
+  <div class="modal-h"><b>자산 등록</b><span class="muted small">점검할 의료기기를 등록합니다</span><button type="button" class="btn sm right" data-close>{{ icon('x') }}</button></div>
+  <div class="modal-b">
+    <div class="grid2" style="gap:0 14px">
+      <div class="field" style="grid-column:1/3"><label>기기명 *</label><input name="name" required placeholder="예: SecPump 무선 인슐린펌프"></div>
+      <div class="field" style="grid-column:1/3"><label>영문 기기명 (FDA·EU 양식용)</label><input name="name_en" placeholder="예: SecPump wireless insulin pump"></div>
+      <div class="field"><label>모델명</label><input name="model"></div>
+      <div class="field"><label>제조사명</label><input name="maker"></div>
+      <div class="field" style="grid-column:1/3"><label>영문 제조사명 (FDA·EU 양식용)</label><input name="maker_en"></div>
+      <div class="field"><label>의료기기유형</label><select name="device_class"><option>Class I</option><option selected>Class II</option><option>Class III</option></select></div>
+      <div class="field"><label>소프트웨어 버전</label><input name="sw_version" value="1.0.0"></div>
+      <div class="field"><label>펌웨어 버전</label><input name="fw_version"></div>
+      <div class="field"><label>목표 시장</label><select name="target_market"><option>미국 FDA</option><option>한국 MFDS</option><option>유럽 CE · MDR</option></select></div>
+      <div class="field"><label>제출 경로</label><select name="submission_path">{% for p in ['510(k)','De Novo','PMA','PDP','HDE','허가','인증','신고','CE 적합성평가'] %}<option>{{ p }}</option>{% endfor %}</select></div>
+      <div class="field"><label>설명</label><input name="description"></div>
+    </div>
+    <h4>사이버 기기 판정 §524B(c)</h4>
+    {% for k, lab in [('has_software','소프트웨어를 포함하는가'),('internet','인터넷에 연결될 수 있는가'),('vuln_tech','사이버 위협에 취약할 수 있는 기술적 특성이 있는가')] %}
+    <div style="display:flex;align-items:center;padding:5px 0"><span style="flex:1">{{ lab }}</span>
+      <span class="radio"><label><input type="radio" name="{{ k }}" value="1" checked> 예</label><label><input type="radio" name="{{ k }}" value="0"> 아니오</label></span></div>
+    {% endfor %}
+  </div>
+  <div class="modal-f"><button type="button" class="btn outline" data-close>취소</button><button class="btn primary">등록</button></div>
+  </form>
+</template>
+{% endblock %}

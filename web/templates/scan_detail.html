@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+{{ pagehead(s.code ~ ' ' ~ s.device_name, ['보안 평가', ('정적분석 결과', '/scans'), '스캔 상세']) }}
+{% set c = {'Critical': fs|selectattr('severity','equalto','Critical')|list|length, 'High': fs|selectattr('severity','equalto','High')|list|length,
+            'Medium': fs|selectattr('severity','equalto','Medium')|list|length, 'Low': fs|selectattr('severity','equalto','Low')|list|length} %}
+<div class="kpis k6" id="kp">
+  {{ kpi('var(--k-steel)', 'bug', fs|length, '전체 검출', filt='sev:') }}
+  {{ kpi('var(--k-dred)', 'alert-circle', c['Critical'], 'Critical', filt='sev:Critical') }}
+  {{ kpi('var(--high)', 'alert', c['High'], 'High', filt='sev:High') }}
+  {{ kpi('#c2620f', 'alert-circle', c['Medium'], 'Medium', filt='sev:Medium') }}
+  {{ kpi('var(--low)', 'info', c['Low'], 'Low', filt='sev:Low') }}
+  {{ kpi('#9aa0a6', 'question', 0, '미분류') }}
+</div>
+<div class="card" style="margin-bottom:16px;font-size:12.5px;display:flex;gap:22px;flex-wrap:wrap;color:var(--sub)">
+  <span>대상 <a href="/devices/{{ s.device_code }}?tab=scans" style="color:var(--primary)">{{ s.device_code }}</a> v{{ s.version }}</span>
+  <span>소스 {{ s.source_name }}</span><span>도구 {{ s.engine_version or s.engine }}</span><span>룰셋 {{ s.ruleset }}</span>
+  <span>파일 {{ s.files_scanned }}개 · {{ s.lines_scanned|num }}줄 {% for k, v in langs.items() %}({{ k }} {{ v }}){% endfor %}</span>
+  <span>소요 {{ (s.duration_sec or 0)|round(1) }}초</span>
+  <span class="mono" title="소스 압축파일 SHA-256">SHA-256 {{ (s.source_sha256 or '')[:16] }}…</span>
+</div>
+<div class="card" data-dt data-kpis="#kp">
+  <div class="tbl-tools">
+    <button class="btn-reset" type="button" data-dt-reset>{{ icon('filter', 14) }} 필터 초기화</button><div class="grow"></div>
+    <div class="search">{{ icon('search') }}<input data-dt-search placeholder="취약점 검색..."></div>
+    <div class="selectbox"><label>처분</label><select data-dt-filter="disp"><option value="">전체</option>{% for d in ['검토 필요','확인된 결함','약점','오탐','연기'] %}<option>{{ d }}</option>{% endfor %}</select></div>
+  </div>
+  <table class="tbl">
+    <thead><tr><th>CWE ID</th><th>취약점명</th><th>심각도</th><th>파일</th><th>라인</th><th>룰 ID</th><th>처분</th></tr></thead>
+    <tbody>{% for f in fs %}
+      <tr data-row data-f-sev="{{ f.severity }}" data-f-disp="{{ f.disposition or '검토 필요' }}" data-modal-url="/api/findings/{{ f.id }}" data-modal-size="lg">
+        <td>{{ f.cwe }}</td><td>{{ f.title }}</td><td>{{ sevchip(f.severity) }}</td><td class="mono l"><span class="ellip" style="max-width:300px">{{ f.file }}</span></td>
+        <td class="mono">{{ f.line }}</td><td class="mono"><span class="ellip" style="max-width:240px">rulesets.{{ f.rule_id }}</span></td><td>{{ status(f.disposition or '검토 필요') }}</td></tr>
+    {% endfor %}</tbody>
+  </table>
+  {{ pager() }}
+</div>
+{% endblock %}

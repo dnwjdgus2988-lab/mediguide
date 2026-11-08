@@ -1,0 +1,56 @@
+/* 관할별 결과보고서 (A4 인쇄용) */
+:root { --ink: #0f2a44; --text: #1d2733; --muted: #5b6878; --line: #a7b4c2; --label: #edf1f5; --accent: #1c4f8a;
+  --pass: #17663a; --pass-bg: #e1f1e7; --fail: #a3191b; --fail-bg: #fae3e3; --warn: #875700; --warn-bg: #fdf0d2; --na: #4a5563; --na-bg: #e8ecf0; --hint: #9aa5b1; }
+@page { size: A4; margin: 20mm 18mm 18mm; }
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; color: var(--text); font-family: "Segoe UI", "Noto Sans KR", "Malgun Gothic", "NanumGothic", Arial, sans-serif; font-size: 9pt; line-height: 1.45; background: #eef1f4; }
+body.ko { font-family: "Noto Sans KR", "Malgun Gothic", "NanumGothic", sans-serif; line-height: 1.55; word-break: keep-all; }
+.sheet { background: #fff; max-width: 210mm; margin: 14px auto; padding: 18mm 16mm; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+.bar { max-width: 210mm; margin: 14px auto 0; display: flex; gap: 8px; justify-content: flex-end; }
+.bar button { height: 30px; padding: 0 12px; border: 1px solid #cdd5df; background: #fff; border-radius: 6px; cursor: pointer; font-family: inherit; }
+@media print { body { background: #fff; } .sheet { margin: 0; padding: 0; box-shadow: none; max-width: none; } .bar { display: none; } }
+.mono { font-family: Consolas, "D2Coding", monospace; font-size: 8pt; overflow-wrap: anywhere; }
+.hash { font-family: Consolas, "D2Coding", monospace; font-size: 7.6pt; word-break: break-all; }
+.runhead { display: flex; justify-content: space-between; font-size: 7.5pt; color: var(--muted); border-bottom: .5pt solid var(--line); padding-bottom: 3pt; margin-bottom: 10pt; }
+h2 { display: flex; align-items: center; gap: 8pt; margin: 22pt 0 9pt; padding: 0 0 4pt; border-bottom: 1.4pt solid var(--ink); font-size: 12pt; color: var(--ink); break-after: avoid; }
+h2 .no { min-width: 22pt; padding: 1.5pt 6pt; background: var(--ink); color: #fff; font-size: 9.6pt; text-align: center; border-radius: 1.5pt; }
+h2 .tag { margin-left: auto; font-size: 7.6pt; font-weight: 400; color: var(--muted); }
+h3 { margin: 14pt 0 6pt; font-size: 10pt; color: var(--ink); break-after: avoid; }
+h3 .no { color: var(--accent); margin-right: 4pt; }
+table { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 0 0 10pt; }
+thead { display: table-header-group; }
+tr { break-inside: avoid; }
+th, td { border: .5pt solid var(--line); padding: 4pt 6pt; vertical-align: middle; text-align: left; overflow-wrap: break-word; line-height: 1.4; }
+td { font-size: 8.4pt; } th { font-size: 8.2pt; font-weight: 600; color: var(--ink); background: var(--label); }
+thead th { background: var(--ink); color: #fff; border-color: var(--ink); text-align: center; }
+body.ko th { text-align: center; }
+td.c, th.c { text-align: center; }
+td.blank { height: 22pt; }
+.hint { color: var(--hint); font-size: 7.8pt; }
+.v { display: inline-block; padding: 1pt 6pt; border-radius: 2pt; font-weight: 700; font-size: 8pt; }
+.v.pass { color: var(--pass); background: var(--pass-bg); } .v.fail { color: var(--fail); background: var(--fail-bg); }
+.v.warn, .v.hold { color: var(--warn); background: var(--warn-bg); } .v.na { color: var(--na); background: var(--na-bg); }
+.note { font-size: 7.8pt; color: var(--muted); margin: -4pt 0 10pt; }
+.titleband { border: 1.4pt solid var(--ink); padding: 12pt 14pt; margin-bottom: 12pt; }
+.titleband .k { font-size: 8pt; color: var(--muted); letter-spacing: .5pt; }
+.titleband .t { font-size: 17pt; font-weight: 700; color: var(--ink); margin: 2pt 0; }
+.titleband .s { font-size: 9.5pt; color: var(--accent); }
+.stmt { border: .5pt solid var(--line); background: #fafbfc; padding: 6pt 8pt; font-size: 7.8pt; color: var(--muted); margin: 8pt 0; }
+.kc-top { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8pt; }
+.kc-top .org b { display: block; font-size: 11pt; color: var(--ink); } .kc-top .org { font-size: 7.6pt; color: var(--muted); }
+.kc-top .no { text-align: right; font-size: 8pt; }
+.kc-title { text-align: center; font-size: 24pt; font-weight: 700; letter-spacing: 12pt; color: var(--ink); margin: 10pt 0 2pt; }
+.kc-sub { text-align: center; font-size: 8.5pt; color: var(--muted); margin-bottom: 10pt; }
+table.kc th.n { width: 16%; background: var(--label); } table.kc th.s { background: #f6f8fa; font-weight: 500; }
+.kc-note { font-size: 7.8pt; color: var(--muted); margin: 8pt 0; }
+.kc-date { text-align: center; font-size: 11pt; margin: 14pt 0 8pt; letter-spacing: 2pt; }
+.kc-issuer { text-align: right; font-size: 10pt; margin-bottom: 8pt; }
+.kc-issuer .seal { display: inline-block; width: 26pt; height: 26pt; border: 1.2pt solid #b23a3a; border-radius: 50%; color: #b23a3a; text-align: center; line-height: 24pt; margin-left: 6pt; font-size: 9pt; }
+.pagebreak { break-before: page; }
+.rec { margin-bottom: 8pt; }
+.rec tr.head td { background: var(--ink); color: #fff; font-weight: 700; }
+.toc .row { display: flex; gap: 6pt; font-size: 8.6pt; padding: 1.5pt 0; }
+.toc .row.l2 { padding-left: 16pt; color: var(--muted); }
+.endmark { text-align: center; margin-top: 18pt; font-size: 8pt; color: var(--muted); }
+.wm { position: fixed; top: 44%; left: 0; right: 0; text-align: center; transform: rotate(-24deg); font-size: 54pt; font-weight: 700; color: rgba(15,42,68,.04); pointer-events: none; }

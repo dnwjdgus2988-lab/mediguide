@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>{{ r.code }} 보안성 검증 리포트</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>{{ css|safe }}
+body { margin: 0; background: #f3f4f6; }
+.sheet { background: #fff; max-width: 794px; margin: 20px auto; padding: 40px 48px; }
+.pbar { max-width: 794px; margin: 16px auto 0; display: flex; gap: 8px; justify-content: flex-end; font-family: "Malgun Gothic", sans-serif; }
+.pbar button { height: 32px; padding: 0 14px; border-radius: 6px; border: 1px solid #cdd5df; background: #fff; cursor: pointer; }
+@media print { .sheet { margin: 0; padding: 0; max-width: none; } body { background: #fff; } }
+</style></head>
+<body>
+<div class="pbar noprint"><button onclick="window.print()">인쇄 / PDF로 저장</button></div>
+<div class="sheet doc">{% include 'report_doc.html' %}</div>
+<script>if (location.search.includes('autoprint')) setTimeout(() => window.print(), 600);</script>
+</body></html>

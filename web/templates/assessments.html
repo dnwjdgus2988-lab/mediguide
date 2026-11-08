@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+{{ pagehead('평가 관리', ['평가 관리']) }}
+<div class="kpis k6" id="kp">
+  {{ kpi('var(--k-purple)', 'clipboard', rows|length, '전체 평가', filt='st:') }}
+  {{ kpi('var(--k-blue)', 'pencil', cnt['작성중'], '작성중', filt='st:작성중') }}
+  {{ kpi('var(--k-gold)', 'hourglass', cnt['검토대기'], '검토대기', filt='st:검토대기') }}
+  {{ kpi('var(--k-green)', 'check-circle', cnt['승인완료'], '승인완료', filt='st:승인완료') }}
+  {{ kpi('var(--k-red)', 'undo', cnt['반려'], '반려', filt='st:반려') }}
+  {{ kpi('var(--k-gray)', 'archive', cnt['완료'], '완료', filt='st:완료') }}
+</div>
+<div class="card" data-dt data-kpis="#kp">
+  <div class="tbl-tools">
+    <button class="btn-reset" type="button" data-dt-reset>{{ icon('filter', 14) }} 필터 초기화</button><div class="grow"></div>
+    <div class="search">{{ icon('search') }}<input data-dt-search placeholder="평가 검색..."></div>
+  </div>
+  <table class="tbl">
+    <thead><tr><th>평가 ID</th><th>대상 장비</th><th>평가자</th><th>진행률</th><th>점수</th><th>등급</th><th>상태</th><th>생성일</th></tr></thead>
+    <tbody>{% for a in rows %}
+      <tr data-row data-f-st="{{ a.status }}" data-modal-url="/api/assessments/{{ a.code }}">
+        <td>{{ a.code }}</td><td>{{ a.device_name }} <span class="sub">({{ a.device_code }})</span></td><td>{{ a.evaluator }}</td>
+        <td><div class="progress-cell"><div class="bar"><i style="width:{{ a.progress or 0 }}%"></i></div><span class="small">{{ (a.progress or 0)|int }}%</span></div></td>
+        <td>{{ a.score|sc }}%</td><td>{{ grade(a.grade) }}</td><td>{{ status(a.status) }}</td><td>{{ dt(a.created_at) }}</td></tr>
+    {% endfor %}</tbody>
+  </table>
+  {{ pager() }}
+</div>
+{% endblock %}

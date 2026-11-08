@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Test Report {{ doc_no }}</title><style>{{ css|safe }}</style></head>
+<body>
+{% set dcls = {'확인된 결함':'fail','약점':'warn','오탐':'na','연기':'na','검토 필요':'hold'} %}
+{% set SEVEN = {'Critical':'Critical','High':'High','Medium':'Medium','Low':'Low','None':'None'} %}
+{% macro V(cls, t) %}<span class="v {{ cls }}">{{ t }}</span>{% endmacro %}
+{% macro H(t) %}<span class="hint">{{ t }}</span>{% endmacro %}
+{% set eu = kind_key == 'eu' %}
+<div class="bar"><button onclick="window.print()">Print / Save as PDF</button></div>
+<div class="sheet">
+<div class="runhead"><span>Report No. {{ doc_no }}</span><span>Test Report — Static Code Analysis{{ ' (MDR TD)' if eu else '' }}</span></div>
+<div class="titleband">
+  <div class="k">{{ 'TECHNICAL DOCUMENTATION · VERIFICATION AND VALIDATION' if eu else 'PREMARKET SUBMISSION · CYBERSECURITY TESTING' }}</div>
+  <div class="t">Static Code Analysis of Device Software</div>
+  <div class="s">{{ dev.name_en or dev.name }} · {{ dev.model or '' }} · software version {{ scan.version if scan else dev.sw_version }}</div>
+</div>
+<table><colgroup><col style="width:22%"><col style="width:28%"><col style="width:22%"><col style="width:28%"></colgroup>
+  <tr><th>Report No.</th><td>{{ doc_no }}</td><th>Issue date</th><td>{{ today_en }}</td></tr>
+  <tr><th>Device</th><td>{{ dev.name_en or dev.name }}</td><th>Model</th><td>{{ dev.model or '—' }}</td></tr>
+  <tr><th>Manufacturer</th><td>{{ dev.maker_en or dev.maker or '—' }}</td><th>{{ 'Classification' if eu else 'Submission type' }}</th><td>{{ dev.device_class if eu else dev.submission_path }}</td></tr>
+  <tr><th>Testing laboratory</th><td colspan="3">{{ H('[name, address]') }}</td></tr>
+  <tr><th>Overall result</th><td colspan="3">{{ V(overall[0], overall[2]) }} &nbsp;{% if overall[0] == 'hold' %}Pending — {{ (fs|length) - (ac[1].val_en.split('/')[0]|int) }} finding(s) without disposition (AC-2).{% elif overall[0] == 'fail' %}Acceptance criteria {% for a in ac if not a.ok %}{{ a.id }}{{ ', ' if not loop.last }}{% endfor %} not met.{% else %}All acceptance criteria met.{% endif %}</td></tr>
+</table>
+<div class="stmt">The results relate only to the item identified above. This report shall not be reproduced except in full without the written approval of the testing laboratory. It is not a regulatory determination.</div>
+<table><colgroup><col style="width:22%"><col style="width:39%"><col style="width:39%"></colgroup>
+  <tr><th>Prepared by</th><td>{{ H('Name, title') }}</td><td>{{ H('Signature, date') }}</td></tr>
+  <tr><th>Reviewed by</th><td>{{ H('Name, title') }}</td><td>{{ H('Signature, date') }}</td></tr>
+  <tr><th>Approved by</th><td>{{ H('Name, title') }}</td><td>{{ H('Signature, date') }}</td></tr>
+</table>
+
+<div class="pagebreak"></div>
+<h2><span class="no">1</span> {{ 'Verification summary' if eu else 'Test report summary' }}</h2>
+<h3><span class="no">1.1</span>Summary{{ '' if eu else ' table' }}</h3>
+<table><colgroup><col style="width:26%"><col></colgroup>
+  <tr><th>Test performed</th><td>Static code analysis (rule-based) of the device software source code, with manual code review of every finding</td></tr>
+  <tr><th>Test sample</th><td>{{ scan.source_name if scan else '' }} — SHA-256 <span class="hash">{{ scan.source_sha256 if scan else '' }}</span></td></tr>
+  <tr><th>Tool</th><td>{{ scan.engine_version if scan else '' }}; rule set {{ scan.ruleset if scan else '' }}</td></tr>
+  <tr><th>Findings</th><td>{{ fs|length }} total — {% for d in ['확인된 결함','약점','오탐','연기','검토 필요'] %}{% if by_disp.get(d) %}{{ by_disp[d]|length }} {{ {'확인된 결함':'confirmed defect','약점':'weakness','오탐':'false positive','연기':'deferred','검토 필요':'not yet reviewed'}[d] }}{{ '; ' }}{% endif %}{% endfor %}</td></tr>
+  <tr><th>Result</th><td>{{ V(overall[0], overall[2]) }}</td></tr>
+</table>
+<h3><span class="no">1.2</span>Acceptance criteria and results</h3>
+<table><colgroup><col style="width:9%"><col style="width:36%"><col style="width:12%"><col style="width:28%"><col style="width:15%"></colgroup>
+  <thead><tr><th>ID</th><th>Criterion (measured item)</th><th>Required</th><th>Measured</th><th>Result</th></tr></thead>
+  {% for a in ac %}<tr><td class="c">{{ a.id }}</td><td>{{ a.en }}</td><td class="c">{{ {'100%':'100%','0건':'0','전부 기록':'All'}[a.req] }}</td><td>{{ a.val_en }}</td>
+    <td class="c">{{ V('pass','Pass') if a.ok else (V('hold','Incomplete') if a.id == 'AC-2' else V('fail','Fail')) }}</td></tr>{% endfor %}
+</table>
+{% if not eu %}
+<h3><span class="no">1.3</span>Discussion and conclusions</h3>
+<p>{% if overall[0] == 'pass' %}No open confirmed defect of assessed severity High or above remains; all findings carry a disposition and rationale.{% elif overall[0] == 'fail' %}{{ high_open|length }} open confirmed defect(s) of assessed severity High or above remain ({{ high_open|map(attribute='fid')|join(', ') }}). Re-test after correction is required.{% else %}Disposition of all findings must be recorded before the result can be concluded.{% endif %}</p>
+<h2><span class="no">2</span> Test performed and objective</h2>
+<p>To verify, by static analysis of the source code, that the device software does not contain the coding weaknesses covered by the rule set (memory safety, input validation, hard-coded credentials, weak cryptography, weak random numbers, format strings), as part of the cybersecurity testing described in FDA guidance “Cybersecurity in Medical Devices” Section V.C.</p>
+{% endif %}
+<h2><span class="no">{{ '2' if eu else '3' }}</span> {{ 'Test item' if eu else 'Description of test methods' }}</h2>
+<h3><span class="no">{{ '2.1' if eu else '3.1' }}</span>Test sample information</h3>
+<table><colgroup><col style="width:26%"><col></colgroup>
+  <tr><th>Archive</th><td>{{ scan.source_name if scan else '' }}</td></tr>
+  <tr><th>SHA-256</th><td class="hash">{{ scan.source_sha256 if scan else '' }}</td></tr>
+  <tr><th>Scope</th><td>{{ scan.files_scanned if scan else 0 }} files, {{ '{:,}'.format(scan.lines_scanned or 0) if scan else 0 }} lines ({% for k, v in langs.items() %}{{ k }} {{ v }}{{ ', ' if not loop.last }}{% endfor %})</td></tr>
+  <tr><th>Excluded paths</th><td>{{ scan.excluded_files if scan else 0 }} files in third-party / build paths: <span class="mono">{{ s.policies['scan.exclude_paths'] }}</span></td></tr>
+  <tr><th>Release status</th><td>{{ H('[released version? differences and justification]') }}</td></tr>
+</table>
+{% if eu %}
+<h3><span class="no">2.2</span>SOUP / third-party components observed</h3>
+<table><colgroup><col style="width:30%"><col style="width:20%"><col></colgroup>
+  <thead><tr><th>Component</th><th>Version</th><th>Note</th></tr></thead>
+  <tr><td class="blank">{{ H('[component]') }}</td><td class="blank"></td><td class="blank">{{ H('[source of version information]') }}</td></tr>
+</table>
+<h2><span class="no">3</span> Test method</h2>
+<h3><span class="no">3.1</span>Standards applied</h3>
+<p>IEC 81001-5-1:2021 §5.5.2 (secure coding standards) and §5.7.2 (vulnerability testing — static analysis); MDR Annex I GSPR 17.2 and 17.4.</p>
+{% endif %}
+<h3><span class="no">{{ '3.2' if eu else '3.3' }}</span>Test method, tool and configuration</h3>
+<table><colgroup><col style="width:26%"><col></colgroup>
+  <tr><th>Tool</th><td>{{ scan.engine_version if scan else '' }}</td></tr>
+  <tr><th>Rule set</th><td>{{ scan.ruleset if scan else '' }} ({{ rules|length }} rules, Annex A) — SHA-256 <span class="hash">{{ scan.ruleset_sha256 if scan else '' }}</span></td></tr>
+  <tr><th>Execution</th><td>Whole archive analysed; findings in third-party / build paths excluded from the tally</td></tr>
+  <tr><th>Platform</th><td>MediGuide v1.0 analysis server</td></tr>
+</table>
+<h3><span class="no">{{ '3.3' if eu else '3.4' }}</span>Test procedure</h3>
+<table><colgroup><col style="width:8%"><col></colgroup>
+  <tr><td class="c">1</td><td>Receive the sample and record its SHA-256</td></tr><tr><td class="c">2</td><td>Run the analysis with the rule set</td></tr>
+  <tr><td class="c">3</td><td>Separate product code from third-party / build code by path</td></tr>
+  <tr><td class="c">4</td><td>Review the code of each finding; trace external input paths</td></tr>
+  <tr><td class="c">5</td><td>Assess severity (reachability, authentication, therapy impact) and record disposition, rationale and action</td></tr>
+  <tr><td class="c">6</td><td>Technical review and approval</td></tr>
+</table>
+{% if eu %}<h3><span class="no">3.4</span>Acceptance criteria (pre-defined)</h3>{% else %}<h2><span class="no">4</span> Pass/fail criteria</h2>{% endif %}
+<p>AC-1 to AC-4 as in 1.2, defined before the test. The result is “Pass” only if all criteria are met; findings without a disposition make the result “Pending”.</p>
+<h2><span class="no">{{ '4' if eu else '6' }}</span> Test results{{ ' (complete)' if eu else '' }}</h2>
+<h3><span class="no">{{ '4.1' if eu else '6.1' }}</span>Summary of findings</h3>
+<table><colgroup><col style="width:28%"><col style="width:14%"><col></colgroup>
+  <thead><tr><th>Disposition</th><th>Count</th><th>Findings</th></tr></thead>
+  {% for d in ['확인된 결함','약점','오탐','연기','검토 필요'] %}{% set lst = by_disp.get(d, []) %}
+  <tr><td>{{ V(dcls[d], {'확인된 결함':'Confirmed defect','약점':'Weakness','오탐':'False positive','연기':'Deferred','검토 필요':'Not yet reviewed'}[d]) }}</td><td class="c">{{ lst|length }}</td><td>{{ lst|map(attribute='fid')|join(', ') }}</td></tr>{% endfor %}
+</table>
+<h3><span class="no">{{ '4.2' if eu else '6.2' }}</span>Findings register</h3>
+<table><colgroup><col style="width:8%"><col style="width:40%"><col style="width:11%"><col style="width:12%"><col style="width:11%"><col style="width:18%"></colgroup>
+  <thead><tr><th>ID</th><th>Finding / location</th><th>CWE</th><th>Preliminary band</th><th>Assessed</th><th>Disposition</th></tr></thead>
+  {% for f in fs %}<tr><td class="c">{{ f.fid }}</td><td>{{ f.name_en }}<br><span class="mono">{{ f.file }}:{{ f.line }}</span></td><td class="c">{{ f.cwe }}</td><td class="c">{{ f.severity }}</td>
+    <td class="c"><b>{{ f.assessed_severity or '—' }}</b></td><td class="c">{{ V(dcls.get(f.disposition or '검토 필요','hold'), f.disp_en) }}</td></tr>
+  {% else %}<tr><td colspan="6" class="c">No findings</td></tr>{% endfor %}
+</table>
+<p class="note">Preliminary band = rule-level category shown by the platform; it is not a CVSS score.</p>
+<h3><span class="no">{{ '4.3' if eu else '6.3' }}</span>Finding records</h3>
+{% for f in fs %}
+<table class="rec"><colgroup><col style="width:22%"><col style="width:28%"><col style="width:22%"><col style="width:28%"></colgroup>
+  <tr class="head"><td colspan="4">{{ f.fid }} · {{ f.name_en }}</td></tr>
+  <tr><th>CWE</th><td>{{ f.cwe }}</td><th>Detection</th><td class="mono">{{ f.rule_id }}</td></tr>
+  <tr><th>Location</th><td class="mono">{{ f.file }}:{{ f.line }}</td><th>Preliminary band</th><td>{{ f.severity }}</td></tr>
+  <tr><th>Assessed severity</th><td><b>{{ f.assessed_severity or '' }}</b>{% if not f.assessed_severity %}{{ H('[after code review]') }}{% endif %}</td><th>Disposition</th><td>{{ V(dcls.get(f.disposition or '검토 필요','hold'), f.disp_en) }}</td></tr>
+  <tr><th>Description / rationale</th><td colspan="3">{{ f.message }}{% if f.rationale %}<br><b>Review:</b> {{ f.rationale }}{% else %}<br>{{ H('[code review rationale]') }}{% endif %}</td></tr>
+  <tr><th>Recommended action</th><td colspan="3">{{ f.action or H('[action]') }}</td></tr>
+  <tr><th>Traceability</th><td colspan="3">{{ H('Threat ID [ ] · Risk ID [ ] · Control ID [ ] · Verification ID [ ]') }}{% if f.ctrl %} · Control category {{ f.ctrl }} ({{ CTRL[f.ctrl] }}){% endif %}</td></tr>
+</table>
+{% endfor %}
+<h3><span class="no">{{ '4.5' if eu else '6.5' }}</span>{{ 'Deviations from the test method' if eu else 'Protocol deviations' }}</h3>
+<table><colgroup><col style="width:10%"><col style="width:30%"><col style="width:30%"><col style="width:30%"></colgroup>
+  <thead><tr><th>ID</th><th>Deviation</th><th>Impact on results</th><th>Action</th></tr></thead>
+  <tr><td class="blank"></td><td class="blank">{{ H('[none, or describe]') }}</td><td class="blank"></td><td class="blank"></td></tr>
+</table>
+{% if eu %}
+<h2><span class="no">5</span> Residual anomaly list</h2>
+<table><colgroup><col style="width:10%"><col style="width:40%"><col style="width:15%"><col style="width:35%"></colgroup>
+  <thead><tr><th>ID</th><th>Anomaly</th><th>Severity</th><th>Justification for release</th></tr></thead>
+  {% for f in fs if f.disposition in ('약점','연기') %}<tr><td class="c">{{ f.fid }}</td><td>{{ f.name_en }} — <span class="mono">{{ f.file }}:{{ f.line }}</span></td><td class="c">{{ f.assessed_severity or f.severity }}</td><td>{{ f.rationale or H('[benefit-risk justification]') }}</td></tr>
+  {% else %}<tr><td colspan="4" class="c">{{ H('No residual anomalies recorded (weaknesses / deferred findings appear here)') }}</td></tr>{% endfor %}
+</table>
+{% endif %}
+<h2><span class="no">{{ '6' if eu else '7' }}</span> Discussion and conclusions</h2>
+<table><colgroup><col style="width:26%"><col></colgroup>
+  <tr><th>Conclusion</th><td>{{ V(overall[0], overall[2]) }} — {% if overall[0] == 'fail' %}open confirmed defects: {{ high_open|map(attribute='fid')|join(', ') }}{% elif overall[0] == 'hold' %}record dispositions to conclude{% else %}acceptance criteria met{% endif %}</td></tr>
+  <tr><th>Limitations of the method</th><td>Pattern-based analysis; inter-procedural data flow not analysed. Binaries, unsupported files and known vulnerabilities (CVE) of third-party components are out of scope.</td></tr>
+  <tr><th>{{ 'Further verification recommended' if eu else 'Other cybersecurity testing' }}</th><td>Dynamic analysis / fuzzing of external interfaces, SBOM-based component vulnerability analysis, penetration testing.</td></tr>
+</table>
+<h2><span class="no">Annex A</span> Rule set inventory</h2>
+<table><colgroup><col style="width:38%"><col style="width:12%"><col style="width:36%"><col style="width:14%"></colgroup>
+  <thead><tr><th>Rule ID</th><th>CWE</th><th>Description</th><th>Band</th></tr></thead>
+  {% for ru in rules %}<tr><td class="mono">{{ ru.id }}</td><td class="c">{{ ru.cwe }}</td><td>{{ ru.en }}</td><td class="c">{{ ru.sev }}</td></tr>{% endfor %}
+</table>
+<h2><span class="no">Annex B</span> Raw data and integrity</h2>
+<table><colgroup><col style="width:26%"><col></colgroup>
+  <tr><th>Sample SHA-256</th><td class="hash">{{ scan.source_sha256 if scan else '' }}</td></tr>
+  <tr><th>Rule set SHA-256</th><td class="hash">{{ scan.ruleset_sha256 if scan else '' }}</td></tr>
+  <tr><th>Raw results</th><td>Stored in MediGuide (scan {{ scan.code if scan else '' }}, {{ fs|length }} findings)</td></tr>
+</table>
+{% if eu %}
+<h2><span class="no">Annex C</span> IEC 81001-5-1 and GSPR entries</h2>
+<table><colgroup><col style="width:22%"><col style="width:40%"><col style="width:38%"></colgroup>
+  <thead><tr><th>Reference</th><th>Requirement</th><th>Evidence in this report</th></tr></thead>
+  <tr><td>IEC 81001-5-1 §5.5.2</td><td>Secure coding standards</td><td>Rule set (Annex A), findings register (4.2)</td></tr>
+  <tr><td>IEC 81001-5-1 §5.7.2</td><td>Vulnerability testing (static code analysis)</td><td>Sections 3–4</td></tr>
+  <tr><td>MDR Annex I GSPR 17.2</td><td>Software developed according to the state of the art, including information security</td><td>Sections 3–6</td></tr>
+  <tr><td>MDR Annex I GSPR 17.4</td><td>Minimum requirements for IT security measures</td><td>Finding records (4.3), residual anomalies (5)</td></tr>
+</table>
+{% else %}
+<h2><span class="no">Annex C</span> Findings by security control category</h2>
+<table><colgroup><col style="width:12%"><col style="width:48%"><col></colgroup>
+  <thead><tr><th>Category</th><th>Control (FDA guidance Appendix 1)</th><th>Findings</th></tr></thead>
+  {% for k, v in CTRL.items() %}<tr><td class="c">{{ k }}</td><td>{{ v }}</td><td>{{ (ctrl_find.get(k) or ['—'])|join(', ') }}</td></tr>{% endfor %}
+</table>
+{% endif %}
+<h2><span class="no">Annex {{ 'D' }}</span> Revision history</h2>
+<table><colgroup><col style="width:12%"><col style="width:18%"><col></colgroup>
+  <thead><tr><th>Rev.</th><th>Date</th><th>Description</th></tr></thead>
+  <tr><td class="c">1.0</td><td class="c">{{ today_en }}</td><td>Initial issue (scan {{ scan.code if scan else '' }}, report {{ r.code }})</td></tr>
+</table>
+<div class="endmark">— End of report —</div>
+</div></body></html>

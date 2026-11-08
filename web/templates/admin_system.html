@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+{{ pagehead('시스템 설정', ['관리자', '시스템 설정']) }}
+<div class="grid2">
+  <div class="card">
+    <h3>{{ icon('scan', 17) }} 정적분석 엔진</h3>
+    <dl class="kv" style="grid-template-columns:120px 1fr">
+      <dt>엔진</dt><dd>{% if engine_path %}<span style="color:var(--ok)">●</span> {{ engine }}{% else %}<span style="color:var(--bad)">● 미설치</span> — OpenGrep 또는 Semgrep 설치 필요{% endif %}</dd>
+      <dt>실행 파일</dt><dd class="mono small">{{ engine_path or '—' }}</dd>
+      <dt>룰 파일</dt><dd>{% for r in rules %}<span class="mono small">{{ r.name }}</span><br>{% else %}<span style="color:var(--bad)">없음</span>{% endfor %}</dd>
+      <dt>룰셋 해시</dt><dd class="mono small" style="word-break:break-all">{{ ruleset_sha or '—' }}</dd>
+    </dl>
+  </div>
+  <div class="card">
+    <h3>{{ icon('sparkles', 17) }} AI 답변</h3>
+    <dl class="kv" style="grid-template-columns:120px 1fr">
+      <dt>제공자</dt><dd>{{ ai_label }}</dd>
+      <dt>상태</dt><dd>{% if ai_ok %}<span style="color:var(--ok)">● 사용 가능</span>{% else %}<span style="color:var(--bad)">● 연결 안 됨</span> — Ollama 실행 또는 MG_LLM·MG_BEDROCK_MODEL 확인{% endif %}</dd>
+      <dt>전환 방법</dt><dd class="small">환경변수 <span class="mono">MG_LLM=ollama</span>(로컬·폐쇄망) · <span class="mono">bedrock</span>(AWS) · <span class="mono">none</span>(검색만)</dd>
+      <dt>PDF 변환</dt><dd>{% if pdf_ok %}<span style="color:var(--ok)">● Chrome/Chromium 사용</span>{% else %}<span style="color:var(--warn)">● 브라우저 없음</span> — 인쇄 화면으로 PDF 저장{% endif %}</dd>
+    </dl>
+  </div>
+</div>
+<div class="card mt16">
+  <h3>{{ icon('book', 17) }} 규제 문서 검색 색인 <span class="right">{% if user.role == '관리자' %}<form method="post" action="/admin/system/reindex" style="margin:0" data-confirm="규제 문서 색인을 다시 만들까요? (수 초 소요)"><button class="btn outline sm">{{ icon('refresh') }} 색인 재생성</button></form>{% endif %}</span></h3>
+  {% if index %}<p class="small muted" style="margin-top:0">문서 {{ index.docs|length }}종 · 조각 {{ index.chunks }}개 (쪽 단위 700자, Kiwi 형태소 + BM25)</p>
+  <table class="tbl"><thead><tr><th>기관</th><th class="l">문서</th><th>조각 수</th></tr></thead><tbody>
+    {% for d in index.docs %}<tr><td>{{ d.org }}</td><td class="l">{{ d.title }}</td><td>{{ d.chunks }}</td></tr>{% endfor %}</tbody></table>
+  {% else %}<div class="alert warn">색인이 없습니다. 색인 재생성을 누르세요.</div>{% endif %}
+</div>
+<div class="card mt16">
+  <h3>{{ icon('server', 17) }} 저장소</h3>
+  <dl class="kv" style="grid-template-columns:120px 1fr 120px 1fr">
+    <dt>DB 파일</dt><dd class="mono small" style="grid-column:2/5">{{ db_path }}</dd>
+    {% for k, v in counts.items() %}<dt>{{ {'devices':'의료기기','scans':'스캔','findings':'검출','assessments':'평가','reports':'리포트','audit_logs':'감사 로그'}[k] }}</dt><dd>{{ v }}건</dd>{% endfor %}
+  </dl>
+</div>
+{% endblock %}
