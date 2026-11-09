@@ -63,8 +63,8 @@ def _startup():
     db.init_db()
     policy.seed()
     if not db.one("SELECT id FROM users LIMIT 1"):
-        service.create_user("admin", os.getenv("MG_ADMIN_PASSWORD", "medi1234!"), "관리자", "admin@mediguide.local", "8팀 무한루프")
-        service.create_user("verifier", os.getenv("MG_VERIFIER_PASSWORD", "verify1234!"), "검증자",
+        service.create_user("admin", (os.getenv("MG_ADMIN_PASSWORD") or "medi1234!"), "관리자", "admin@mediguide.local", "8팀 무한루프")
+        service.create_user("verifier", (os.getenv("MG_VERIFIER_PASSWORD") or "verify1234!"), "검증자",
                             "verifier@mediguide.local", "8팀 무한루프")
     # 첫 질문 대기를 줄이려고 로컬 AI 모델을 미리 올린다
     from core import llm
@@ -113,7 +113,7 @@ async def auth_guard(request: Request, call_next):
 
 
 # 세션 미들웨어는 마지막에 추가해야 가장 바깥에서 먼저 실행된다(위 auth_guard가 세션을 읽음)
-app.add_middleware(SessionMiddleware, secret_key=os.getenv("MG_SECRET", "mediguide-dev-secret-change-me"),
+app.add_middleware(SessionMiddleware, secret_key=(os.getenv("MG_SECRET") or "mediguide-dev-secret-change-me"),
                    session_cookie="mg_session", max_age=60 * 60 * 12)
 
 

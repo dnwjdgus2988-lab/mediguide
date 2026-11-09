@@ -23,8 +23,8 @@ if "--reset" in sys.argv and config.DB_PATH.exists():
 db.init_db()
 policy.seed()
 if not db.one("SELECT id FROM users LIMIT 1"):
-    service.create_user("admin", os.getenv("MG_ADMIN_PASSWORD", "medi1234!"), "관리자", "admin@mediguide.local", "8팀 무한루프")
-    service.create_user("verifier", os.getenv("MG_VERIFIER_PASSWORD", "verify1234!"), "검증자", "verifier@mediguide.local", "8팀 무한루프")
+    service.create_user("admin", (os.getenv("MG_ADMIN_PASSWORD") or "medi1234!"), "관리자", "admin@mediguide.local", "8팀 무한루프")
+    service.create_user("verifier", (os.getenv("MG_VERIFIER_PASSWORD") or "verify1234!"), "검증자", "verifier@mediguide.local", "8팀 무한루프")
 if db.one("SELECT id FROM devices LIMIT 1"):
     print("이미 데이터가 있습니다. 처음부터 다시 하려면 --reset 을 붙여 실행하세요.")
     sys.exit(0)
