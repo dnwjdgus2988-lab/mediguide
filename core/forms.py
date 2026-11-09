@@ -17,6 +17,10 @@ KINDS = {
             "tpl": "forms/fda.html", "desc": "eSTAR 사이버보안 섹션 「Cybersecurity Testing」 첨부용. FDA 2019 시험보고서 권고 순서.", "lang": "en"},
     "eu": {"title": "EU Test Report", "sub": "Static Code Analysis (MDR Technical Documentation)", "file": "EU_Test_Report_SAST",
            "tpl": "forms/fda.html", "desc": "MDR 기술문서 V&V 첨부용. GSPR 17.2·17.4, IEC 81001-5-1 연결 포함.", "lang": "en"},
+    "ua": {"title": "FDA 미해결 이상 평가서", "sub": "Assessment of Unresolved Anomalies", "file": "FDA_Unresolved_Anomalies",
+           "tpl": "forms/ua.html", "desc": "eSTAR 530칸 첨부용. 남기는 약점과 출시 전 고쳐야 할 결함을 나눠 적습니다.", "lang": "en"},
+    "estar": {"title": "eSTAR 사이버보안 기입표", "sub": "eSTAR v7.1 Cybersecurity 섹션", "file": "eSTAR_사이버보안섹션_기입표",
+              "tpl": "forms/estar.html", "desc": "eSTAR 칸 번호별로 무엇을 붙이고 적을지, 메디가이드 산출물과 증빙이 어느 칸에 가는지 정리합니다.", "lang": "ko"},
 }
 
 # CWE → 식약처 안내서-0995-05 [표3] 요구사항
@@ -110,7 +114,9 @@ def context(r, kind):
         rules.append({"id": rid, "cwe": m.get("cwe"), "ko": m.get("name_ko"), "en": m.get("name_en"), "sev": m.get("severity"),
                       "cvss": m.get("cvss")})
     doc_no = f"MG-{dev['code'].replace('-', '')}-{kind.upper()}-TR-{r['id']:02d}"
-    return {"r": r, "s": snap, "dev": dev, "scan": scan, "fs": fs, "ac": ac, "overall": overall, "high_open": high_open,
+    ev = {e["code"]: e for e in snap.get("evidence", [])}
+    sb = snap.get("sbom") or {}
+    return {"ev": ev, "sb": sb, "sbv": snap.get("sbom_vuln", []), "r": r, "s": snap, "dev": dev, "scan": scan, "fs": fs, "ac": ac, "overall": overall, "high_open": high_open,
             "by_disp": by_disp, "req_find": req_find, "ctrl_find": ctrl_find, "rules": rules, "doc_no": doc_no,
             "KR_REQ": KR_REQ, "KR_NAME": KR_NAME, "CTRL": CTRL, "SEV_KO": SEV_KO, "kind": KINDS[kind], "kind_key": kind,
             "today": datetime.now().strftime("%Y. %m. %d."), "today_en": datetime.now().strftime("%Y-%m-%d"),

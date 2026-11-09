@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>eSTAR 사이버보안 기입표</title><style>{{ css|safe }}
+td.mg { color: #17663a; font-weight: 600; } td.mf { color: #5b6878; }
+</style></head>
+<body class="ko">
+{% macro H(t) %}<span class="hint">{{ t }}</span>{% endmacro %}
+{% macro V(cls, t) %}<span class="v {{ cls }}">{{ t }}</span>{% endmacro %}
+{% set es_no = doc_no|replace('-ESTAR-TR-', '-FDA-ES-') %}
+{% set tr_name = (doc_no|replace('-ESTAR-TR-', '-FDA-TR-')) ~ '_Cybersecurity_Testing_SAST.pdf' %}
+{% set ua_name = (doc_no|replace('-ESTAR-TR-', '-FDA-UA-')) ~ '_Unresolved_Anomalies.pdf' %}
+{% macro evcell(code) %}{% set e = ev.get(code) %}{% if e and e.file %}{{ V('pass', '제출') }} {{ e.file.filename }}{% else %}{{ V('na', '미제출') }} {{ H('[제조사 파일명, ASCII]') }}{% endif %}{% endmacro %}
+{% set ctrl_map = {} %}{% for k, ids in ctrl_find.items() %}{% set _ = ctrl_map.update({k: ids}) %}{% endfor %}
+<div class="bar"><button onclick="window.print()">인쇄 / PDF로 저장</button></div>
+<div class="sheet">
+<div class="runhead"><span>문서 번호 {{ es_no }}</span><span>eSTAR v7.1 사이버보안 섹션 기입표</span></div>
+<div class="titleband">
+  <div class="k">eSTAR 기입표 · 사이버보안</div>
+  <div class="t">eSTAR v7.1 사이버보안 섹션 기입표</div>
+  <div class="s">FDA 전자제출 eSTAR › Software/Firmware, Cybersecurity, and Interoperability › Cybersecurity</div>
+</div>
+<table><colgroup><col style="width:22%"><col style="width:28%"><col style="width:22%"><col style="width:28%"></colgroup>
+  <tr><th>문서 번호</th><td>{{ es_no }}</td><th>작성일</th><td>{{ today }}</td></tr>
+  <tr><th>기기 / 모델</th><td>{{ dev.name_en or dev.name }} / {{ dev.model or '—' }}</td><th>소프트웨어 버전</th><td>{{ scan.version if scan else dev.sw_version }}</td></tr>
+  <tr><th>신청 유형</th><td>{{ dev.submission_path }} (메디가이드 등록값)</td><th>기허가 기기 변경</th><td>{{ '예' if dev.is_modification else '아님' }} (메디가이드 등록값)</td></tr>
+  <tr><th>함께 내는 문서</th><td colspan="3">{{ tr_name }} · {{ ua_name }}{% if ev.get('D08') and ev['D08'].file %} · {{ ev['D08'].file.filename }}{% endif %}</td></tr>
+</table>
+<p class="note">칸 번호는 eSTAR 양식 필드 이름의 숫자(예: 630 = CSAttachment630, 412 = CSDropDownList412). 글·쪽 번호 칸은 영어로 쓴다. 초록색은 메디가이드가 채운 값, 회색은 제조사가 채울 칸.</p>
+<table><colgroup><col style="width:18%"><col style="width:20%"><col style="width:20%"><col style="width:20%"><col style="width:22%"></colgroup>
+  <tr><th rowspan="2">확인</th><th>구분</th><th>성명</th><th>서명</th><th>일자</th></tr>
+  <tr><td>작성 / 검토</td><td class="blank"></td><td class="blank"></td><td class="blank"></td></tr>
+</table>
+
+<h2><span class="no">Ⅰ</span> 제출 전 확인 — eSTAR 첨부 규칙</h2>
+<table><colgroup><col style="width:18%"><col style="width:62%"><col style="width:20%"></colgroup>
+  <thead><tr><th>구분</th><th>eSTAR 규칙</th><th>확인</th></tr></thead>
+  <tr><td>파일명 문자</td><td>FDA 제출 첨부는 ASCII 문자(영문·숫자·기호)만. 한글 파일명은 거부됨</td><td class="blank"></td></tr>
+  <tr><td>파일명 길이·중복</td><td>124자 이하, 이미 쓴 이름은 다시 쓸 수 없음</td><td class="blank"></td></tr>
+  <tr><td>크기</td><td>파일 1개 1GB 이하, eSTAR 전체 4GB 초과 시 CDRH Portal 안내에 따름</td><td class="blank"></td></tr>
+  <tr><td>첨부 불가 형식</td><td>압축(.zip 등), 실행 파일, 매크로 문서, 디스크 이미지 — SBOM JSON은 그대로 첨부 가능</td><td class="blank"></td></tr>
+  <tr><td>문서와 질문</td><td>문서 하나는 질문 하나에. 여러 질문에 쓰는 문서는 첫 질문에 붙이고 나머지에는 안내 1쪽 문서를 붙임</td><td class="blank"></td></tr>
+  <tr><td>기술심사 보류</td><td>질문과 무관한 첨부, 잘못된 쪽 번호 인용, 해당 사항이 있는데 「N/A」라고 쓴 칸은 조기 보류 사유</td><td class="blank"></td></tr>
+</table>
+
+<h2><span class="no">Ⅱ</span> 사이버보안 섹션 기입 내용</h2>
+{% set first = 1 if dev.is_modification else 2 %}
+<table><colgroup><col style="width:8%"><col style="width:38%"><col style="width:9%"><col style="width:33%"><col style="width:12%"></colgroup>
+  <thead><tr><th>칸</th><th>eSTAR 질문(요지)</th><th>형식</th><th>기입 내용</th><th>담당</th></tr></thead>
+  <tbody class="grp"><tr><td colspan="5" style="background:#f5f7fa;font-weight:700">1. Cybersecurity — first question</td></tr>
+  <tr><td class="c">412</td><td>Is the submission for a modification to an authorized device, and is cybersecurity unaffected?</td><td class="c">선택</td>
+    <td class="mg">{% if dev.is_modification %}「Yes, unaffected」 또는 「No, affected」 중 제조사 판단 {{ H('[선택]') }}{% else %}「No, the device was not previously authorized」(값 2) — 기허가 기기 변경 아님{% endif %}</td><td>제조사(참고값)</td></tr></tbody>
+  <tbody class="grp"><tr><td colspan="5" style="background:#f5f7fa;font-weight:700">2·3·4. Risk Management — Report · Threat Model · Risk Assessment</td></tr>
+  <tr><td class="c">420</td><td>Security risk management report (separate from safety risk management)</td><td class="c">첨부</td><td class="mf">{{ H('[제조사 보고서]') }}</td><td>제조사</td></tr>
+  <tr><td class="c">430</td><td>Threat model addressing all end-to-end elements</td><td class="c">첨부</td><td>{{ evcell('D01') }}</td><td>제조사</td></tr>
+  <tr><td class="c">440</td><td>Threat methodology used (STRIDE, Attack Trees, …)</td><td class="c">글</td><td class="mf">{{ H('[방법론 이름]') }}</td><td>제조사</td></tr>
+  <tr><td class="c">450</td><td>Does threat model include the four Architecture Views?</td><td class="c">선택</td><td class="mf">{{ H('[Yes / No]') }}</td><td>제조사</td></tr>
+  <tr><td class="c">460</td><td>Cybersecurity Risk Assessment</td><td class="c">첨부</td><td>{{ evcell('D02') }}</td><td>제조사</td></tr>
+  <tr><td class="c">470</td><td>Page numbers of methodology and acceptance criteria</td><td class="c">쪽</td><td class="mf">{{ H('[쪽 번호]') }}</td><td>제조사</td></tr>
+  <tr><td class="c">480</td><td>Exploitability used instead of probabilities?</td><td class="c">선택</td><td class="mf">{{ H('[Yes / No]') }}</td><td>제조사</td></tr></tbody>
+  <tbody class="grp"><tr><td colspan="5" style="background:#f5f7fa;font-weight:700">5. Software Bill of Materials (SBOM) and Related Information</td></tr>
+  <tr><td class="c">490</td><td>Software Bill of Materials</td><td class="c">첨부</td>
+    <td class="{{ 'mg' if sb }}">{{ evcell('D08') }}{% if sb %}<br>메디가이드 SBOM: CycloneDX 1.5, 구성요소 {{ sb.n }}개({% for k, v in sb.ecos.items() %}{{ k }} {{ v }}{{ ', ' if not loop.last }}{% endfor %}){% endif %}</td><td>메디가이드 + 제조사</td></tr>
+  <tr><td class="c">500</td><td>Level of support and end-of-support date per component</td><td class="c">첨부</td><td class="mf">{{ H('[구성요소별 지원 수준·종료일]') }}</td><td>제조사</td></tr>
+  <tr><td class="c">510</td><td>Supported operating system(s) and versions ("N/A" if none)</td><td class="c">글</td>
+    <td class="mg">{% set rtos = (s.sbom_vuln|default([])) %}{% if sb and sb.ecos.get('임베디드(C)') %}메디가이드 관찰: 임베디드 라이브러리 {{ sb.ecos['임베디드(C)'] }}종 — 실시간 OS 사용 여부를 확인해 버전과 함께 기입{% else %}메디가이드 관찰: 운영체제·RTOS 흔적 없음 → 제조사 확인 후 「N/A」{% endif %}</td><td>제조사(참고값)</td></tr>
+  <tr><td class="c">520</td><td>Safety and security assessment of known vulnerabilities in SBOM components</td><td class="c">첨부</td>
+    <td class="{{ 'mg' if sb }}">{% if sb %}OSV.dev 조회: {{ sb.vulnerable }}개 구성요소, {{ sb.n_vulns }}건{% if sbv %} (예: {% for v in sbv[:3] %}{{ v.name }} {{ v.version }} {{ v.worst }}{{ ', ' if not loop.last }}{% endfor %}){% endif %}. 구성요소별 영향·통제 평가는 제조사 작성{% else %}{{ H('[구성요소 CVE 평가]') }}{% endif %}</td><td>메디가이드 + 제조사</td></tr></tbody>
+  <tbody class="grp"><tr><td colspan="5" style="background:#f5f7fa;font-weight:700">6. Vulnerabilities with Uncontrolled Risk (첫 질문 1일 때만)</td></tr>
+  <tr><td class="c">523</td><td>Current critical vulnerabilities that could cause uncontrolled risks</td><td class="c">첨부</td><td class="mf">{{ '표시 안 됨(첫 질문 = 2)' if first == 2 else H('[제조사 문서]') }}</td><td>제조사</td></tr>
+  <tr><td class="c">527</td><td>Vulnerabilities with uncontrolled risk remediated since last authorization</td><td class="c">첨부</td><td class="mf">{{ '표시 안 됨(첫 질문 = 2)' if first == 2 else H('[제조사 문서]') }}</td><td>제조사</td></tr></tbody>
+  <tbody class="grp"><tr><td colspan="5" style="background:#f5f7fa;font-weight:700">7. Assessment of Unresolved Anomalies</td></tr>
+  <tr><td class="c">530</td><td>Assessment of unresolved anomalies for cybersecurity impact (or statement of none)</td><td class="c">첨부</td><td class="mg">{{ ua_name }} — 메디가이드 미해결 이상 평가서</td><td>메디가이드</td></tr></tbody>
+  <tbody class="grp"><tr><td colspan="5" style="background:#f5f7fa;font-weight:700">8·9·10. Metrics · Controls · Architecture Views</td></tr>
+  <tr><td class="c">540</td><td>Data from monitoring cybersecurity metrics, or justification</td><td class="c">첨부</td><td class="mf">{{ H('[지표 자료 또는 사유]') }}</td><td>제조사</td></tr>
+  <tr><td class="c">550</td><td>Security control categories included in the device</td><td class="c">첨부</td><td>{{ evcell('D04') }}</td><td>제조사</td></tr>
+  <tr><td class="c">595</td><td>Page numbers for controls A) Authentication … H) Update</td><td class="c">쪽</td>
+    <td class="mg">{{ H('[A)~H) 쪽 번호]') }}<br>참고: 검출이 걸린 범주 {% for k, ids in ctrl_map.items() %}{{ k }}) {{ ids|join('·') }}{{ ', ' if not loop.last }}{% else %}없음{% endfor %}</td><td>제조사(참고값)</td></tr>
+  <tr><td class="c">600</td><td>Global System, Multi-Patient Harm, Updatability/Patchability, Security Use Case views</td><td class="c">첨부</td><td>{{ evcell('D05') }}</td><td>제조사</td></tr></tbody>
+  <tbody class="grp"><tr><td colspan="5" style="background:#f5f7fa;font-weight:700">11. Cybersecurity Testing</td></tr>
+  <tr><td class="c">630</td><td>Cybersecurity testing performed and test reports (requirements, threat mitigation, vulnerability, penetration)</td><td class="c">첨부</td>
+    <td class="mg">{{ tr_name }} — 메디가이드 정적 코드 분석 시험보고서<br>침투시험: {{ evcell('D07') }}</td><td>메디가이드 + 제조사</td></tr></tbody>
+  <tbody class="grp"><tr><td colspan="5" style="background:#f5f7fa;font-weight:700">12·13. Labeling · Management Plan</td></tr>
+  <tr><td class="c">660</td><td>Attachment and page where cybersecurity labeling is documented</td><td class="c">쪽</td><td>{{ evcell('D11') }}</td><td>제조사</td></tr>
+  <tr><td class="c">680</td><td>Cybersecurity Management Plan</td><td class="c">첨부</td><td>{{ evcell('D09') }}<br>CVD 절차: {{ evcell('D10') }}<br>패치 절차: {{ evcell('D13') }}</td><td>제조사</td></tr>
+  <tr><td class="c">690</td><td>Page numbers for the recommended plan elements</td><td class="c">쪽</td><td class="mf">{{ H('[쪽 번호]') }}</td><td>제조사</td></tr>
+  <tr><td class="c">695</td><td>Page numbers for regular and out-of-cycle patch timelines</td><td class="c">쪽</td><td class="mf">{{ H('[쪽 번호]') }}</td><td>제조사</td></tr></tbody>
+</table>
+
+<h2><span class="no">Ⅲ</span> 메디가이드 산출물과 eSTAR 칸 대응</h2>
+<table><colgroup><col style="width:30%"><col style="width:22%"><col style="width:32%"><col style="width:16%"></colgroup>
+  <thead><tr><th>메디가이드 산출물 · 증빙</th><th>eSTAR 칸</th><th>첨부 파일명(ASCII)</th><th>{{ dev.code }}</th></tr></thead>
+  <tr><td>정적분석 시험보고서 (FDA Test Report)</td><td>Testing — 630</td><td class="mono">{{ tr_name }}</td><td class="c">{{ V('pass', '생성') }}</td></tr>
+  <tr><td>미해결 이상 평가서</td><td>Unresolved Anomalies — 530</td><td class="mono">{{ ua_name }}</td><td class="c">{{ V('pass', '생성') }}</td></tr>
+  <tr><td>SBOM (CycloneDX 1.5)</td><td>SBOM — 490 · 520</td><td class="mono">{{ dev.code }}_SBOM_CycloneDX-1.5.json</td><td class="c">{{ V('pass', '생성') if sb else V('na', '없음') }}</td></tr>
+  {% for code, slot in [('D01', 'Threat Model — 430'), ('D02', 'Risk Assessment — 460'), ('D04', 'Controls — 550'), ('D05', 'Architecture Views — 600'), ('D07', 'Testing — 630'), ('D09', 'Management Plan — 680'), ('D10', 'Management Plan — 680'), ('D11', 'Labeling — 660'), ('D13', 'Management Plan — 680')] %}
+  {% set e = ev.get(code) %}
+  <tr><td>{{ code }} {{ e.name if e else '' }}</td><td>{{ slot }}</td><td class="mono">{{ e.file.filename if e and e.file else '[제조사 파일명]' }}</td><td class="c">{{ V('pass', '제출') if e and e.file else V('na', '미제출') }}</td></tr>
+  {% endfor %}
+  <tr><td>슬롯 없음(제조사 직접 첨부)</td><td>420 · 500 · 540</td><td>[제조사 파일명]</td><td class="c">—</td></tr>
+</table>
+<h2><span class="no">별첨</span> 기입표 이력</h2>
+<table><colgroup><col style="width:12%"><col style="width:18%"><col></colgroup>
+  <thead><tr><th>판</th><th>일자</th><th>내용</th></tr></thead>
+  <tr><td class="c">1.0</td><td class="c">{{ today }}</td><td>최초 작성 (리포트 {{ r.code }}, 스캔 {{ scan.code if scan else '—' }})</td></tr>
+</table>
+<div class="endmark">— 끝 —</div>
+</div></body></html>

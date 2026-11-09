@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Unresolved Anomalies {{ doc_no|replace('-UA-', '-UA-') }}</title><style>{{ css|safe }}</style></head>
+<body>
+{% macro H(t) %}<span class="hint">{{ t }}</span>{% endmacro %}
+{% macro V(cls, t) %}<span class="v {{ cls }}">{{ t }}</span>{% endmacro %}
+{% set ua_no = doc_no|replace('-UA-TR-', '-UA-') %}
+{% set residual = fs|selectattr('disposition', 'in', ['약점', '연기'])|list %}
+{% set must_fix = fs|selectattr('disposition', 'equalto', '확인된 결함')|list %}
+{% set pending = fs|selectattr('disposition', 'in', ['검토 필요', None, ''])|list %}
+<div class="bar"><button onclick="window.print()">Print / Save as PDF</button></div>
+<div class="sheet">
+<div class="runhead"><span>Document No. {{ ua_no }}</span><span>Assessment of Unresolved Anomalies — Cybersecurity Impact</span></div>
+<div class="titleband">
+  <div class="k">ASSESSMENT · CYBERSECURITY</div>
+  <div class="t">Assessment of Unresolved Anomalies for Cybersecurity Impact</div>
+  <div class="s">Premarket submission to US FDA · eSTAR v7.1 › Cybersecurity › Assessment of Unresolved Anomalies (attachment 530)</div>
+</div>
+<table><colgroup><col style="width:22%"><col style="width:28%"><col style="width:22%"><col style="width:28%"></colgroup>
+  <tr><th>Document No.</th><td>{{ ua_no }}</td><th>Revision</th><td>1.0</td></tr>
+  <tr><th>Date of issue</th><td>{{ today_en }}</td><th>Test report</th><td>{{ doc_no|replace('-UA-TR-', '-FDA-TR-') }}</td></tr>
+</table>
+{% if pending %}<div class="stmt" style="border-color:#c68a1e;color:#875700">{{ pending|length }} finding(s) have no disposition yet ({{ pending|map(attribute='fid')|join(', ') }}). Record the code-review result for each finding in MediGuide before using this document.</div>{% endif %}
+
+<h2><span class="no">1</span> Identification</h2>
+<table><colgroup><col style="width:22%"><col style="width:28%"><col style="width:22%"><col style="width:28%"></colgroup>
+  <tr><th>Device / model</th><td>{{ dev.name_en or dev.name }} / {{ dev.model or '—' }}</td><th>Software version</th><td>{{ scan.version if scan else dev.sw_version }}</td></tr>
+  <tr><th>Source SHA-256</th><td colspan="3" class="hash">{{ scan.source_sha256 if scan else '' }}</td></tr>
+  <tr><th>Anomalies taken from</th><td>Static code analysis and code review ({{ scan.code if scan else '' }})</td><th>Assessment date</th><td>{{ today_en }}</td></tr>
+  <tr><th>Defect classification</th><td>{{ H('[e.g. ANSI/AAMI SW91 categories]') }}</td><th>Weakness classification</th><td>CWE</td></tr>
+</table>
+
+<h2><span class="no">2</span> Unresolved anomalies proposed for release</h2>
+<table><colgroup><col style="width:8%"><col style="width:20%"><col style="width:20%"><col style="width:20%"><col style="width:12%"><col style="width:20%"></colgroup>
+  <thead><tr><th>ID</th><th>Description (CWE)</th><th>How found / root cause</th><th>Impact on safety and effectiveness</th><th>Outcome</th><th>Rationale for not correcting</th></tr></thead>
+  {% for f in residual %}
+  <tr><td class="c">{{ f.fid }}</td><td>{{ f.name_en }} ({{ f.cwe }})<br><span class="mono">{{ f.file }}:{{ f.line }}</span></td>
+    <td>Static analysis ({{ f.rule_id }}) and code review.</td><td>{{ f.rationale or H('[impact incl. operator use]') }}</td>
+    <td class="c">{{ V('warn', 'Weakness' if f.disposition == '약점' else 'Deferred') }}<br>Security impact {{ f.assessed_severity or f.severity }}</td>
+    <td>{{ f.action or H('[risk-based rationale]') }} {{ H('[manufacturer to confirm]') }}</td></tr>
+  {% else %}<tr><td colspan="6" class="c">None — no anomaly is proposed to remain unresolved at release.</td></tr>{% endfor %}
+</table>
+<p class="note">Five elements per FDA “Content of Premarket Submissions for Device Software Functions” (2023), assessed for cybersecurity impact with CWE (FDA cybersecurity guidance §V.A.5).</p>
+
+<h2><span class="no">3</span> Security findings not acceptable as unresolved</h2>
+<table><colgroup><col style="width:8%"><col style="width:26%"><col style="width:12%"><col style="width:10%"><col style="width:30%"><col style="width:14%"></colgroup>
+  <thead><tr><th>ID</th><th>Finding</th><th>CWE</th><th>Severity</th><th>Required correction</th><th>Re-test reference</th></tr></thead>
+  {% for f in must_fix %}
+  <tr><td class="c">{{ f.fid }}</td><td>{{ f.name_en }}<br><span class="mono">{{ f.file }}:{{ f.line }}</span></td><td class="c">{{ f.cwe }}</td>
+    <td class="c">{{ f.assessed_severity or f.severity }}</td><td>{{ f.action or (f.fix_ko|join('; ')) }}</td><td>{{ H('[re-test report no.]') }}</td></tr>
+  {% else %}<tr><td colspan="6" class="c">None.</td></tr>{% endfor %}
+</table>
+
+<h2><span class="no">4</span> Anomalies deferred to a future release</h2>
+<table><colgroup><col style="width:28%"><col style="width:24%"><col style="width:24%"><col style="width:24%"></colgroup>
+  <thead><tr><th>Anomaly</th><th>Planned release and timeline</th><th>Devices on the market updated?</th><th>Time for the update to reach devices</th></tr></thead>
+  {% set deferred = fs|selectattr('disposition', 'equalto', '연기')|list %}
+  {% for f in deferred %}<tr><td>{{ f.fid }} {{ f.name_en }}</td><td>{{ H('[release, date]') }}</td><td>{{ H('[yes / no]') }}</td><td>{{ H('[days]') }}</td></tr>
+  {% else %}<tr><td colspan="4" class="c">None — no anomaly was deferred.</td></tr>{% endfor %}
+</table>
+
+<h2><span class="no">5</span> Conclusion</h2>
+<table><colgroup><col style="width:26%"><col></colgroup>
+  <tr><th>Anomalies remaining at release</th><td>{{ residual|map(attribute='fid')|join(', ') or 'None' }} {{ H('[final list after correction and re-test]') }}</td></tr>
+  <tr><th>Statement</th><td>{% if must_fix %}{{ must_fix|map(attribute='fid')|join(', ') }} are not acceptable as unresolved anomalies and are to be corrected and re-tested before submission.{% else %}No confirmed defect remains open.{% endif %}</td></tr>
+  <tr><th>Mitigations communicated to users</th><td>{{ H('[labeling section / customer communication reference]') }}</td></tr>
+</table>
+<table><colgroup><col style="width:18%"><col style="width:22%"><col style="width:20%"><col style="width:22%"><col style="width:18%"></colgroup>
+  <thead><tr><th>Role</th><th>Name</th><th>Title</th><th>Signature</th><th>Date</th></tr></thead>
+  <tr><th>Prepared by</th><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td></tr>
+  <tr><th>Reviewed by</th><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td></tr>
+  <tr><th>Approved by</th><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td></tr>
+</table>
+<h2><span class="no">Annex</span> Content checklist</h2>
+<table><colgroup><col style="width:28%"><col style="width:50%"><col style="width:22%"></colgroup>
+  <thead><tr><th>Source</th><th>Item</th><th>Where</th></tr></thead>
+  <tr><td>eSTAR v7.1</td><td>Attachment “Assessment of Unresolved Anomalies” (530); a statement of “none” if there are none</td><td>This document</td></tr>
+  <tr><td>Software functions guidance (2023)</td><td>Description, how found and root cause, impact on safety and effectiveness, outcome, rationale</td><td>2</td></tr>
+  <tr><td>Cybersecurity guidance §V.A.5</td><td>Assessment for cybersecurity impact, including CWE categories</td><td>2, 3</td></tr>
+  <tr><td>Cybersecurity guidance §V.C</td><td>Plan for deferred items</td><td>4</td></tr>
+</table>
+<div class="endmark">— End of document —</div>
+</div></body></html>

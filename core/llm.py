@@ -49,7 +49,14 @@ def available():
                 continue
         return False
     if p == "bedrock":
-        return bool(config.BEDROCK_MODEL)
+        # 모델 ID가 있고, boto3가 자격증명(EC2 인스턴스 역할 또는 환경변수)을 찾을 수 있어야 한다
+        if not config.BEDROCK_MODEL:
+            return False
+        try:
+            import boto3
+            return boto3.Session().get_credentials() is not None
+        except Exception:  # noqa: BLE001
+            return False
     return False
 
 
