@@ -9,7 +9,7 @@
 </div>
 <div class="tabs">
   {% for k, lab in tabs %}
-    {% if k == 'sbom' %}<a class="off" title="SBOM 자동 생성은 다음 단계(Syft·OSV 연동)에서 제공">{{ lab }}</a>
+    {% if k == 'sbom' %}<a class="off" title="SBOM 자동 생성은 준비 중입니다">{{ lab }}</a>
     {% else %}<a class="{{ 'on' if tab == k }}" href="?tab={{ k }}">{{ lab }}</a>{% endif %}
   {% endfor %}
 </div>
@@ -30,7 +30,7 @@
     </dl></div>
   </div>
   <form class="sect" method="post" action="/devices/{{ dev.code }}/submission">
-    <div class="sh">제출 정보 · 사이버 기기 판정 {% if editable %}<span class="right"><button class="btn dark sm">저장</button></span>{% endif %}</div>
+    <div class="sh">제출 정보와 사이버 기기 판정 {% if editable %}<span class="right"><button class="btn dark sm">저장</button></span>{% endif %}</div>
     <div class="sb">
       <div style="display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap">
         <div class="selectbox" style="width:300px"><label>목표 시장</label><select name="target_market" style="width:100%">
@@ -42,7 +42,7 @@
       </div>
       <div style="margin-top:16px;font-size:13px"><b style="color:var(--ink)">사이버 기기 판정</b> <span class="muted">§524B(c)</span>
         <span class="chip {{ 'warn' if cyber == '사이버 기기 해당' else 'gray' }}" style="margin:0 6px">{{ cyber }}</span>
-        <span class="muted small">{{ 'FD&C Act §524B 법정 요건 적용' if s524b else ('§524B 적용 대상 아님 (목표 시장·제출 경로 확인)' if cyber == '사이버 기기 해당' else '') }}</span></div>
+        <span class="muted small">{{ 'FD&C Act §524B 법정 요건 적용' if s524b else ('목표 시장이나 제출 경로가 §524B 대상이 아닙니다' if cyber == '사이버 기기 해당' else '') }}</span></div>
       {% for k, lab in [('has_software','소프트웨어를 포함하는가'),('internet','인터넷에 연결될 수 있는가'),('vuln_tech','사이버 위협에 취약할 수 있는 기술적 특성이 있는가')] %}
       <div style="display:flex;align-items:center;padding:6px 0;font-size:13px"><span style="width:55%">{{ lab }}</span>
         <span class="radio"><label><input type="radio" name="{{ k }}" value="1" {{ 'checked' if dev[k] == 1 }}> 예</label>
@@ -51,14 +51,14 @@
     </div>
   </form>
   <div class="sect">
-    <div class="sh">평가 회차 · 리포트 <small>체크리스트 저장으로 회차가 열리고, 승인된 회차만 리포트에 반영됩니다</small></div>
+    <div class="sh">평가 회차와 리포트 <small>승인된 회차만 리포트에 반영됩니다</small></div>
     <div class="sb"><table class="tbl">
       <thead><tr><th>회차</th><th>상태</th><th>문서 충족률</th><th>등급</th><th>평가자</th><th>일시</th><th>리포트</th></tr></thead>
       <tbody>{% for a in asms %}
         <tr data-modal-url="/api/assessments/{{ a.code }}"><td>{{ a.round }}회차 <span class="sub">{{ a.code }}</span></td><td>{{ status(a.status) }}</td>
           <td>{{ a.score|sc }}%</td><td>{{ grade(a.grade) }}</td><td>{{ a.evaluator }}</td><td>{{ dt(a.updated_at or a.created_at, True) }}</td>
           <td>{% if a.report %}<a class="linkbtn" style="color:var(--primary)" href="/reports/{{ a.report }}">{{ a.report }}</a>{% else %}—{% endif %}</td></tr>
-      {% else %}<tr><td colspan="7" class="empty">아직 평가 회차가 없습니다. 체크리스트 탭에서 응답을 저장하면 1회차가 열립니다.</td></tr>{% endfor %}</tbody>
+      {% else %}<tr><td colspan="7" class="empty">체크리스트를 저장하면 1회차가 열립니다.</td></tr>{% endfor %}</tbody>
     </table></div>
   </div>
   <div class="sect">
@@ -101,11 +101,11 @@
 {# ═══════════════ 증빙 자료 ═══════════════ #}
 {% elif tab == 'evidence' %}
   <div style="font-size:13.5px;font-weight:700;color:var(--ink)">소스코드 (정적분석 대상)</div>
-  <p class="muted small" style="margin:4px 0 10px">지원 형식 .zip · .tar.gz · .tgz · 지원 언어 C/C++ · Python · Java · C# · 최대 200MB</p>
+  <p class="muted small" style="margin:4px 0 10px">.zip, .tar.gz, .tgz 압축파일을 올리면 바로 분석합니다. C/C++, Python, Java, C# 지원, 최대 200MB.</p>
   {% if editable %}
   <form method="post" action="/devices/{{ dev.code }}/upload-source" enctype="multipart/form-data">
     <input type="file" name="file" accept=".zip,.tgz,.tar.gz" hidden>
-    <div class="dropzone" data-dropzone><span data-dz-label>파일을 드래그하거나 클릭하여 선택 (.zip, .tgz, .tar.gz)</span></div>
+    <div class="dropzone" data-dropzone><span data-dz-label>압축파일을 끌어다 놓거나 클릭해서 선택하세요</span></div>
     <div style="display:flex;gap:10px;align-items:center;margin-top:10px;justify-content:flex-end">
       <span class="muted small">버전</span><input name="version" value="{{ dev.sw_version or '' }}" style="height:32px;border:1px solid #cdd5df;border-radius:8px;padding:0 10px;width:110px">
       <button class="btn primary" data-dz-submit disabled>{{ icon('scan') }} 정적분석 시작</button>
@@ -116,7 +116,7 @@
     <a class="linkbtn" style="margin-left:auto" href="?tab=scans">전체 이력 {{ icon('arrow-right') }}</a></div>
   {% if last %}
   <div class="scanbox">
-    <div class="hd"><b>{{ last.source_name }}</b><span class="muted">{{ last.code }} · {{ dt(last.started_at, True) }}</span>
+    <div class="hd"><b>{{ last.source_name }}</b><span class="muted">{{ last.code }}</span><span class="muted">{{ dt(last.started_at, True) }}</span>
       <span style="margin-left:auto">{% if last.status == '완료' %}<span class="chip ok">분석완료</span>{% else %}{{ status(last.status) }}{% endif %}</span></div>
     <div {% if last.status == '진행중' %}data-scan-poll="{{ last.code }}"{% endif %}>{% with s = last %}{% include '_steps.html' %}{% endwith %}</div>
     {% if last.status == '완료' %}
@@ -126,24 +126,24 @@
       <div class="metric"><div class="k">적용 룰셋</div><div class="v" style="font-size:12.5px">{{ last.ruleset }}</div></div>
       <div class="metric"><div class="k">분석 소요 시간</div><div class="v">{{ (last.duration_sec or 0)|round|int }} <small>초</small></div></div>
       <div class="metric"><div class="k">탐지된 취약점</div><div class="v">{{ last.n_critical + last.n_high + last.n_medium + last.n_low }} <small>건</small></div>
-        <div class="muted" style="font-size:11px">(C {{ last.n_critical }} / H {{ last.n_high }} / M {{ last.n_medium }} / L {{ last.n_low }})</div></div>
+        <div style="margin-top:4px">{{ sevbox(last.n_critical, last.n_high, last.n_medium, last.n_low) }}</div></div>
       <div class="metric"><div class="k">개선관리 지표</div><div class="v">{% if st.grade %}<span style="color:{{ {'A':'#2e7d32','B':'#1e63b5','C':'#c68a1e','D':'#c62828'}[st.grade.final] }}">{{ st.grade.final }}</span> <small>(충족률 {{ st.result.rate }})</small>{% else %}<small>평가 승인 후 산출</small>{% endif %}</div></div>
     </div>
-    <div class="langs">언어 분포: {% for k, v in last.langs.items() %}<span class="chip purple">{{ k }} {{ v }}개</span>{% endfor %}
-      {% if last.excluded_files %}<span class="muted">· 서드파티·빌드 경로 {{ last.excluded_files }}개 파일 집계 제외</span>{% endif %}</div>
+    <div class="langs">언어 {% for k, v in last.langs.items() %}<span class="chip purple">{{ k }} {{ v }}개</span>{% endfor %}
+      {% if last.excluded_files %}<span class="muted">서드파티·빌드 경로 {{ last.excluded_files }}개 파일은 집계에서 뺐습니다</span>{% endif %}</div>
     {% elif last.status == '실패' %}<div class="alert bad">{{ last.error }}</div>{% endif %}
   </div>
-  {% else %}<p class="muted">아직 정적분석 기록이 없습니다. 위에 소스코드 압축파일을 올리면 분석이 시작됩니다.</p>{% endif %}
+  {% else %}<p class="muted">아직 분석한 소스가 없습니다. 위에 압축파일을 올려 주세요.</p>{% endif %}
 
   <div style="display:flex;align-items:center;margin-top:22px"><b style="color:var(--ink);font-size:13.5px">증빙 문서</b>
     <span class="muted small" style="margin-left:8px">제출 {{ ev|length }} / 13</span></div>
-  {% if missing %}<div class="alert bad">법정 · 필수 미제출 {{ missing|length }}종 — {{ missing|map(attribute=0)|join(' · ') }}</div>{% endif %}
+  {% if missing %}<div class="alert bad">법정·필수 증빙 {{ missing|length }}종이 없습니다: {{ missing|map(attribute=0)|join(', ') }}</div>{% endif %}
   {% for code, name, level, qs in evdefs %}{% set e = ev.get(code) %}
   <div class="ev-row">
     <span class="code">{{ code }}</span>
     <span class="nm">{{ name }} <span class="chip {{ {'법정':'bad','필수':'warn','권고':'info','선택':'gray'}[level] }}" style="margin-left:6px">{{ level }}</span>
-      {% if qs %}<small>연계 {{ qs|join('·') }}</small>{% endif %}
-      {% if e %}<br><a class="file" href="/evidence/{{ e.id }}">{{ icon('file', 13) }} {{ e.filename }}</a> <span class="muted small">· {{ e.size|kb }} · {{ dt(e.uploaded_at) }} · {{ e.uploader }}</span>{% endif %}</span>
+      {% if qs %}<small>{{ qs|join(', ') }} 문항</small>{% endif %}
+      {% if e %}<br><a class="file" href="/evidence/{{ e.id }}">{{ icon('file', 13) }} {{ e.filename }}</a> <span class="muted small">{{ e.size|kb }}, {{ dt(e.uploaded_at) }} {{ e.uploader }}</span>{% endif %}</span>
     {% if editable %}
     <form method="post" action="/devices/{{ dev.code }}/evidence/{{ code }}" enctype="multipart/form-data" style="margin:0">
       <label class="btn outline sm" style="cursor:pointer">{{ icon('upload') }} 업로드<input type="file" name="file" hidden data-autosubmit></label></form>
@@ -159,25 +159,26 @@
   <form method="post" action="/devices/{{ dev.code }}/checklist">
   <div class="cl-head">
     <div class="cl-score"><div class="k">문서 충족률</div><div class="v">{{ res.rate }} <small>/ 100</small></div></div>
-    <div class="cl-desc">충족 배점 {{ res.got }} / 적용 배점 {{ res.max|sc }}점 (비적용 문항은 분모에서 제외)<br>
-      개선관리 지표 <b>{{ gr.final }}</b> · 기본 등급 {{ gr.base }}{% if gr.cap %} · 등급 상한 {{ gr.cap }} — {{ gr.cap_reason }}{% endif %} → 최종 <b>{{ gr.final }}</b></div>
+    <div class="cl-grade"><span class="grade {{ gr.final }} lg">{{ gr.final }} 등급</span></div>
+    <div class="cl-desc">적용 배점 {{ res.max|sc }}점 중 {{ res.got }}점 충족 (비적용 문항은 계산에서 뺍니다)<br>
+      기본 등급 {{ gr.base }}{% if gr.cap %}, {{ gr.cap_reason }} 때문에 {{ gr.cap }} 등급 상한 적용{% endif %}</div>
     {% if editable %}<div style="display:flex;gap:8px"><button class="btn dark" name="then" value="save">저장</button>
       <button class="btn primary" name="then" value="request">저장 후 검토 요청</button></div>{% endif %}
   </div>
   {% if latest %}
   <div style="font-size:12.5px;margin-bottom:8px"><b>평가 회차</b> {{ latest.code }} {{ status(latest.status) }}
-    <span class="muted">{{ latest.reviewer or latest.evaluator }} · {{ dt(latest.reviewed_at or latest.updated_at, True) }}</span>
-    <span class="muted">— {% if latest.status in ('승인완료','완료') %}이 평가가 리포트에 반영됩니다. 응답을 고쳐 저장하면 새 회차가 열립니다.{% elif latest.status == '검토대기' %}검증자 검토를 기다리는 중입니다. 고쳐 저장하면 새 회차가 열립니다.{% elif latest.status == '반려' %}반려됨: {{ latest.review_comment or '의견 없음' }} — 고쳐 저장한 뒤 다시 검토 요청하세요.{% else %}작성 중입니다. 저장 후 검토를 요청하세요.{% endif %}</span></div>
+    <span class="muted">{{ latest.reviewer or latest.evaluator }}, {{ dt(latest.reviewed_at or latest.updated_at, True) }}.</span>
+    <span class="muted">{% if latest.status in ('승인완료','완료') %}리포트에 반영된 회차입니다. 응답을 바꿔 저장하면 새 회차가 열립니다.{% elif latest.status == '검토대기' %}검증자가 검토하고 있습니다.{% elif latest.status == '반려' %}반려 의견: {{ latest.review_comment or '없음' }}. 고친 뒤 다시 검토를 요청하세요.{% else %}다 채웠으면 검토를 요청하세요.{% endif %}</span></div>
   {% endif %}
-  {% if res.legal_gaps %}<div class="alert bad">법정 제출요건 미충족 — {% for g in res.legal_gaps %}{{ g.name }} {{ g.ref }}{{ ', ' if not loop.last }}{% endfor %}</div>{% endif %}
-  {% if scan_done %}<div class="alert info">정적분석 수행 이력: {{ scan_done.code }} ({{ dt(scan_done.started_at) }}) — Q12 응답과 D06(SAST 결과보고서) 증빙에 활용할 수 있습니다. 리포트 화면의 관할별 결과보고서를 D06으로 올리세요.</div>{% endif %}
+  {% if res.legal_gaps %}<div class="alert bad">FDA 법정 제출요건을 채우지 못했습니다: {% for g in res.legal_gaps %}{{ g.name }} {{ g.ref }}{{ ', ' if not loop.last }}{% endfor %}</div>{% endif %}
+  {% if scan_done %}<div class="alert info">{{ scan_done.code }} 정적분석 기록이 있습니다. Q12에 「예」로 답하고, 리포트 화면의 관할별 결과보고서를 D06 증빙으로 올리면 됩니다.</div>{% endif %}
   {% for a, aname in checklist.AREAS.items() %}{% set ar = res.areas[a] %}
   <div class="area">
-    <div class="ah">{{ icon('chev-down') }} 영역 {{ a }} — {{ aname }} <small>응답 {{ ar.answered }}/{{ ar.total }}</small><span class="right">{{ ar.got|round(1)|sc }} / {{ ar.max|sc }}점</span></div>
+    <div class="ah">{{ icon('chev-down') }} {{ aname }} <small>응답 {{ ar.answered }}/{{ ar.total }}</small><span class="right">{{ ar.got|round(1)|sc }} / {{ ar.max|sc }}점</span></div>
     <div class="ab">{% for r in res.rows if r.area == a %}
       <div class="qrow {{ 'na' if not r.applicable }}">
         <div class="qt">{{ r.id }}. {{ r.text }}{% if r.legal %}<span class="chip legal">법정</span>{% endif %}
-          <small>배점 {{ r.pts|sc }}점 · 연계 증빙 {{ r.evidence|join(' · ') }}{% if r.has_evidence %} (제출){% endif %} · 근거 {{ r.basis }}{% if r.half %} · 연계 증빙이 없으면 배점의 50%만 인정{% endif %}{% if r.cond != 'ALWAYS' %} · 적용조건 {{ r.cond_text }}{% endif %}{% if not r.applicable %} — <b>적용 대상 아님(자동 비적용)</b>{% endif %}</small></div>
+          <span class="tags"><span>{{ r.pts|sc }}점</span><span class="{{ 'ok' if r.has_evidence }}">증빙 {{ r.evidence|join(', ') }}{{ ' 제출' if r.has_evidence }}</span><span>{{ r.basis }}</span>{% if r.half %}<span>증빙 없으면 50%</span>{% endif %}{% if r.cond != 'ALWAYS' %}<span>{{ r.cond_text }}</span>{% endif %}{% if not r.applicable %}<span class="off">이 기기는 해당 없음</span>{% endif %}</span></div>
         <span class="radio">{% for opt in ['예','아니오','비적용'] %}<label><input type="radio" name="{{ r.id }}" value="{{ opt }}" {{ 'checked' if answers.get(r.id) == opt }} {{ 'disabled' if not editable }}> {{ opt }}</label>{% endfor %}</span>
         <span class="st">{{ status(r.state) }}</span>
       </div>
@@ -188,22 +189,22 @@
 
 {# ═══════════════ 표준화 ═══════════════ #}
 {% elif tab == 'standards' %}
-  <div class="sect"><div class="sh">적용조건 설정 <small>적용조건이 없으면 ‘적합/부적합’ 대신 검토 필요로 표시</small></div>
+  <div class="sect"><div class="sh">판정 조건</div>
     <div class="sb" style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
       <form method="get" class="selectbox"><input type="hidden" name="tab" value="standards"><label>판정 관할</label>
         <select name="j" onchange="this.form.submit()">{% for jj in standards.JURIS %}<option {{ 'selected' if juris == jj }}>{{ jj }}</option>{% endfor %}</select></form>
       <span class="muted small">목표 시장</span><b>{{ dev.target_market }}</b>
       <span class="muted small">제출 경로</span><b>{{ dev.submission_path }}</b>
       <span class="muted small">Cyber device 해당성</span><span class="chip {{ 'warn' if cyber == '사이버 기기 해당' else 'gray' }}">{{ '해당' if cyber == '사이버 기기 해당' else cyber }}</span>
-      <span class="muted small" style="flex-basis:100%">목표 시장·제출 경로·Cyber device 해당성은 기기 정보 값이며, 적용성 열에 반영됩니다. (기본 정보 탭에서 수정)</span>
+      <a class="linkbtn" style="margin-left:auto;color:var(--primary)" href="?tab=info">기본 정보에서 바꾸기</a>
     </div></div>
   <div class="kpis k4">
     {{ kpi('var(--k-purple)', 'clipboard', std.counts.total, '등록 요구항목') }}
     {{ kpi('var(--k-green)', 'check-circle', std.counts.met, '충족') }}
     {{ kpi('var(--k-red)', 'alert', std.counts.gap, '보완 필요') }}
-    {{ kpi('var(--k-gold)', 'hourglass', std.counts.review, '검토·매핑 대기 (검토 완료 ' ~ std.counts.review_done_pct ~ '%)') }}
+    {{ kpi('var(--k-gold)', 'hourglass', std.counts.review, '검토 대기') }}
   </div>
-  <div class="sect"><div class="sh">표준화 4축 · 관할별 판정 <span class="right muted small">산출 기준: 요구항목 DB v0.2</span></div>
+  <div class="sect"><div class="sh">관할별 판정과 4축 지표 <span class="right muted small">요구항목 DB v0.2 기준</span></div>
     <div class="sb">
       <div class="verdicts">{% for v in std.verdicts %}
         <div class="verdict {{ {'부적합':'bad','조건부 적합':'warn','적합':'ok'}[v.verdict] }} {{ 'sel' if v.juris == juris }}"><div class="j">{{ v.juris }}</div><div class="v">{{ v.verdict }}</div><div class="n">{{ v.n }}건 중 미충족 {{ v.unmet }}건</div></div>
@@ -211,37 +212,37 @@
       <div class="axes">{% for name, val in std.axes %}
         <div class="axis"><div class="k">{{ name }}</div><div class="v">{{ (val[0]|string ~ '%') if val[0] is not none else '산출 불가' }}</div><div class="n">{{ (val[2]|string ~ '건 중 ' ~ val[1]|string ~ '건') if val[0] is not none else '적용 대상 0건' }}</div></div>
       {% endfor %}</div>
-      <p class="muted small" style="margin:10px 0 0">축 값이 「산출 불가」인 것은 적용 대상 항목이 없다는 뜻이며 0%로 대체하지 않는다. 형식준수성의 분모는 증빙파일이 업로드된 요구항목 수이며, F1~F3 형식검사(허용 형식·빈 파일 아님·파일명 정상)를 모두 통과해야 분자로 센다.</p>
+      <p class="muted small" style="margin:10px 0 0">「산출 불가」는 계산할 대상 항목이 없다는 뜻입니다. 형식 준수성은 증빙을 올린 항목만 셉니다.</p>
     </div></div>
   <div class="stdsplit">
     <div>
       <div class="filters" id="stdf">{% for f in ['전체','법적 요구','FDA 권고','표준 매핑','내부 기준','보완 필요'] %}<button type="button" class="{{ 'on' if loop.first }}" data-f="{{ f }}">{{ f }}</button>{% endfor %}</div>
-      <table class="tbl"><thead><tr><th>구분</th><th class="l">요구항목</th><th class="l">출처·조항</th><th>적용성</th><th>평가상태</th></tr></thead><tbody>
+      <table class="tbl"><thead><tr><th>구분</th><th class="l">요구항목</th><th class="l">출처</th><th>적용성</th><th>평가상태</th></tr></thead><tbody>
       {% for r in std.rows %}
         <tr data-row data-kind="{{ r.kind }}" data-st="{{ r.status }}" class="{{ 'picked' if r.id == pick.id }}" data-href="?tab=standards&req={{ r.id }}&j={{ juris }}">
           <td><span class="chip {{ {'법적 요구':'bad','FDA 권고':'info','표준 매핑':'purple','내부 기준':'gray'}[r.kind] }}">{{ r.kind }}</span></td>
-          <td class="l"><span class="mono small muted">{{ r.id }}</span><br><b style="color:var(--ink)">{{ r.title }}</b> <span class="chip gray" style="height:18px;font-size:10.5px">{{ r.category }}</span></td>
-          <td class="l small">{{ r.org }}<br><span class="muted">{{ r.clause }}</span></td>
-          <td class="small">{{ r.appl }}<br><span class="muted" style="font-size:11px">{{ r.cond }}</span></td>
+          <td class="l wrap"><span class="small muted">{{ r.id }}</span><br><b style="color:var(--ink)">{{ r.title }}</b> <span class="chip gray" style="height:18px;font-size:10.5px">{{ r.category }}</span></td>
+          <td class="l small wrap">{{ r.org }}<br><span class="muted">{{ r.clause }}</span></td>
+          <td class="small wrap">{{ r.appl }}<br><span class="muted" style="font-size:11px">{{ r.cond }}</span></td>
           <td>{{ status(r.status) }}{% if r.manual %}<br><span class="muted" style="font-size:10.5px">검토자 지정</span>{% endif %}</td></tr>
       {% endfor %}</tbody></table>
-      <p class="muted small">표준(IEC/ISO)은 메타데이터만 공식 확인된 상태이며, 세부 조항 매핑은 정식 보유본 검토 후 확정합니다.</p>
+      <p class="muted small">IEC·ISO 표준은 세부 조항 매핑 전이라 검토 대기로 둡니다.</p>
     </div>
     <div class="stdpanel">
-      <div class="mono small muted">{{ pick.id }}</div>
+      <div class="small muted">{{ pick.id }}</div>
       <div style="font-size:15px;font-weight:700;color:var(--ink);margin:2px 0 6px">{{ pick.title }}</div>
       <span class="chip {{ {'법적 요구':'bad','FDA 권고':'info','표준 매핑':'purple','내부 기준':'gray'}[pick.kind] }}">{{ pick.kind }}</span>
       <h5>정규화 요구내용</h5><div>{{ pick.text }}</div>
-      <h5>적용조건</h5><div>{{ pick.appl }} · {{ pick.cond }}</div>
+      <h5>적용조건</h5><div>{{ pick.cond }}</div>
       <div class="muted small" style="margin-top:4px">{{ juris }} 의무 수준: {{ pick.duty }}</div>
-      <h5>출처</h5><div>{{ pick.org }} · {{ pick.clause }}</div>
+      <h5>출처</h5><div>{{ pick.org }}, {{ pick.clause }}</div>
       <h5>요구 증빙</h5><div>{% for e in pick.evidence_req %}<span class="chip gray" style="margin:0 4px 4px 0">{{ e }}</span>{% endfor %}</div>
-      {% if pick.qs %}<h5>연계 체크리스트 · 증빙</h5><div class="small">{{ pick.qs|join(', ') }}{% if pick.slots %} · {{ pick.slots|join(', ') }}{% endif %}</div>{% endif %}
+      {% if pick.qs %}<h5>연결된 문항과 증빙</h5><div class="small">{{ (pick.qs + pick.slots)|join(', ') }}</div>{% endif %}
       <form method="post" action="/devices/{{ dev.code }}/standards/{{ pick.id }}">
         <h5>평가상태</h5>
         <div class="radio" style="flex-wrap:wrap">{% for s in standards.STATUSES %}<label><input type="radio" name="status" value="{{ s }}" {{ 'checked' if pick.status == s }} {{ 'disabled' if not editable }}> {{ s }}</label>{% endfor %}
           <label><input type="radio" name="status" value="" {{ 'checked' if not pick.manual }} {{ 'disabled' if not editable }}> 자동</label></div>
-        <p class="muted small">{% if pick.manual %}검토자 지정 · {{ pick.by }} · {{ dt(pick.at, True) }} (자동 판정값: {{ pick.auto }}){% else %}자동 판정 — 기존 데이터(기기 정보·체크리스트·증빙·스캔)로 판정한 값입니다. 상태를 지정하면 그 값이 유지됩니다.{% endif %}</p>
+        <p class="muted small">{% if pick.manual %}{{ pick.by }}님이 {{ dt(pick.at, True) }}에 지정했습니다. 자동 판정은 「{{ pick.auto }}」입니다.{% else %}기기 정보, 체크리스트, 증빙, 스캔으로 자동 판정했습니다. 직접 고르면 그 값을 씁니다.{% endif %}</p>
         <h5>검토 메모</h5><div class="field"><textarea name="memo" {{ 'disabled' if not editable }}>{{ pick.memo }}</textarea></div>
         {% if editable %}<button class="btn dark sm">저장</button>{% endif %}
       </form>

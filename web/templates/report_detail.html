@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
-{% block head %}<link rel="stylesheet" href="/static/doc.css?v={{ ver }}">{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/doc.css?v={{ asset }}">{% endblock %}
 {% block content %}
 {{ pagehead(r.code ~ ' ' ~ s.device.name, [('리포트', '/reports'), '리포트 상세']) }}
 <div class="toolbar">
   <a class="back" href="/reports">{{ icon('arrow-left') }} 목록으로</a><div class="grow"></div>
   {% if user.role != '열람자' %}
-  <form method="post" action="/reports/{{ r.code }}/reissue" style="margin:0" data-confirm="최신 기기 정보·스캔·증빙으로 새 리포트를 발행할까요?"><button class="btn outline">{{ icon('refresh') }} 재발행</button></form>
+  <form method="post" action="/reports/{{ r.code }}/reissue" style="margin:0" data-confirm="지금의 기기 정보, 스캔, 증빙으로 새 리포트를 발행할까요?"><button class="btn outline">{{ icon('refresh') }} 재발행</button></form>
   {% if r.status != '폐기' %}<form method="post" action="/reports/{{ r.code }}/revoke" style="margin:0" data-confirm="{{ r.code }}을(를) 폐기할까요? 폐기한 리포트는 제출에 쓸 수 없습니다."><button class="btn danger">{{ icon('ban') }} 폐기</button></form>{% endif %}
   {% endif %}
   <a class="btn outline" href="/reports/{{ r.code }}/print" target="_blank">{{ icon('printer') }} 인쇄</a>
@@ -14,11 +14,11 @@
 {% if r.status == '폐기' %}<div class="alert bad">이 리포트는 {{ dt(r.revoked_at, True) }}에 폐기되었습니다.</div>{% endif %}
 
 <div class="card" style="margin-bottom:16px">
-  <h3>{{ icon('world', 17) }} 관할별 결과보고서 <span class="muted small" style="font-weight:400">정적분석 시험 결과를 각국 제출 양식으로 — 검출 처분(정적분석 결과 ▸ 검출 클릭)을 기록하면 판정이 채워집니다</span></h3>
+  <h3>관할별 결과보고서 <span class="muted small" style="font-weight:400">정적분석 결과를 제출 국가 양식으로 만듭니다. 검출마다 코드 검토 결과를 기록하면 판정 칸이 채워집니다.</span></h3>
   <div class="formsel">
     {% for k, v in kinds.items() %}
     <div class="formcard"><b>{{ v.title }}</b><p>{{ v.sub }}<br>{{ v.desc }}</p>
-      <a class="btn outline sm" href="/reports/{{ r.code }}/forms/{{ k }}" target="_blank">{{ icon('file') }} 열기</a>
+      <a class="btn outline sm" href="/reports/{{ r.code }}/forms/{{ k }}" target="_blank">{{ icon('file') }} 보기</a>
       <a class="btn outline sm" href="/reports/{{ r.code }}/forms/{{ k }}?pdf=1">{{ icon('download') }} PDF</a></div>
     {% endfor %}
   </div>

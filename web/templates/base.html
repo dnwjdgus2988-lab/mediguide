@@ -3,17 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>메디가이드 - 의료기기 보안 점검 · AI 조치 매뉴얼</title>
+<title>메디가이드</title>
 <link rel="icon" href="/static/logo.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/static/app.css?v={{ ver }}">
+<link rel="stylesheet" href="/static/app.css?v={{ asset }}">
 {% block head %}{% endblock %}
 </head>
 <body>
 {% from '_ui.html' import pagehead, kpi, sevchip, sevbox, status, grade, pager, fda, dt with context %}
 <header class="topbar">
-  <a class="brand" href="/dashboard"><img src="/static/logo.svg" alt=""><span>메디가이드<small>의료기기 보안 점검 · AI 매뉴얼</small></span></a>
+  <a class="brand" href="/dashboard"><img src="/static/logo.svg" alt=""><span>메디가이드</span></a>
   <button class="hamb" type="button" data-toggle-nav title="메뉴 접기">{{ icon('menu', 18) }}</button>
   <div class="grow"></div>
   <div class="userchip" data-usermenu>
@@ -21,7 +21,7 @@
     <span class="nm">{{ user.username }}<small>{{ user.role }}</small></span>
     {{ icon('chev-down', 15) }}
     <div class="usermenu">
-      <div class="who"><b>{{ user.username }}</b>{{ user.email or '' }} · {{ user.org or '' }}</div>
+      <div class="who"><b>{{ user.username }}</b>{{ user.email or '' }}<br>{{ user.org or '' }}</div>
       <a href="/logout">{{ icon('logout', 16) }} 로그아웃</a>
     </div>
   </div>
@@ -42,7 +42,7 @@
   <a class="nav-item {{ 'active' if p.startswith('/assessments') }}" href="/assessments">{{ icon('clipboard') }}평가 관리</a>
   <a class="nav-item {{ 'active' if p.startswith('/reports') }}" href="/reports">{{ icon('report') }}리포트</a>
   <div class="nav-div"></div>
-  <a class="nav-item {{ 'active' if p.startswith('/manual') }}" href="/manual">{{ icon('sparkles') }}AI 매뉴얼 검색</a>
+  <a class="nav-item {{ 'active' if p.startswith('/manual') }}" href="/manual">{{ icon('manual') }}AI 매뉴얼 검색</a>
   <div class="nav-div"></div>
   <div class="nav-group {{ 'open' if p.startswith('/admin') }}">
     <div class="nav-item" data-group>{{ icon('settings') }}관리자{{ icon('chev-down', None, 'chev') }}</div>
@@ -53,16 +53,16 @@
       <a class="nav-item {{ 'active' if p.startswith('/admin/system') }}" href="/admin/system">{{ icon('server') }}시스템 설정</a>
     </div>
   </div>
+  <div class="side-foot">메디가이드 v{{ ver }}</div>
 </nav>
 
 <main class="main">
   {% for kind, msg in flashes %}<div class="flash {{ kind }}">{{ msg }}</div>{% endfor %}
   {% block content %}{% endblock %}
 </main>
-<div class="verbadge">메디가이드 v{{ ver }}</div>
 
 <div class="modal-bg" id="modal"><div class="modal" id="modal-box"></div></div>
-<script src="/static/app.js?v={{ ver }}"></script>
+<script src="/static/app.js?v={{ asset }}"></script>
 {% block scripts %}{% endblock %}
 </body>
 </html>

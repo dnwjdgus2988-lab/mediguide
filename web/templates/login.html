@@ -2,12 +2,12 @@
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>로그인 - 메디가이드</title><link rel="icon" href="/static/logo.svg">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/static/app.css"></head>
+<link rel="stylesheet" href="/static/app.css?v={{ asset }}"></head>
 <body><div class="login-bg"><form class="login" method="post" action="/login">
-  <div class="lg"><img src="/static/logo.svg" alt=""><h2>메디가이드</h2><p>의료기기 보안 점검 · AI 조치 매뉴얼 검색</p></div>
+  <div class="lg"><img src="/static/logo.svg" alt=""><h2>메디가이드</h2><p>의료기기 소프트웨어 보안 점검과 조치 매뉴얼</p></div>
   {% if error %}<div class="flash err">{{ error }}</div>{% endif %}
   <div class="field"><label>아이디</label><input name="username" autocomplete="username" required autofocus></div>
   <div class="field"><label>비밀번호</label><input name="password" type="password" autocomplete="current-password" required></div>
   <button class="btn primary" type="submit">로그인</button>
-  <p class="muted small" style="text-align:center;margin:16px 0 0">2026 동북권 오픈소스 아이디어 경진대회 · 8팀 무한루프</p>
+  <p class="muted small" style="text-align:center;margin:16px 0 0">2026 동북권 오픈소스 아이디어 경진대회 8팀 무한루프</p>
 </form></div></body></html>

@@ -10,18 +10,18 @@
 <div class="card" data-dt data-kpis="#kp">
   <div class="tbl-tools">
     <button class="btn-reset" type="button" data-dt-reset>{{ icon('filter', 14) }} 필터 초기화</button>
-    <span class="muted small">저장하면 이후 계산부터 반영 (발행된 리포트는 발행 당시 값 유지)</span><div class="grow"></div>
+    <span class="muted small">바꾼 값은 다음 계산부터 쓰입니다. 이미 발행한 리포트는 바뀌지 않습니다.</span><div class="grow"></div>
     <div class="search">{{ icon('search') }}<input data-dt-search placeholder="정책 검색..."></div>
     <div class="selectbox"><label>분류</label><select data-dt-filter="c"><option value="">전체</option><option>규정</option><option>표준</option><option>정책</option></select></div>
   </div>
   <table class="tbl">
-    <thead><tr><th class="l">키</th><th class="l">설명</th><th>값</th><th>근거</th><th class="l">근거 기관 · 조항</th><th>최종 수정</th></tr></thead>
+    <thead><tr><th class="l">키</th><th class="l">설명</th><th>값</th><th>근거</th><th class="l">근거 기관과 조항</th><th>최종 수정</th></tr></thead>
     <tbody>{% for p in rows %}
       <tr data-row data-f-c="{{ p.category }}" {% if user.role == '관리자' %}data-modal-tpl="#tpl-p{{ loop.index }}" data-modal-size="sm" style="cursor:pointer"{% endif %}>
-        <td class="l mono">{{ p.key }}</td><td class="l small">{{ p.description }}</td>
+        <td class="l mono">{{ p.key }}</td><td class="l small wrap">{{ p.description }}</td>
         <td><span class="mono" style="background:#f4f6f9;border-radius:4px;padding:2px 6px;display:inline-block;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle">{{ p.value or '(빈 값)' }}</span></td>
         <td><span class="chip {{ {'규정':'bad','표준':'info','정책':'gray'}[p.category] }}">{{ p.category }}</span></td>
-        <td class="l small">{{ p.basis_org }}<br><span class="muted">{{ p.basis_ref }}</span></td><td class="small">{{ p.updated_by or '-' }}{% if p.updated_at %}<br>{{ dt(p.updated_at) }}{% endif %}</td></tr>
+        <td class="l small wrap">{{ p.basis_org }}<br><span class="muted">{{ p.basis_ref }}</span></td><td class="small">{{ p.updated_by or '-' }}{% if p.updated_at %}<br>{{ dt(p.updated_at) }}{% endif %}</td></tr>
     {% endfor %}</tbody>
   </table>
   {{ pager() }}
@@ -29,7 +29,7 @@
 {% for p in rows %}
 <template id="tpl-p{{ loop.index }}"><form method="post" action="/admin/policies">
   <div class="modal-h"><b class="mono">{{ p.key }}</b><button type="button" class="btn sm right" data-close>{{ icon('x') }}</button></div>
-  <div class="modal-b"><p>{{ p.description }}</p><p class="muted small">근거: {{ p.basis_org }} · {{ p.basis_ref }}</p>
+  <div class="modal-b"><p>{{ p.description }}</p><p class="muted small">근거: {{ p.basis_org }}, {{ p.basis_ref }}</p>
     <input type="hidden" name="key" value="{{ p.key }}">
     <div class="field"><label>값</label><input name="value" value="{{ p.value }}"></div></div>
   <div class="modal-f"><button type="button" class="btn outline" data-close>취소</button><button class="btn primary">저장</button></div>

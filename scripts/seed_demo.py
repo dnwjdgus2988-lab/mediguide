@@ -103,6 +103,26 @@ service.request_review(service.get_assessment(acode2), "admin")
 rpt2 = service.approve(service.get_assessment(acode2), "verifier", "증빙 확인 — 시연용 샘플")
 print(f"  {acode2} 승인 → {rpt2}")
 
-# ── 3) 등록만 한 기기 (판정 불가) ──
+# ── 3) 검증용 데이터셋: 정적분석만 (체크리스트 미응답 → 시스템 평가로 리포트 발행) ──
+extra = []
+for folder, name, model, maker, desc in [
+    ("seeds-5", "[검증] 결함 시드 5종 (인슐린펌프 관용구)", "SEED-5", "상지대 검증용 시드",
+     "CWE-120/134/327/338/798 결함을 인슐린펌프 코드 관용구로 심은 시험 파일 5종"),
+    ("realfw", "[검증] 공개 펌웨어 6종 (STM32·FreeRTOS·libopencm3)", "REALFW-6", "공개 소스 (각 저장소 라이선스)",
+     "STM32F4 BSP·HAL, USB 미들웨어, FreeRTOS 커널, libopencm3 예제 등 공개 임베디드 펌웨어"),
+]:
+    if not (config.SAMPLES_DIR / folder).exists():
+        print(f"  {folder} 폴더가 없어 건너뜁니다")
+        continue
+    _id, code = service.add_device({"name": name, "model": model, "maker": maker, "device_class": "Class II",
+                                    "sw_version": "1.0.0", "fw_version": "1.0.0", "description": desc,
+                                    "target_market": "미국 FDA", "submission_path": "510(k)",
+                                    "has_software": 1, "internet": 1, "vuln_tech": 1}, "admin")
+    db.audit("admin", "기기 등록", f"{name} ({code})", "127.0.0.1")
+    dv = service.get_device_by_code(code)
+    scan(dv, folder, f"검증_{model}_src.zip", "1.0.0")
+    extra.append(code)
+
+# ── 4) 등록만 한 기기 (판정 불가) ──
 d3 = device("스마트 혈당측정기 게이트웨이", "GlucoLink-GW", "0.9.0", "블루투스 혈당측정기 데이터를 병원 서버로 전송하는 게이트웨이 (등록 예시)")
-print("완료:", [d1["code"], d2["code"], d3["code"]])
+print("완료:", [d1["code"], d2["code"], *extra, d3["code"]])

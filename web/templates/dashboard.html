@@ -2,10 +2,10 @@
 {% block content %}
 {{ pagehead('대시보드', ['대시보드']) }}
 <div class="kpis k4">
-  {{ kpi('var(--k-purple)', 'device', d.n_devices, '등록 장비', info=True) }}
-  {{ kpi('var(--k-blue)', 'scan', d.n_scans_done, '완료 스캔', info=True) }}
-  {{ kpi('var(--k-red)', 'alert', d.n_vulns, '발견 취약점', info=True) }}
-  {{ kpi('var(--k-gold)', 'clipboard', d.n_assess_open, '진행중 평가', info=True) }}
+  {{ kpi('var(--k-purple)', 'device', d.n_devices, '등록 장비') }}
+  {{ kpi('var(--k-blue)', 'scan', d.n_scans_done, '완료 스캔') }}
+  {{ kpi('var(--k-red)', 'alert', d.n_vulns, '발견 취약점') }}
+  {{ kpi('var(--k-gold)', 'clipboard', d.n_assess_open, '진행중 평가') }}
 </div>
 <div class="grid2">
   <div class="card">
@@ -38,7 +38,7 @@
       <thead><tr><th class="l" style="background:none;border-bottom:1px solid var(--line)">의료기기</th><th style="background:none;border-bottom:1px solid var(--line)">최고 심각도</th><th style="background:none;border-bottom:1px solid var(--line)">심각도별</th><th style="background:none;border-bottom:1px solid var(--line)">최신 스캔</th></tr></thead>
       <tbody>
       {% for t in d.top %}
-        <tr data-href="/devices/{{ t.device.code }}?tab=scans"><td class="l" style="background:none">{{ t.device.name }}<span class="sub">{{ t.device.code }}</span></td>
+        <tr data-href="/devices/{{ t.device.code }}?tab=scans"><td class="l" style="background:none"><span class="ellip" style="max-width:240px">{{ t.device.name }}</span><span class="sub">{{ t.device.code }}</span></td>
           <td style="background:none">{{ sevchip(t.worst) }}</td>
           <td style="background:none">{{ sevbox(t.scan.n_critical, t.scan.n_high, t.scan.n_medium, t.scan.n_low) }}</td>
           <td style="background:none">{{ dt(t.scan.finished_at or t.scan.started_at) }}</td></tr>
@@ -56,7 +56,7 @@
     {% for s in d.recent %}
       <tr data-href="/scans/{{ s.code }}"><td>{{ s.code }}</td><td>{{ s.device_name }}</td><td>{{ s.version }}</td><td>{{ dt(s.started_at) }}</td>
         <td>{{ sevbox(s.n_critical, s.n_high, s.n_medium, s.n_low) }}</td><td>{{ status(s.status) }}</td></tr>
-    {% else %}<tr><td colspan="6" class="empty">스캔 기록이 없습니다. 의료기기 관리에서 기기를 등록하고 소스코드를 올려 보세요.</td></tr>{% endfor %}
+    {% else %}<tr><td colspan="6" class="empty">아직 스캔이 없습니다. 의료기기를 등록하고 소스코드를 올려 보세요.</td></tr>{% endfor %}
     </tbody>
   </table>
 </div>

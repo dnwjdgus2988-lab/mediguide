@@ -20,8 +20,8 @@ button, input, select, textarea { font-family: inherit; font-size: 13px; }
 /* ── 머리띠 ─────────────────────────────────── */
 .topbar { position: fixed; top: 0; left: 0; right: 0; height: 64px; background: #fff; display: flex; align-items: center;
           padding: 0 16px 0 24px; z-index: 40; }
-.brand { width: 236px; display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 19px; color: var(--ink); }
-.brand img { height: 30px; }
+.brand { width: 236px; display: flex; align-items: center; gap: 9px; font-weight: 700; font-size: 18px; color: var(--ink); letter-spacing: -.3px; }
+.brand img { height: 28px; }
 .brand small { display: block; font-size: 10px; color: var(--sub); font-weight: 500; letter-spacing: .2px; }
 .hamb { width: 34px; height: 34px; border-radius: 8px; background: var(--primary-light); color: var(--primary); border: 0;
         display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -112,7 +112,8 @@ body.collapsed .main { margin-left: 16px; }
 table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 .tbl thead th { background: var(--bg); color: var(--ink2); font-weight: 700; padding: 11px 10px; text-align: center; white-space: nowrap; }
 .tbl thead th:first-child { border-radius: 8px 0 0 0; } .tbl thead th:last-child { border-radius: 0 8px 0 0; }
-.tbl td { padding: 11px 10px; border-bottom: 1px solid var(--line2); text-align: center; color: rgba(0,0,0,.8); vertical-align: middle; }
+.tbl td { padding: 11px 10px; border-bottom: 1px solid var(--line2); text-align: center; color: rgba(0,0,0,.8); vertical-align: middle; white-space: nowrap; }
+.tbl td.wrap { white-space: normal; word-break: keep-all; }
 .tbl td.l, .tbl th.l { text-align: left; }
 .tbl tbody tr:nth-child(even) td { background: #fafbfc; }
 .tbl tbody tr[data-href], .tbl tbody tr[data-modal-url] { cursor: pointer; }
@@ -340,3 +341,29 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 @media (max-width: 1200px) { .kpis.k6 { grid-template-columns: repeat(3, 1fr); } .metrics { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 900px) { .sidebar { transform: translateX(-260px); } body.navopen .sidebar { transform: none; } .main { margin-left: 16px; }
   .grid2, .stdsplit { grid-template-columns: 1fr; } .kpis.k4 { grid-template-columns: repeat(2, 1fr); } .verdicts, .axes { grid-template-columns: repeat(2, 1fr); } }
+
+/* ── 다듬기: 숫자 정렬, 태그, 상태 점, 움직임, 키보드 초점 ───────────── */
+.tbl, .kpi .num, .metric .v, .cl-score .v, .axis .v, .legend .v, .pager { font-variant-numeric: tabular-nums; }
+.kpi .num { font-size: 16px; }
+.kpi .lb { margin-top: 1px; }
+.tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+.tags span { font-size: 11px; line-height: 18px; padding: 0 6px; border-radius: 4px; background: #f1f4f8; color: var(--sub); }
+.tags span.ok { background: #edf7ed; color: var(--ok); }
+.tags span.off { background: #fff4e5; color: var(--warn); }
+.dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; background: var(--mute); }
+.dot.ok { background: #2e7d32; } .dot.bad { background: #c62828; } .dot.warn { background: #c68a1e; }
+.cl-grade { padding-top: 14px; }
+.ai-box .hd svg { color: var(--primary); }
+.modal-bg { transition: opacity .16s ease; opacity: 0; }
+.modal-bg.open { opacity: 1; }
+.modal-bg.open .modal { animation: pop .18s ease-out; }
+@keyframes pop { from { transform: translateY(6px) scale(.985); opacity: .6; } to { transform: none; opacity: 1; } }
+.usermenu.open { animation: drop .14s ease-out; }
+@keyframes drop { from { transform: translateY(-4px); opacity: 0; } to { transform: none; opacity: 1; } }
+.nav-item, .btn, .tabs a, .kpi, .tbl tbody tr td { transition: background-color .12s, color .12s, border-color .12s; }
+.bar i { transition: width .4s ease; }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible, .kpi[data-kpi]:focus-visible {
+  outline: 2px solid var(--primary); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+.side-foot { position: absolute; left: 32px; bottom: 16px; font-size: 11px; color: var(--mute); }
+.sidebar { padding-bottom: 48px; }

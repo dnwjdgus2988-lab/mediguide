@@ -34,7 +34,8 @@ WEB = Path(__file__).resolve().parent
 app = FastAPI(title="메디가이드", docs_url=None, redoc_url=None)
 app.mount("/static", StaticFiles(directory=WEB / "static"), name="static")
 T = Jinja2Templates(directory=WEB / "templates")
-T.env.globals.update(icon=icon, ver=VERSION, checklist=checklist, standards=standards, jload=db.jload)
+import time as _t
+T.env.globals.update(icon=icon, ver=VERSION, asset=str(int(_t.time())), checklist=checklist, standards=standards, jload=db.jload)
 T.env.filters["num"] = lambda v: f"{v:,}" if isinstance(v, (int, float)) else v
 T.env.filters["kb"] = lambda v: f"{(v or 0) / 1024:,.1f} KB" if (v or 0) < 1024 * 1024 else f"{v / 1024 / 1024:,.1f} MB"
 

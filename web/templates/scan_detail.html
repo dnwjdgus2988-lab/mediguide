@@ -14,7 +14,7 @@
 <div class="card" style="margin-bottom:16px;font-size:12.5px;display:flex;gap:22px;flex-wrap:wrap;color:var(--sub)">
   <span>대상 <a href="/devices/{{ s.device_code }}?tab=scans" style="color:var(--primary)">{{ s.device_code }}</a> v{{ s.version }}</span>
   <span>소스 {{ s.source_name }}</span><span>도구 {{ s.engine_version or s.engine }}</span><span>룰셋 {{ s.ruleset }}</span>
-  <span>파일 {{ s.files_scanned }}개 · {{ s.lines_scanned|num }}줄 {% for k, v in langs.items() %}({{ k }} {{ v }}){% endfor %}</span>
+  <span>파일 {{ s.files_scanned }}개, {{ s.lines_scanned|num }}줄 {% for k, v in langs.items() %}({{ k }} {{ v }}){% endfor %}</span>
   <span>소요 {{ (s.duration_sec or 0)|round(1) }}초</span>
   <span class="mono" title="소스 압축파일 SHA-256">SHA-256 {{ (s.source_sha256 or '')[:16] }}…</span>
 </div>
