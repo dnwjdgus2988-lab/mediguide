@@ -1,0 +1,830 @@
+TEXT: Cybersecurity
+TEXT: Is the premarket submission for a device modification(s) to an existing FDA authorized device, and is the cybersecurity of the device unaffected by the modification(s)?
+ITEMS: |Yes, the cybersecurity of the authorized device is unaffected|No, the device was not previously authorized|No, the cybersecurity of the authorized device is affected
+ITEMS: 0|1|2|3
+TEXT: General Information
+TEXT: Risk Management
+TEXT: Cybersecurity Management Plan / Plan for Continuing Support
+TEXT: Risk Management - Report
+TEXT: Please attach your security risk management report detailing a separate, parallel, and interconnected security risk management process. This is different from your safety risk management process.
+TEXT: Risk Management - Threat Model
+TEXT: Please attach your threat model addressing all the end-to-end elements of the system.
+TEXT: List the Threat Methodology (e.g. STRIDE, Attack Trees, Kill Chain, DREAD) that you used.
+CAPTION: Does the threat model documentation include Architecture Views (Global System View, Multi-Patient Harm View, Updateability/Patchability View, and Security Use Case Views)?
+ITEMS: |Yes|No
+ITEMS: 0|1|2
+TEXT: Risk Management - Cybersecurity Risk Assessment
+TEXT: Please attach your Cybersecurity Risk Assessment
+CAPTION: Please cite the page number(s) of the attachment directly above where you describe your methodology and your acceptance criteria .
+CAPTION: Does the Cybersecurity Risk Assessment avoid using probabilities for the likelihood assessment and use exploitability instead?
+ITEMS: |Yes|No
+ITEMS: 0|1|2
+TEXT: Risk Management - Software Bill of Materials (SBOM) and Related Information
+TEXT: Please attach your Software Bill of Materials (SBOM).
+TEXT: Please attach a document to provide the software level of support and end-of-support date for each software component (e.g. OTS software) identified in the SBOM. For any component where this information was not available, provide a justification.
+TEXT: List the supported operating system(s) and associated version(s) your device(s)/system uses. Be aware that if you list any operating systems that are no longer supported or nearing end of support, this will generally be considered an inaccurate response. Type "N/A" if your device(s) does not use an operating system.
+TEXT: Please attach a safety and security assessment of cybersecurity vulnerabilities in the component software used by the device for all software components in the SBOM and a description of any controls that address the vulnerability.
+TEXT: Vulnerabilities with Uncontrolled Risk
+TEXT: Please attach a document(s) with a description of whether there are currently any critical vulnerabilities that could cause uncontrolled risks.
+TEXT: Please attach a document(s) with a description of whether any vulnerabilities with uncontrolled risk were remediated in the device since the last authorization. If so, describe how the remediation was performed following the recommendations in FDA guidance "Postmarket Management of Cybersecurity in Medical Devices."
+TEXT: Assessment of Unresolved Anomalies
+TEXT: Please attach an assessment of any unresolved anomalies for cybersecurity impact. If none exist, attach a document stating that no unresolved anomalies exist.
+TEXT: Cybersecurity Metrics
+TEXT: Please attach data from monitoring cybersecurity metrics. If metric data are unavailable, please attach a justification.
+TEXT: Cybersecurity Controls
+TEXT: Please attach information on the security controls categories included in the device.
+TEXT: Please cite the page number(s) of the attachment directly above where you addressed the following controls listed in the textbox below (e.g. "A) Authentication Controls: Page 2 ").
+TEXT: A) Authentication controls: B) Authorization controls: C) Cryptography controls: D) Code, data, and execution integrity controls: E) Confidentiality controls: F) Event detection and logging controls: G) Resiliency and recovery controls: H) Firmware and software update controls:
+TEXT: Architecture Views
+TEXT: Please attach a document(s) that contains a Global System View, Multi-Patient Harm View, Updatability/Patchability View, and Security Use Case Views. If these Architecture Views are provided in the Threat Modeling documentation provided above, please cite where each of the Architecture Views is provided.
+TEXT: Cybersecurity Testing
+TEXT: Please attach a document(s) that describes the cybersecurity testing performed and the associated test reports. Cybersecurity testing includes but may not be limited to security requirement testing, threat mitigation testing, vulnerability testing, and penetration testing. If security testing was performed by a third party, please provided the original third party test report and your assessment of any findings. Alternatively, provide a justification for why particular testing was not performed.
+TEXT: Cybersecurity Labeling
+TEXT: Please specifically cite the attachment(s) and page number(s) where cybersecurity information is documented in the labeling, as specified in the help text to the right for all the recommended elements . If there is separate cybersecurity labeling, attach this in the labeling section above.
+TEXT: Cybersecurity Management Plan
+TEXT: Please attach a Cybersecurity Management Plan.
+CAPTION: Please cite the page number(s) of the attachment directly above where you include the information specified in the help text to the right for all the recommended elements .
+CAPTION: Please cite the page number(s) of the attachment directly above where you include a description of and justification for the time-lines to make patches on a regular cycle and out of cycle.
+TEXT: Interoperability
+CAPTION: How many Electronic Interfaces are there?
+ITEMS: 0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20
+ITEMS: 0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20
+TEXT: Electronic Interface
+CAPTION: Name the Electronic Interface
+CAPTION: Is the electronic interface inactive (i.e. not meant to connect, exchange, or use data with or from other medical devices, products, technologies, or systems)?
+ITEMS: |Yes|No
+ITEMS: 0|1|2
+CAPTION: Are the interfaces only meant for service or maintenance?
+ITEMS: |Yes|No
+ITEMS: 0|1|2
+TEXT: Is the data flow only meant for transferring, storing, converting formats, or displaying clinical laboratory test and not intended to interpret or analyze clinical laboratory test or other device data, results, and findings?
+CAPTION: The caption is in the textbox to the left of this dropdown
+ITEMS: |Yes|No
+ITEMS: 0|1|2
+TEXT: Describe the Electronic Interface
+TEXT: Interoperability Risk Assessment / Verification and Validation
+CAPTION: Please specifically cite the attachment(s) and page number(s) where the interoperability labeling is located. (Note: If there is separate interoperability labeling for the device, please attach this in the Labeling section below.)
+TEXT: Biocompatibility
+TEXT: If this section is not applicable, please attach a statement explaining why.
+TEXT: Tissue Contacting Products/Components/Materials
+ITEMS: 0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39|40|41|42|43|44|45|46|47|48|49|50
+ITEMS: 0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39|40|41|42|43|44|45|46|47|48|49|50
+TEXT: Patient Contacting Material
+TEXT: Identify the device(s) / accessory(ies) / component(s) that directly or indirectly contacts the tissue.
+TEXT: Please state the exact name and any identifiable information for the particular material used.
+TEXT: If color additives are included, please identify them here. If no color additives are included, state "N/A."
+CAPTION: Choose intended contact of the particular material.
+ITEMS: |Direct|Indirect|Both
+ITEMS: 0|1|2|3
+CAPTION: Please provide the FDA submission number (e.g., K210001) if you are aware of a previously submitted device using the same material with similar nature of contact.
+TEXT: If you are aware of a previously submitted device using the same material with similar nature of contact, please provide any pertinent information to compare your device to the device/test article in the previously submitted biocompatibility assessment. Any changes in formulation, processing, sterilization, geometry (including surface characteristics) and the addition of other chemicals (e.g., plasticizers, fillers, color additives, cleaning agents, mold release agents) should be addressed to support use of the previous biocompatibility assessment (e.g., no additional biocompatibility testing is necessary).
+CAPTION: Are the listed components in contact with intact skin only AND are all the component materials included in Attachment G, Section B of the FDA Biocompatibility Guidance?
+ITEMS: |Yes|No
+ITEMS: 0|1|2
+CAPTION: Is there a potential for repeat exposure?
+ITEMS: |Yes|No
+ITEMS: 0|1|2
+TEXT: If there is potential for repeat exposure, please describe the circumstances here.
+CAPTION: Choose the type of tissue contact of your tissue contacting material.
+ITEMS: |Surface Device: Skin|Surface Device: Mucosal Membrane|Surface Device: Breached or Compromised Surfaces|External Communicating Device: Blood Path, Indirect|External Communicating Device: Tissue/Bone/Dentin|External Communicating Device: Circulating Blood|Implant Device: Tissue/Bone|Implant Device: Blood
+ITEMS: 0|1|2|3|4|5|6|7|8
+CAPTION: Duration of Contact
+ITEMS: |≤ 24 hours (includes Transient Contact)|> 24 hours, ≤ 30 days|> 30 days (i.e., permanent)
+ITEMS: 0|1|2|3
+TEXT: The type of tissue contact and duration of contact will determine the types of Biocompatibility endpoints that we recommend be assessed, based on the Biocompatibility Guidance Document. These endpoints will display as tabs below, and FDA recommends that complete test reports be provided for biocompatibility tests performed for these endpoints. If you used an alternative test method than the options provided, or you did not conduct the test, please provide an explanation or justification (e.g., the device component is identical in materials/formulation and processing to a legally marketed device) in the Comments section for each test method. If you select an item that includes a star (*) in any of the drop down menus below, provide supporting evidence or justification for the selection in the comments box at the bottom of each test. If tests are conducted under the Accreditation Scheme for Conformity Assessment (ASCA), select the ASCA option and attach ASCA summary test reports. For instances where the complete test report should be provided in addition to the ASCA Summary Test Report, please refer to the ASCA Guidance for more information.
+TEXT: Please see the help text above for the question regarding Attachment G, Section B of the FDA Biocompatibility Guidance document to which you indicated "Yes." Please provide all the recommended documentation and statements in the attachment question below. If a precautionary statement was needed in the labeling, please specifically cite the attachment and page number where this statement was included in your labeling. If a precautionary statement was not needed, please state this in your attached documentation below.
+CAPTION: Cytotoxicity
+CAPTION: Cytotoxicity
+CAPTION: Sensitization
+CAPTION: Sensitization
+CAPTION: Irritation
+CAPTION: Irritation
+CAPTION: Acute Systemic & Pyrogenicity
+CAPTION: Acute Systemic & Pyrogenicity
+CAPTION: Subacute/Subchronic
+CAPTION: Subacute/Subchronic
+CAPTION: Genotoxicity
+CAPTION: Genotoxicity
+CAPTION: Implantation
+CAPTION: Implantation
+CAPTION: Hemocompatibility
+CAPTION: Hemocompatibility
+CAPTION: Chronic
+CAPTION: Chronic
+CAPTION: Carcinogenicity
+CAPTION: Carcinogenicity
+TEXT: Cytotoxicity Testing
+CAPTION: What type of cytotoxicity testing was conducted?
+ITEMS: |* Direct Contact Method|Extraction Method (MEM Elution)|* Another method (explained below)|* None (justified below)|ASCA (MEM)
+ITEMS: 0|1|2|3|4|5
+CAPTION: Identify the test article used in testing.
+TEXT: Sample Preparation
+CAPTION: Sample Preparation
+ITEMS: |Solid sample with one flat surface (100 mm²)|* Other
+ITEMS: 0|1|2
+CAPTION: Study Controls
+ITEMS: |* Positive Control Only|* Negative Control Only|* Neither|Both
+ITEMS: 0|1|2|3|4
+TEXT: Extraction Conditions
+CAPTION: Test Article Extraction Ratio
+ITEMS: |6 cm²/ml (<0.5mm thick)|3 cm²/ml (>0.5mm thick)|1.25 cm²/ml (elastomer >1mm thick)|* 0.2 g/ml (elastomers)|* 0.1 g/ml (non-elastomers)|* Other (e.g., absorption capacity determination)
+ITEMS: 0|1|2|3|4|5|6
+CAPTION: Extraction Vehicle(s)
+ITEMS: |Culture medium with 5-10% serum|* Culture medium without serum|* Physiological saline solution|* Other solvent
+ITEMS: 0|1|2|3|4
+CAPTION: Extraction Conditions
+ITEMS: |37˚C for 24 hr|37˚C for 72 hr|* 50˚C for 72 hr|* 70˚C for 24 hr|* 121˚C for 1 hr|* Other
+ITEMS: 0|1|2|3|4|5|6
+CAPTION: Was the test extract diluted, filtered, or was the pH adjusted?
+ITEMS: |* Yes|No
+ITEMS: 0|1|2
+CAPTION: Study Controls
+ITEMS: |* Positive Control Only|* Negative Control Only|* Vehicle Control Only|* None or only two of the above controls|All
+ITEMS: 0|1|2|5|3|4
+CAPTION: Extract/Test Article is clear (i.e., not cloudy/turbid, no particulates, no color change, no swelling/degradation of the test article)?
+ITEMS: |Yes|* No
+ITEMS: 0|1|2
+CAPTION: Extract Storage Conditions
+ITEMS: |Used by 24 hrs post-extraction|* Stored (> 24 hrs, justification below)
+ITEMS: 0|1|2
+TEXT: Methods
+CAPTION: Test System
+ITEMS: |L-929 Mouse fibroblasts|* Other
+ITEMS: 0|1|2
+CAPTION: Test System
+ITEMS: |L-929 Mouse fibroblasts (monolayer)|* Other
+ITEMS: 0|1|2
+CAPTION: Assessment Times After Treatment
+ITEMS: |37˚C for 24 hr|* Other
+ITEMS: 0|1|2
+CAPTION: Assessment Times After Treatment
+ITEMS: |37˚C for 48 hr minimum|* Other
+ITEMS: 0|1|2
+TEXT: Was the following scale used for test extract, reagent control, negative control and positive control?   0: discrete intracytoplasmic granules & no lysis 1: occasional lysed cells (0-20% cells rounded, loose) 2: no extensive cell lysis (20-50% cells rounded) 3: 50-70% lysis (50-70% cells rounded) 4: nearly complete destruction of cell layer (>70% lysis)
+ITEMS: |Yes|* No
+ITEMS: 0|1|2
+TEXT: Was the following scale used for test sample, negative control and positive control, with a Qualitative Score of ≤ 2 being Noncytotoxic? 0: No detectable effect around or under the specimen 1: Some malformed and degenerated cells under the specimen 2: Zone limited to the area under the specimen 3: Zone extending up to 10 mm beyond the specimen 4: Zone extending greater than 10 mm beyond the specimen
+ITEMS: |Yes|* No
+ITEMS: 0|1|2
+CAPTION: Were there deviations?
+ITEMS: |* Yes|No
+ITEMS: 0|1|2
+TEXT: Results
+CAPTION: Were there any cell abnormalities?
+ITEMS: |* Yes|No
+ITEMS: 0|1|2
+CAPTION: Does the zone of lysis extend beyond the test article?
+ITEMS: |* Yes|No
+ITEMS: 0|1|2
+CAPTION: Were cytotoxicity scores in the controls as expected (e.g., negative is noncytotoxic, positive is cytotoxic)?
+ITEMS: |Yes|* No
+ITEMS: 0|1|2
+CAPTION: Were cytotoxicity scores in the controls as expected (e.g., reagent and/or negative are noncytotoxic, positive is cytotoxic)?
+ITEMS: |Yes|* No
+ITEMS: 0|1|2
+TEXT: Conclusion
+CAPTION: Cytotoxic Potential
+ITEMS: |Non-Cytotoxic (Grade 0, 1, 2)|* Cytotoxic (Grade 3 or 4)
+ITEMS: 0|1|2
+CAPTION: Cytotoxic Potential
+ITEMS: |Non-cytotoxic (Grade 0)|*Non-cytotoxic (Grade 1 or 2)|*Cytotoxic (Grade 3 or 4)
+ITEMS: 0|1|2|3
+TEXT: Comments
+TEXT: Please summarize justifications, non-traditional test methods, deviations, cell abnormalities, etc, below.
+CAPTION: Close Tab
+TEXT: Sensitization Testing
+CAPTION: What type of sensitization testing was conducted?
+ITEMS: |Guinea Pig Maximization Test (GPMT)|* LLNA (per ASTM F2148)|* Buehler Dermal Sensitization (per ISO 10993-10)|* Another method|* None (justified below)|ASCA (GPMT)|ASCA (Buehler)
+ITEMS: 0|1|2|3|4|5|6|7
+CAPTION: Identify the test article used in testing (e.g., final sterilized device, component of final sterilized device, other with description).
+TEXT: Extraction Conditions
+CAPTION: Test Article Extraction Ratio
+ITEMS: |6 cm²/ml (<0.5mm thick)|3 cm²/ml (>0.5mm thick)|1.25 cm²/ml (elastomer >1mm thick)|* 0.2 g/ml (elastomers)|* 0.1 g/ml (non-elastomers)|* Other (e.g., absorption capacity determination)
+ITEMS: 0|1|2|3|4|5|6
+CAPTION: Extraction Vehicle(s)
+ITEMS: |* Polar Vehicle (0.9% Sodium chloride)|* Non-Polar Vehicle (Vegetable, Sesame or Cotton Seed Oil)|Both|* Other
+ITEMS: 0|1|2|3|4
+CAPTION: Extraction Conditions
+ITEMS: |* 37˚C for 24 hr|* 37˚C for 72 hr|50˚C for 72 hr|70˚C for 24 hr|* 121˚C for 1 hr|* Other
+ITEMS: 0|1|2|3|4|5|6
+CAPTION: Was the sample diluted, filtered, or was the pH adjusted?
+ITEMS: |* Yes|No
+ITEMS: 0|1|2
+CAPTION: Positive Control
+ITEMS: |Conducted concurrently with test article|Historical control <3 months from the time of test|* Historical control >3 months from the time of test|* No Positive Control
+ITEMS: 0|1|2|3|4
+CAPTION: What is the positive control?
+ITEMS: |DNCB (0.05-0.5%)|* DNCB (≥0.5%)|* Other
+ITEMS: 0|1|2|3
+CAPTION: Negative Control
+ITEMS: |Extraction vehicles without test material only|* Other
+ITEMS: 0|1|2
+CAPTION: Extract/Test Article is clear (i.e., not cloudy/turbid, no particulates, no color change, no swelling/degradation of the test article)?
+ITEMS: |Yes|* No
+ITEMS: 0|1|2
+CAPTION: Extract Storage Conditions
+ITEMS: |Used by 24 hrs post-extraction|* Stored (> 24 hrs, justification below)
+ITEMS: 0|1|2
+TEXT: Methods
+CAPTION: Test System
+ITEMS: |≥10 Test & ≥5 Control Males and/or Females that are/were not pregnant|* ≥10 Test & ≥5 Control Males and/or Females (pregnancy not specified)|* Other
+ITEMS: 0|1|2|3
+TEXT: Were three pairs of intradermal injections given on the backs of the animals:   Test animals 1.  Two 0.1 ml of a 1:1 FCA/vehicle mixture 2.  Two 0.1 ml of test extract 3.  Two 0.1 ml of a 1:1 mixture of the 1:1 FCA and test extract Control animals 1.  Two 0.1 ml of a 1:1 FCA/vehicle mixture 2.  Two 0.1 ml of vehicle 3.  Two 0.1 ml of a 1:1 mixture of the 1:1 FCA and control
+ITEMS: |Yes|* No
+ITEMS: 0|1|2
+TEXT: On Day 6 after injection: Approximately 24h before Induction II, were injection sites clipped and treated with a 10% sodium lauryl sulfate (SLS) in petroleum jelly (any remaining SLS should be removed prior to Induction II treatment)?
+ITEMS: |Yes|* No
+ITEMS: 0|1|2
+TEXT: On Day 7 after injection: Were 2x4 cm filter paper patches saturated (~0.3 ml) with test extract or control vehicle applied to injection area for 48 hours? In addition, were the patches removed after 48 hours?
+ITEMS: |Yes|* No
+ITEMS: 0|1|2
+TEXT: 14 Days after removal of Induction patches: Were the right and left flank areas of each guinea pig clipped and 2x2 cm patches/hilltop chambers saturated (~0.3 ml) with test extract or control vehicle applied?  (One flank should be treated with patch/chamber containing the test extract, while the other flank should be treated with the control vehicle. Patches/chambers should be left in place for 24 hours before removal)
+ITEMS: |Yes|* No
+ITEMS: 0|1|2
+CAPTION: What were the assessment times after Challenge Patch removal?
+ITEMS: |24 and 48 hours|* Other
+ITEMS: 0|1|2
+CAPTION: Were there deviations?
+ITEMS: |* Yes|No
+ITEMS: 0|1|2
+TEXT: Results
+CAPTION: Did animals appear normal, and were there any deaths?
+ITEMS: |Normal appearance, no deaths|* Abnormal appearance, no deaths|* Normal appearance, deaths|* Abnormal appearance, deaths
+ITEMS: 0|1|2|3|4
+CAPTION: Was the Magnusson and Kligman score < 1.0 for the polar extract in all test and control animals?
+ITEMS: |Yes|* No
+ITEMS: 0|1|2
+CAPTION: Was the Magnusson and Kligman score < 1.0 for the non-polar extract in all test and control animals?
+ITEMS: |Yes|* No
+ITEMS: 0|1|2
+CAPTION: Were the positive controls ≥ 1.0 in all animals?
+ITEMS: |Yes|* No
+ITEMS: 0|1|2
+TEXT: Conclusion
+CAPTION: Sensitizing Potential
+ITEMS: |Non-Sensitizer|* Sensitizer
+ITEMS: 0|1|2
+TEXT: Comments
+TEXT: Please summarize justifications, non-traditional test methods, deviations, animal deaths, etc, below.
+CAPTION: Close Tab
+TEXT: Irritation Testing
+CAPTION: What type of irritation testing was conducted?
+ITEMS: |Intracutaneous Irritation Test|* Dermal Irritation Test|* Ocular Irritation Test|* Mucosal Irritation Test|* Another method (explained below)|* None (justified below)|ASCA (Intracutaneous)|ASCA (Dermal, Extract)
+ITEMS: 0|1|2|3|4|5|6|7|8
+CAPTION: Identify the test article used in testing.
+TEXT: Sample Preparation
+CAPTION: What test article was used?
+ITEMS: |Solid Sample, Powder, or Liquid|Extract
+ITEMS: 0|1|2
+TEXT: Extraction Conditions
+CAPTION: Test Article Extraction Ratio
+ITEMS: |6 cm²/ml (<0.5mm thick)|3 cm²/ml (>0.5mm thick)|1.25 cm²/ml (elastomer >1mm thick)|* 0.2 g/ml (elastomers)|* 0.1 g/ml (non-elastomers)|* Other (e.g., absorption capacity determination)
+ITEMS: 0|1|2|3|4|5|6
+CAPTION: Extraction Vehicle(s)
+ITEMS: |* Polar Vehicle (0.9% Sodium chloride)|* Non-Polar Vehicle (Vegetable, Sesame or Cotton Seed Oil)|Both|* Other
+ITEMS: 0|1|2|3|4
+CAPTION: Extraction Conditions
+ITEMS: |* 37˚C for 24 hr|* 37˚C for 72 hr|50˚C for 72 hr|70˚C for 24 hr|* 121˚C for 1 hr|* Other
+ITEMS: 0|1|2|3|4|5|6
+CAPTION: Was the test extract diluted, filtered, or was the pH adjusted?
+ITEMS: |* Yes|No
+ITEMS: 0|1|2
+CAPTION: Study Controls
+ITEMS: |Extraction vehicles without test material only (negative control)|* Other
+ITEMS: 0|1|2
+CAPTION: Extract/Test Article is clear (i.e., not cloudy/turbid, no particulates, no color change, no swelling/degradation of the test article)?
+ITEMS: |Yes|* No
+ITEMS: 0|1|2
+CAPTION: Extract Storage Conditions
+ITEMS: |Used by 24 hrs post-extraction|* Stored (> 24 hrs, justification below)
+ITEMS: 0|1|2
+TEXT: Methods
+CAPTION: Test System
+ITEMS: |≥3 Rabbits|* Other
+ITEMS: 0|1|2
+TEXT: Were intracutaneous injections given along both sides of the spine on the back: Five 0.2 ml doses of polar and five 0.2 ml doses of non-polar test extracts on one side and five 0.2 ml doses of polar and five 0.2 ml doses of non-polar control vehicles on the other side.
+ITEMS: |Yes|* No
+ITEMS: 0|1|2
+CAPTION: Assessment Times After Treatment
+ITEMS: |24hr, 48hr, and 72hr|* Other
+ITEMS: 0|1|2
+TEXT: Was the following then done:  All erythema and edema grades were totaled separately for each test article and vehicle control, and the total was divided by 15 (3 scoring periods x 5 injection sites) in each animal. To determine the overall score for each test article and each corresponding vehicle control, the scores of each animal were added, and divided by the total number of animals. The final test sample score is obtained by subtracting the score of the corresponding vehicle control from the test article score.
+ITEMS: |Yes|* No
+ITEMS: 0|1|2
+CAPTION: Were there deviations?
+ITEMS: |* Yes|No
+ITEMS: 0|1|2
+TEXT: Methods
+CAPTION: Did samples cover a 2.5 x 2.5cm area (thickness ≤ 0.5cm)?
+ITEMS: |Yes|* No
+ITEMS: 0|1|2
+TEXT: SOLID PIECE :  Were two 2.5 x 2.5 cm samples of the test article and two 2.5 x 2.5 cm samples of control article placed along each side of the spine (4 samples total), and covered with gauze patches for at least 4 hrs? POWDER :  Were two 0.5g samples of the test article and two 0.5g samples of control article placed along each side of the spine (4 samples total), and covered with 2.5 x 2.5 cm gauze patches for at least 4 hrs? LIQUID : Were two 0.5ml samples of the test article and two 0.5ml samples of control article placed along each side of the spine (4 samples total), and covered with 2.5 x 2.5 cm gauze patches for at least 4 hrs?
+ITEMS: |Yes|* No
+ITEMS: 0|1|2
+CAPTION: Assessment Times after Exposure
+ITEMS: |At least 1 hr, 24 hr, 48 hr, and 72 hrs|* Other
+ITEMS: 0|1|2
+TEXT: Methods
+TEXT: Were both a 0.5mL sample of the test article extract and a 0.5mL sample of control article extract placed along each side of the spine (4 samples total) using 2.5 x 2.5 cm gauze patches for at least 4 hrs?
+ITEMS: |Yes|* No
+ITEMS: 0|1|2
+CAPTION: Assessment Times after Exposure
+ITEMS: |At least 1 hr, 24 hr, 48 hr, and 72 hrs|* Other
+ITEMS: 0|1|2
+TEXT: Results
+CAPTION: Did animals appear normal, and were there any deaths?
+ITEMS: |Normal appearance, no deaths|* Abnormal appearance, no deaths|* Normal appearance, deaths|* Abnormal appearance, deaths
+ITEMS: 0|1|2|3|4
+CAPTION: What was the final test sample score for the polar extract?
+ITEMS: |≤1.0|* >1.0
+ITEMS: 0|1|2
+CAPTION: What was the final test sample score for the non-polar extract?
+ITEMS: |≤1.0|* >1.0
+ITEMS: 0|1|2
+TEXT: Results
+TEXT: Was the following done: Only 24h, 48h, and 72h observations were used for calculations of the primary irritation index (PII). All erythema and edema grades were totaled separately for each test article and control, and each total was divided by 6 (3 scoring periods x 2 observation sites) for each animal. The control score was subtracted from the test article score to obtain the primary irritation score for each animal. To determine the PII, the primary irritation scores for each animal were added, and divided by the total number of animals.
+ITEMS: |Yes|* No
+ITEMS: 0|1|2
+CAPTION: Did animals appear normal, and were there any deaths?
+ITEMS: |Normal appearance, no deaths|* Abnormal appearance, no deaths|* Normal appearance, deaths|* Abnormal appearance, deaths
+ITEMS: 0|1|2|3|4
+CAPTION: What was the primary irritation index for the solid/powder/liquid sample?
+ITEMS: |≤0.4|* >0.4
+ITEMS: 0|1|2
+CAPTION: What was the primary irritation index for the polar extract?
+ITEMS: |≤0.4|* >0.4
+ITEMS: 0|1|2
+CAPTION: What was the primary irritation index for the non-polar extract?
+ITEMS: |≤0.4|* >0.4
+ITEMS: 0|1|2
+TEXT: Conclusion
+CAPTION: Irritation Potential
+ITEMS: |Non-Irritant|* Irritant
+ITEMS: 0|1|2
+CAPTION: Irritation Potential
+ITEMS: |0 - 0.4 negligible irritant|* 0.5 - 1.9 slight irritant|* 2.0 - 4.9 moderate irritant|* 5 - 8 severe irritant
+ITEMS: 0|1|2|3|4
+TEXT: Comments
+TEXT: Please summarize justifications, non-traditional test methods, deviations, animal deaths, etc, below.
+CAPTION: Close Tab
+TEXT: Acute Systemic Toxicity Testing & Material Mediated Pyrogenicity Testing
+TEXT: Acute Systemic Toxicity Testing
+CAPTION: Was Acute Systemic Toxicity testing conducted?
+ITEMS: |Yes|* No|ASCA
+ITEMS: 0|1|2|3
+TEXT: Material Mediated Pyrogenicity Testing
+CAPTION: Was Material Mediated Pyrogenicity testing conducted?
+ITEMS: |Yes|* No|ASCA
+ITEMS: 0|1|2|3
+TEXT: Specific questions for these tests do not exist yet in this template or the FDA reviewer's Smart Templates. We recommend Acute Systemic Toxicity and and Material Mediated Pyrogenicity be assessed. If testing is performed, we recommend it be conducted per ISO 10993-11 for Acute Systemic Toxicity and per ISO 10993-11 and USP <151> for Material Mediated Pyrogenicity. You may also like to consult the FDA supplemental information sheet for this testing. Please provide a test report in an attachment in the Biocompatibility Reports and Documentation section below, or provide a justification for why testing was not conducted in the Comments below. If your medical device/system includes a breathing gas pathway, please note, use of voluntary standards such as ISO 18562 (series) and ISO 10993 (series) may be useful to address these endpoints.
+TEXT: Comments
+TEXT: Please summarize justifications, why testing was not conducted, etc, below.
+CAPTION: Close Tab
+TEXT: Subacute/Subchronic Toxicity Testing
+CAPTION: Was Subacute/Subchronic Toxicity testing conducted?
+ITEMS: |Yes|* No
+ITEMS: 0|1|2
+TEXT: Specific questions for this test do not exist yet in this template or the FDA reviewer's Smart Templates. We recommend Subacute/Subchronic Toxicity be assessed. If testing is performed, we recommend it be conducted per ISO 10993-11. You may also like to consult the FDA supplemental information sheet for this testing. Please provide a test report in an attachment in the Biocompatibility Reports and Documentation section below, or provide a justification for why testing was not conducted in the Comments below. If your medical device/system includes a breathing gas pathway, please note, use of voluntary standards ISO 18562 (series) may be useful to address this endpoint.
+TEXT: Comments
+TEXT: Please summarize justifications, why testing was not conducted, etc, below.
+CAPTION: Close Tab
+TEXT: Genotoxicity Testing
+CAPTION: Was Genotoxicity testing conducted?
+ITEMS: |Yes|* No
+ITEMS: 0|1|2
+TEXT: Specific questions for this test do not exist yet in this template or the FDA reviewer's Smart Templates. We recommend Genotoxicity be assessed. If testing is performed, we recommend it be conducted per ISO 10993-3 and ISO/TR 10993-33. You may also like to consult the FDA supplemental information sheet for this testing. Please provide a test report in an attachment in the Biocompatibility Reports and Documentation section below, or provide a justification for why testing was not conducted in the Comments below. If your medical device/system includes a breathing gas pathway, please note, use of voluntary standards ISO 18562 (series) may be useful to address this endpoint.
+TEXT: Comments
+TEXT: Please summarize justifications, why testing was not conducted, etc, below.
+CAPTION: Close Tab
+TEXT: Implantation Testing
+CAPTION: Was Implantation Toxicity testing conducted?
+ITEMS: |Yes|* No
+ITEMS: 0|1|2
+TEXT: Specific questions for this test do not exist yet in this template or the FDA reviewer's Smart Templates. We recommend Implantation Toxicity be assessed. If testing is performed, we recommend it be conducted per ISO 10993-6. You may also like to consult ASTM F981-04, F1408-97, F1983-99, and F763-05 for more information, as well as the FDA supplemental information sheet for this testing. If your medical device/system includes a breathing gas pathway, please note, use of voluntary standards ISO 18562 (series) may be useful to justify omission of implantation testing. Please provide a test report in an attachment in the Biocompatibility Reports and Documentation section below, or provide a justification for why testing was not conducted in the Comments below.
+TEXT: Comments
+TEXT: Please summarize justifications, why testing was not conducted, etc, below.
+CAPTION: Close Tab
+TEXT: Hemocompatibility Testing
+TEXT: Hemolysis Testing
+CAPTION: Was Hemolysis testing conducted?
+ITEMS: |Yes, Direct and Indirect Contact testing|* Yes, Direct contact only|* Yes, Indirect contact only|* No|ASCA
+ITEMS: 0|1|2|3|4|5
+TEXT: Complement Activation Testing
+CAPTION: Was Complement Activation testing conducted?
+ITEMS: |Yes, SC5b-9|* No|ASCA
+ITEMS: 0|1|2|3
+TEXT: Thrombogenicity Testing
+CAPTION: Was Thrombogenicity testing conducted?
+ITEMS: |Yes|* No
+ITEMS: 0|1|2
+TEXT: Specific questions for this endpoint do not exist yet in this template or the FDA reviewer's Smart Templates. We recommend Hemocompatibility be assessed to include evaluation of hemolysis, complement activation and thrombogenicity. If testing is conducted to address these endpoints, we recommend the following be considered. HEMOLYSIS :  For hemolysis testing of devices having direct contact with circulating blood, we recommend that both direct and indirect (extract) hemolysis testing be conducted. For hemolysis testing of devices having indirect contact with circulating blood, we recommend that only an indirect (extract) method be conducted. Please also see the Biocompatibility Guidance and ASTM F756, and ISO 10993-4. COMPLEMENT ACTIVATION :  For complement testing of devices having direct contact with circulating blood, we recommend that SC5b-9 testing be conducted. We recommend ed that you include the predicate as an additional control in the SC5b-9 complement activation testing, if the predicate device 510k application investigated only C3a complement activation testing, or if there is a statistically significant difference between your device and the negative control. Please also see the Biocompatibility Guidance and ASTM F1984, ISO 10993-4, and ISO 10993-20. THROMBOGENICITY :  For devices having direct contact with circulating blood, we recommend that thrombogenicity be evaluated. If anticoagulated in vivo models or in vitro models are used, please contact FDA to discuss your proposed methods prior to initiation of the studies to ensure that the studies will be adequately designed to address FDA's concerns. Use of the Q-submission process may be helpful. Please provide a test report in an attachment in the Biocompatibility Reports and Documentation section below, or provide a justification for why testing was not conducted in the Comments below. Please also see the Biocompatibility Guidance and ISO 10993-4.
+TEXT: Comments
+TEXT: Please summarize justifications, why testing was not conducted, etc, below.
+CAPTION: Close Tab
+TEXT: Chronic Toxicity Testing
+CAPTION: Was Chronic Toxicity testing conducted?
+ITEMS: |Yes|* No
+ITEMS: 0|1|2
+TEXT: Specific questions for this test do not exist yet in this template or the FDA reviewer's Smart Templates. We recommend Chronic Toxicity be assessed. If testing is performed, we recommend it be conducted per ISO 10993-11. You may also like to consult the FDA supplemental information sheet for this testing. Please provide a test report in an attachment in the Biocompatibility Reports and Documentation section below, or provide a justification for why testing was not conducted in the Comments below. If your medical device/system includes a breathing gas pathway, please note, use of voluntary standards ISO 18562 (series) may be useful to address this endpoint.
+TEXT: Comments
+TEXT: Please summarize justifications, why testing was not conducted, etc, below.
+CAPTION: Close Tab
+TEXT: Carcinogenicity Assessment
+CAPTION: Was Carcinogenicity assessment conducted?
+ITEMS: |Yes|* No
+ITEMS: 0|1|2
+TEXT: Specific questions for this endpoint do not exist yet in this template or the FDA reviewer's Smart Templates. We recommend Carcinogenicity be assessed. If in rare cases testing is needed, please contact FDA to discuss your proposed methods prior to initiation of the studies to ensure that the studies will be adequately designed to address FDA's concerns. Use of the Q-submission process may be helpful. Please provide the carcinogenicity assessment, or if applicable, the carcinogenicity test report in an attachment in the Biocompatibility Reports and Documentation section below. Please also see the Biocompatibility Guidance . If your medical device/system includes a breathing gas pathway, please note, use of voluntary standards ISO 18562 (series) may be useful to address this endpoint.
+TEXT: Comments
+TEXT: Please summarize justifications, why testing was not conducted, etc, below.
+CAPTION: Close Tab
+TEXT: Biocompatibility Reports and Documentation
+TEXT: Please attach any documentation (e.g., test reports) pertaining to the biocompatibility of your device. If no test reports were attached, please attach a rationale explaining why testing is not necessary.
+TEXT: Reprocessing, Sterility, Shelf-Life, and Stability
+TEXT: If this section is not applicable, please attach a statement explaining why.
+TEXT: Reprocessing
+TEXT: If the device is reusable, validated reprocessing instructions and reprocessing validation data for this device type must be included in the 510(k) submission (82 FR 26807). Please ensure that validated instructions and validation test reports for cleaning, sterilization, and/or high level disinfection have been provided in an attachment. Please also note that, if reprocessing validation is not adequate, this will be grounds for NSE.
+TEXT: For reusable, flexible endoscopes in this product code, validated reprocessing instructions and reprocessing validation data must be included in the 510(k) submission (82 FR 26807). Please ensure that validated instructions and validation test reports for cleaning, sterilization, and/or high level disinfection have been provided in an attachment. Please also note that, if reprocessing validation is not adequate, this will be grounds for NSE.
+TEXT: Validated reprocessing instructions and reprocessing validation data for this device type must be included in the 510(k) submission (82 FR 26807), if the device is reusable and has any of the design features listed in the help text to the right. Please ensure that validated instructions and validation test reports for cleaning, sterilization, and/or high level disinfection have been provided in an attachment. Please also note that, if reprocessing validation is not adequate, this will be grounds for NSE.
+CAPTION: Are cleaning or disinfection or sterilization instructions included in the labeling?
+ITEMS: |Yes|No
+ITEMS: 0|1|2
+TEXT: Please provide a rationale for why cleaning/disinfection instructions are not included in the labeling (e.g., an in vitro diagnostic device for laboratory use, a software only device (SaMD)).
+CAPTION: How many different sets of reprocessing instructions are included (maximum of 4):
+ITEMS: 1|2|3|4
+ITEMS: 1|2|3|4
+TEXT: Reprocessing Instructions
+TEXT: Please identify the device(s), and/or accessory(ies), and/or component(s) that are covered by this set of instructions.
+CAPTION: Please specifically cite the attachment(s) and page number(s) where the cleaning/disinfection instructions are located in the labeling.
+TEXT: Cleaning Instructions
+TEXT: Some devices (e.g., some orthopedic implants) are provided clean and are only subjected to end-user sterilization. Is the device single-use and provided clean so that cleaning instructions are unnecessary and are not included in the labeling?
+ITEMS: |Yes|No
+ITEMS: 0|1|2
+CAPTION: Is a Point-of-Use care instruction included (e.g., to prevent drying)?
+ITEMS: |Yes|No|Inapplicable
+ITEMS: 0|1|2|3
+CAPTION: Please specifically cite the attachment(s) and page number(s) where the disassembly/reassembly instructions are located. Type "N/A" if not applicable. (Note: If disassembly of the device is necessary for adequate reprocessing, specific instructions for disassembly and reassembly should be provided.)
+CAPTION: Please specifically cite the attachment(s) and page number(s) where the instructions to “thoroughly clean” the device (or similar text) are included in the labeling? Type "N/A" if not applicable.
+CAPTION: If the labeling recommends special accessories for cleaning, please specifically cite the attachment(s) and page number(s) or section(s) where the instructions include details on special accessories (e.g., brush size, brush materials, detergent category) if applicable. Type "N/A" if not applicable.
+CAPTION: Please specifically cite the attachment(s) and page number(s) where the instructions include how to use accessories (e.g., medical washers) or reference accessory labeling. Type "N/A" if not applicable.
+CAPTION: Please specifically cite the attachment(s) and page number(s) where the instructions include specifications for cleaning (e.g., times, temperatures, cleaning agents, dilution/concentration, rinses including duration or volume, time, and appropriate final rinse water quality). Type "N/A" if not applicable.
+CAPTION: Please specifically cite the attachment(s) and page number(s) where the instructions include: 1) visual inspection, 2) an inspection endpoint (e.g., “no visual contamination”), and 3) steps the user should repeat if the endpoint is not met.
+CAPTION: Please specifically cite the attachment(s) and page number(s) where the instructions include mid-process drying (i.e., drying after cleaning) recommendations. Type "N/A" if not applicable.
+TEXT: If lubricating agents are recommended, do the reprocessing instructions recommend the use of a class of lubricating agent (e.g., water soluble lubricants) after cleaning that is compatible with the medical device, its intended use, and with any subsequent processing steps such as sterilization.
+ITEMS: |Yes|No|Inapplicable
+ITEMS: 0|1|2|3
+CAPTION: Please specifically cite the attachment(s) and page number(s) where the instructions include reuse life limits (e.g., number of uses, inspection specifications or performance tests). Type "N/A" if not applicable.
+TEXT: Microbicidal Process
+TEXT: The questions below are intended to help you determine the appropriate reprocessing steps after cleaning, if applicable. General recommendations are described in Criterion 3 of FDA's Reprocessing Guidance, and are summarized below: Devices that contact normally sterile areas of the body should be sterilized. Devices that contact mucosal membranes or non-intact skin should be (steam) sterilized, unless the device design does not permit steam sterilization (e.g., device materials cannot withstand sterilization). In that instance, devices should be high-level disinfected. ◦ Optional chemical sterilization (such as ethylene oxide or hydrogen peroxide sterilization) instructions may also be provided for devices that are high-level disinfected . Low/intermediate-level disinfection or cleaning alone may be acceptable for devices that contact intact skin or do not directly contact the patient. These are general principles, and there may be exceptions.
+TEXT: Which types of microbicidal process instructions are present in these instructions?
+ITEMS: |Sterilization|Sterilization & high level disinfection and/or liquid chemical sterilization|High level disinfection and/or liquid chemical sterilization|Intermediate/Low-level disinfection|None (cleaning alone)
+ITEMS: 0|1|2|3|4|5
+TEXT: Sterilization
+CAPTION: Please specifically cite the attachment(s) and page number(s) where the instructions recommend the use of an FDA-cleared or legally marketed wrap, pouch, or other method of maintaining sterility?
+CAPTION: For steam sterilization: Please specifically cite the attachment(s) and page number(s) where the instructions describe the general method (e.g., gravity or pre-vacuum) and all critical sterilization cycle specifications (time, temperature, and dry time). Type "N/A" if not applicable. View help text for more information.
+CAPTION: For ethylene oxide: Please specifically cite the attachment(s) and page number(s) where the instructions describe the sterilization cycle parameters. Type "N/A" if not applicable. View help text for more information.
+CAPTION: Other sterilization methods: Please specifically cite the attachment(s) and page number(s) where the instructions describe the sterilization methods to enable the user to implement the cycle (e.g., sterilizer make, model, and cycle name for hydrogen peroxide cycles). Type "N/A" if not applicable.
+CAPTION: Post-process handling: Please specifically cite the attachment(s) and page number(s) where the instructions include the aeration time for removal of residual sterilants. Type "N/A" if not applicable.
+TEXT: High-Level Disinfection/Liquid Chemical Sterilization
+CAPTION: Please specifically cite the attachment(s) and page number(s) where the instructions recommend use of an FDA-cleared high-level disinfectant (HLD) or liquid chemical sterilant (LCS).
+CAPTION: Please specifically cite the attachment(s) and page number(s) where the instructions recommend following HLD/LCS manufacturer’s instructions.
+CAPTION: Please specifically cite the attachment(s) and page number(s) where the instructions recommend complete immersion in HLD/LCS solution, including contact with all lumens.
+CAPTION: Please specifically cite the attachment(s) and page number(s) where the instructions include instructions for rinsing, drying, and storage.
+TEXT: Intermediate- and Low-level disinfection
+CAPTION: Please specifically cite the attachment(s) and page number(s) where the instructions recommend use of a commonly available disinfecting agent (e.g., alcohol, CaviWipes).
+TEXT: Technically Feasible, Understandable, and Comprehensive
+TEXT: Be sure the reprocessing instructions can be understood and reasonably implemented by the end user in the intended reprocessing location. If a device is intended to be reprocessed in the home, then reprocessing steps should include products that are available for use in the home (not sterilizers or high-level disinfectants) and are appropriate for the reprocessing procedure (e.g., baby bottle sanitizers are not recommended for reprocessing most medical devices). If the device is initially supplied non-sterile to the user and specifies to sterilize the device before use, the device should be prominently labeled “Non-sterile” directly on the individual device label (e.g., as opposed to only on the shipper carton). When warranted, the labeling should include special warnings or precautions about potential damage to the device from improper reprocessing procedures. These may be related to user safety or emphasize conditions that could significantly alter the safety or effectiveness of reprocessing or performance of the device. For example, some devices may have unsealed seams/crevices through which excessive liquid disinfectant could reach the interior of the device and damage it. In such cases, the labeling should caution users about this potential hazard and provide specific use instructions to prevent it, such as avoiding the application of excess liquid to the device. Not all devices may need this type of warning in the labeling. If you are unsure, check if similar devices have labeling with this type of warning.
+TEXT: Sterility
+CAPTION: How many sterilization methods are there (maximum of 4)?
+ITEMS: 0|1|2|3|4
+ITEMS: 0|1|2|3|4
+TEXT: To complete the Sterility section, please identify: a. The device or specific components that are intended to be provided sterile. b. The method(s) by which the device/components are intended to be sterilized. c. Verification/Validation of the sterilization method. Further sterilization details are listed in the help dialog box ("?" button). NOTE: If Sterility is not applicable to your device, please attach a rationale with your explanation.
+CAPTION: ? - Hel p Text
+TEXT: Sterilization Method
+TEXT: Identify the device(s) / accessory(ies) / component(s) that is sterilized.
+CAPTION: What is the Sterilization Method?
+ITEMS: |Steam (Moist Heat) (Est A)|Ethylene Oxide (EO, EtO) (Est A)|Radiation (Est A)|Dry Heat (Est A)|Hydrogen Peroxide (Est A)|Ozone (Est B)|Flexible Bag Systems (Est B)|Novel Method
+ITEMS: 0|1|2|3|4|5|6|7|8
+TEXT: For 510(k) submissions in which the device is subjected to an Established Category A sterilization method (i.e. moist heat, ethylene oxide [EO] in a fixed rigid chamber, dry heat, vaporized hydrogen peroxide, or radiation) and the sterilization cycle is validated in accordance with FDA-recognized standards, the information requested in the sterility section of eSTAR is sufficient to address the recommendations of the Sterility guidance document .
+TEXT: For Established Category B sterilization methods, be sure to provide the documentation described in the Sterility Guidance document in Part V(A)(1)(c). For Novel sterilization methods, be sure to provide the documentation described in Part V(A) and (V)(B) of the guidance. This documentation can be attached in the "Reprocessing, Sterilization and Shelf-Life Documentation" section below.
+TEXT: What are the maximum levels of sterilant residuals that remain on the device, and what is your explanation for why those levels are acceptable for the device type and the expected duration of patient contact?
+CAPTION: What is the dose?
+TEXT: Please provide a description of the sterilization chamber.
+TEXT: What standard(s) were used for validation?
+CAPTION: What validation method was used for the sterilization cycle?
+ITEMS: |Overkill Approach (e.g Half-Cycle method)|(Combined) Biological Indicator / Bioburden Approach|(Absolute) Bioburden Approach (e.g Natural Bioburden method)|Other
+ITEMS: 0|1|2|3|4
+CAPTION: What validation method was used for the sterilization cycle?
+ITEMS: |Dose setting using Bioburden|Dose setting using Fraction Positive information|VDmax25 (for 25 kGy dose)|VDmax15 (for 15 kGy dose)|(Absolute) Bioburden Approach (e.g Natural Bioburden method)|Other
+ITEMS: 0|1|2|3|4|5|6
+CAPTION: What is the Sterility Assurance Level (SAL)?
+ITEMS: |10^-6|10^-3|Other
+ITEMS: 0|1|2|3
+TEXT: Please provide a scientific rationale for using an SAL that is not 10^-6 or 10^-3.
+TEXT: If a device within the submission should be "Non-Pyrogenic," or if you are asserting a device is "Non-Pyrogenic," what is the pyrogenicity test method? If you previously conducted the Rabbit Test on these materials, please see the help text.
+ITEMS: |LAL and Rabbit Pyrogen Test|Other|Not labeled nor required to be "Non-Pyrogenic"
+ITEMS: 0|1|3|4
+CAPTION: ? - H elp Text
+TEXT: For devices labeled "Non-Pyrogenic", be sure to provide the documentation described in the Sterilization Guidance document in Part V(A)(4).  This documentation can be attached in the "Reprocessing, Sterilization and Shelf-Life Documentation" section.
+TEXT: Please provide a description of the packaging, the materials used, and a description of the package test methods.
+TEXT: Guidance and Special Controls Adherence
+TEXT: In the text box below, please address or provide information demonstrating compliance with any applicable special controls, requirements in a device specific classification regulation, or adherence to device specific guidance recommendations for the Reprocessing or Sterility. For each specific special control, regulation, or guidance recommendation applicable to your device:  Please list the special control, regulation, or recommendation and cite the attachment(s) and page number(s) where it was addressed. Please use the primary product code you provided in the Classification section above to determine whether a device specific guidance exists for your device. Type “N/A” if no device specific guidance, regulation, or special controls exist for your device type. If you type “N/A,” and special controls, a regulation, or a device specific guidance exists that requests information covered by this review section, the time-line for review of your file may be affected.
+TEXT: If you choose to use an alternative approach in comparison to what is stated in the applicable guidance or special controls regarding reprocessing or sterility, provide a rationale for this alternative approach below.
+TEXT: Shelf-Life and Stability
+CAPTION: Does your device have a shelf-life?
+ITEMS: |Yes|No
+ITEMS: 0|1|2
+TEXT: Please summarize the methods used to support that the sterility and performance of the device is not adversely affected by aging. Alternatively, include a rationale for why the storage conditions are not expected to affect device safety or effectiveness.
+CAPTION: What is the proposed shelf-life?
+ITEMS: |Years|Months|Days|Hours|Seconds
+ITEMS: 0|1|2|3|4|5
+TEXT: Provide a summary of the methods used to support the sterility and performance of the device over its proposed shelf-life. Alternatively, provide a rationale for why testing to establish shelf-life is not applicable.
+CAPTION: Does your device have stability information?
+ITEMS: |Yes|No
+ITEMS: 0|1|2
+TEXT: Provide a statement of why stability information is not applicable.
+TEXT: Reprocessing, Sterility, Shelf-Life, and Stability Documents
+TEXT: Please attach any Sterility, Cleaning, Shelf-Life, and Stability documentation that you believe is pertinent to the review of your device. Choose the attachment type in the dropdown for each attachment.
+TEXT: 1
+ITEMS: Claimed shelf-life|In-use stability|Shipping stability|Specimen(s) stability|Cleaning and Disinfection Validation|Other
+ITEMS: 2|3|4|5|1|0
+TEXT: Labeling
+TEXT: You must submit proposed labels, labeling, and advertisements sufficient to describe the device, its intended use, and the directions for its use. Where applicable, photographs or engineering drawings should be supplied (21 CFR 807.87(e)). We also strongly recommend you consult standard AAMI ANSI ES60601-1 Section 7 for applicable labeling that may be important for your device if it is electrical (consult ISO 14708-1 instead for implantable components).
+TEXT: General Labeling
+CAPTION: Are the instructions adequate for Over-the-Counter (OTC) use?
+ITEMS: |Yes|No
+ITEMS: 0|1|2
+CAPTION: What is the Magnetic Resonance (MR) safety status for the device(s) in the submission?
+ITEMS: |MR Safe|MR Unsafe|MR Conditional|Not Evaluated
+ITEMS: 0|1|2|3|4
+TEXT: Package Labeling
+TEXT: Please attach copies of packaging that demonstrate the labeling of any applicable packaging used in the transportation of the device. This includes, but is not limited to, the device packaging and sterile packaging.
+TEXT: Package Insert / Instructions for Use
+TEXT: Please attach copies of the User Instructions, Inserts, Directions for Use and/or Instructions for Use that are intended for use with your device. This includes instructions that may be downloaded or viewed on a website.
+TEXT: Other Labeling
+TEXT: Choose the attachment type in the dropdown for each attachment. Click the help text button to the right for an explanation of each option.
+TEXT: 0
+ITEMS: Other Labeling and Promotional Material|Patient Labeling|Technical/Operator Manual|Product Brochures|e-Labeling
+ITEMS: 0|1|2|3|4
+TEXT: Specific Labeling
+TEXT: Please specifically cite the attachment(s) and page number(s) where the following information is located in the labeling. Type "N/A" if not applicable.
+CAPTION: Proprietary name and established name (common or usual name).
+CAPTION: Intended use or uses of the product, and the type of procedure (e.g., qualitative or quantitative) statements.
+CAPTION: Reagent-related labeling information if your device(s) include reagent(s).
+CAPTION: "Rx only" or prescription statement.
+CAPTION: "For In Vitro Diagnostic Use" statement and any other limiting statements, statements of warnings, precautions and any other warnings appropriate to the hazard presented by the product.
+CAPTION: ? - He lp Text
+CAPTION: Name and place of business of the manufacturer, packer, or distributor.
+CAPTION: Lot or control number, from which it is possible to determine manufacturing history of the product.
+CAPTION: Required labeling information for analyte specific reagents (e.g., monoclonal antibodies, deoxyribonucleic acid (DNA) probes, viral antigens, ligands).
+CAPTION: ? - He lp Text
+CAPTION: Required labeling information if your device(s) include over-the-counter (OTC) test sample collection systems for drugs of abuse testing.
+TEXT: Requirements for Labeling per 21 CFR 809.10(b)
+TEXT: Please specifically cite the attachment(s) and page number(s) where the following information is located in the labeling accompanying each product (e.g., a package insert). Type "N/A" if not applicable.
+CAPTION: Summary and explanation of the test.
+CAPTION: Chemical, physical, physiological, or biological principles of the procedure.
+CAPTION: Instrument related labeling information.
+CAPTION: Specimen collection and preparation for analysis.
+CAPTION: Step-by-step procedure instructions and limitations of the procedure.
+CAPTION: Procedure for calculating the value of the unknown.
+CAPTION: Range(s) of expected values.
+CAPTION: Performance characteristics of the device (including as appropriate, precision/reproducibility, accuracy, specificity, sensitivity, etc.).
+CAPTION: Bibliography information.
+CAPTION: Date of issuance of the last revision of the labeling.
+CAPTION: Are all of the changes in the proposed labeling resulting from device modification(s) highlighted or prominently identified?
+ITEMS: |Yes|No Changes
+ITEMS: 0|1|2
+TEXT: Please provide a statement that the intended use of the modified device, as described in the labeling, has not changed as a result of the modification(s).
+TEXT: Guidance and Special Controls Adherence
+TEXT: In the text box below, please address or provide information demonstrating compliance with any applicable special controls, requirements in a device specific classification regulation, or adherence to device specific guidance recommendations for the Labeling. For each specific special control, regulation, or guidance recommendation applicable to your device:  Please list the special control, regulation, or recommendation and cite the attachment(s) and page number(s) where it was addressed. Please use the primary product code you provided in the Classification section above to determine whether a device specific guidance exists for your device. Type “N/A” if no device specific guidance, regulation, or special controls exist for your device type. If you type “N/A,” and special controls, a regulation, or a device specific guidance exists that requests information covered by this review section, the time-line for review of your file may be affected.
+TEXT: If you choose to use an alternative approach in comparison to what is stated in the applicable guidance or special controls, please provide a rationale for this alternative approach below.
+TEXT: Quality Management System
+TEXT: For any questions that are not applicable, please attach statements explaining why.
+TEXT: Quality Management System Information
+TEXT: Product Descriptive Information
+TEXT: General Manufacturing Information
+TEXT: Required Forms
+TEXT: Quality Management System
+TEXT: Management Responsibilities
+TEXT: Resource Management
+TEXT: Planning of Product Realization and Customer Related Processes
+TEXT: Design and Development
+TEXT: Purchasing
+TEXT: Production and Service Controls
+TEXT: Control of Monitoring and Measuring Equipment
+TEXT: QMS Measurement Analysis and Improvement
+TEXT: Device Specific Quality Plan
+TEXT: Other Quality System Information
+TEXT: Facility Information
+CAPTION: How many Facilities are new and/or have updated information?
+ITEMS: 0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15
+ITEMS: 0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15
+TEXT: Facility
+TEXT: Submitting new Facility information in certain PMA supplements may not be an appropriate regulatory pathway. See the help text for more information.
+TEXT: Please provide the Facility name and address, and state if the Facility is new. If the Facility was previously approved, provide the approval submission number.
+CAPTION: What type of Facility is it?
+ITEMS: |Manufacturing|Contract Manufacturing|Sterilization|Contract Sterilization|Microbiological Testing|Specification Developer|Unknown|Other
+ITEMS: 0|1|2|3|4|5|6|7|8
+TEXT: List the Facility Establishment Identifier(s) (FEI)
+CAPTION: Has Pre and/or Post-Approval Inspection been Performed?
+ITEMS: |Yes|No
+ITEMS: 0|8|9
+TEXT: If an inspection was performed, what is the Establishment Inspection Report (EIR) Number?
+CAPTION: What is the current EIR Classification?
+ITEMS: |NAI - No Action Indicated|VAI - Voluntary Action Indicated|OAI - Official Action Indicated|Not Applicable|Pending
+ITEMS: 0|2|3|4|5|6
+CAPTION: If no inspection performed, is the facility ready for inspection?
+ITEMS: |Yes|No
+ITEMS: 0|3|4
+TEXT: Have any recalls and/or MDRs been reported for any device(s) at this facility in the last three years?
+TEXT: Changes in Manufacturing Procedures
+CAPTION: Change Control Number(s)
+TEXT: Please provide a description of the change(s).
+TEXT: Please provide a reason for the change(s).
+TEXT: The change is associated with the following:
+CAPTION: A Recall
+TEXT: 0
+ITEMS: 1|0|2
+CAPTION: Complaints or Field Adverse Events
+TEXT: 0
+ITEMS: 1|0|2
+CAPTION: Failures
+TEXT: 0
+ITEMS: 1|0|2
+CAPTION: Corrective and Preventive Actions (CAPA)
+TEXT: 0
+ITEMS: 1|0|2
+CAPTION: None of the above
+TEXT: 0
+ITEMS: 1|0|2
+TEXT: Please provide a summary / justification of the data supporting the change(s).
+TEXT: Details related to the Change(s)
+TEXT: Post-Market Study (PMS) Plans
+TEXT: If this section is not applicable, please attach a statement explaining why.
+TEXT: PMS Information
+CAPTION: Identify the number of PMSs agreed upon as part of the conditions to market the device(s).
+ITEMS: 0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15
+ITEMS: 0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15
+TEXT: PMS
+TEXT: State Study Objectives
+TEXT: Describe Study Design
+TEXT: Describe Study Population, number of Subjects and Sites to be Enrolled
+TEXT: Define Endpoints (Primary and Secondary related to Safety/Effectiveness)
+TEXT: Provide a high-level description of the data analysis plan for the primary endpoints
+TEXT: Outline Enrollment Milestones
+TEXT: State the length of follow-up and frequency of assessments
+TEXT: Please attach detailed documentation (e.g., study protocols, statistical analysis, milestones, design, etc.) pertaining to each Post-Market Study. If no PMS is identified, please attach a rationale explaining why PMS is not necessary.
+TEXT: References
+CAPTION: Is literature referenced in the submission?
+ITEMS: |Yes|No
+ITEMS: 0|1|2
+TEXT: Please add legible reprints or a summary of each article in English.
+TEXT: Please include a discussion of how each article is applicable to support the submission.
+TEXT: Administrative Documentation
+TEXT: List of Terms/Acronyms
+TEXT: General Summary of Submission/Executive Summary
+TEXT: Summary of Safety and Effectiveness Data (SSED)
+TEXT: Attach an exclusion statement, or an Environmental Assessment Report
+TEXT: Free Sale Certificate / Certificate of Marketing Authorization
+TEXT: Statement of Conformance
+TEXT: Quality Management System Certificate
+CAPTION: Did you perform any clinical study that requires submission of Financial Certification and Disclosure Statement (Form FDA-3454 and/or FDA-3455)?
+ITEMS: |Yes|No
+ITEMS: 0|1|2
+TEXT: Financial Certification and Disclosure Statement (Form FDA-3454 and/or FDA-3455)
+CAPTION: Did you perform any clinical trial that requires submission of Clinical Trial Certification Form (Form FDA-3674)?
+ITEMS: |Yes|No
+ITEMS: 0|1|2
+TEXT: Clinical Trials Certification Form (Form FDA-3674)
+TEXT: Declaration of Conformity
+TEXT: Attach a pediatric sub-populations description, or a statement, along with a Pediatric Summary Table.
+TEXT: Pediatric Population includes... (choose all that apply)
+CAPTION: 515A/360e Neonate/Newborn (Birth to < 29 days)
+TEXT: 0
+ITEMS: 1|0|2
+CAPTION: 515A/360e Infant (29 days to < 2 years old)
+TEXT: 0
+ITEMS: 1|0|2
+CAPTION: 515A/360e Child (2 years to < 12 years old)
+TEXT: 0
+ITEMS: 1|0|2
+CAPTION: 515A/360e Adolescent (12 years to < 18 years old)
+TEXT: 0
+ITEMS: 1|0|2
+CAPTION: 515A/360e Transitional Adolescent A (18 to < 22 years old)
+TEXT: 0
+ITEMS: 1|0|2
+CAPTION: 515A/360e Transitional Adolescent B (18 to < 22 years old but treated like adult)
+TEXT: 0
+ITEMS: 1|0|2
+CAPTION: None of the Above Pediatric Population is Applicable
+TEXT: 0
+ITEMS: 1|0|2
+TEXT: The Truthful and Accurate Statement is required for all 510(k) types (21 CFR 807.87(l)). It is a legally binding statement that provides additional assurance that the data submitted in the 510(k) is truthful and accurate and that no material fact has been omitted. This statement must be signed by a responsible person of the applicant company; it cannot be signed by a consultant to the applicant. If you are a responsible party of the 510(k) owner, this statement will be automatically produced and signed with your electronic signature (click the Administrative Documentation help text above to learn how to obtain an electronic signature). Ensure the signature you use to sign this application is for the owner of the 510(k), or, if you are not a responsible party of the 510(k) owner, attach a Truthful and Accurate statement below. Weblink: Truthful and Accurate Statement
+TEXT: Are you a responsible party of the 510(k) owner and do you intend to electronically sign the Truthful & Accurate (T&A) Statement? If you prefer a wet signature on the T&A statement or are unable to sign PDF documents electronically, choose No.
+ITEMS: |Yes|No
+ITEMS: 0|1|2
+TEXT: Please use the link above to download the Truthful and Accurate statement.  Please have a responsible party of the 510(k) owner print and sign this document, then scan and upload this document here.
+TEXT: Would you like to attach a 510(k) Statement or Summary? If you do not attach a 510(k) Statement or Summary, and you provided all of the data necessary to produce a 510(k) Summary, then a 510(k) Summary will be produced by this form. If you choose to submit a 510(k) Summary instead of a 510(k) Statement, be aware that the data provided in the 510(k) Summary will be publicly available if your 510(k) is cleared.
+ITEMS: |Yes|No
+ITEMS: 0|1|2
+TEXT: 510(k) Summary or Statement
+TEXT: Please attach your User Fee form here. Be sure to submit your user fee payment at least three (3) business days before submitting, to ensure the payment is processed and your submission is not placed on user fee hold.
+CAPTION: ?
+CAPTION: Please enter in the User Fee Payment Identification Number.
+CAPTION: Show User Fee Introduction
+TEXT: Submission Fees The standard and small business fees for a premarket submissions are updated annually on or about August 1st. More information about user fees , as well as the cost to submit your submission, can be found at the Medical Device User Fee Amendments (MDUFA) website . To pay this user fee, please complete the MDUFA User Fee Cover Sheet . Directions on completing can be found at MDUFMA User Fees Cover Sheet website .
+TEXT: 0
+ITEMS: 1|0|2
+TEXT: Truthful & Accurate Statement
+TEXT: [As Required by 21 CFR 807.87(l)]
+CAPTION: I certify that, in my capacity as
+CAPTION: of
+TEXT: I believe to the best of my knowledge, that all data and information submitted in the premarket notification are truthful and accurate and that no material fact has been omitted.
+TEXT: 0
+ITEMS: 1|0|2
+CAPTION: Date Signed:
+CAPTION: 510(k)#:
+TEXT: For a new submission, leave the 510(k) number blank.
+TEXT: Must be signed by a responsible person of the firm required to submit the premarket notification [e.g., not a consultant for the 510(k) submitter].
+TEXT: Declaration of Conformity
+CAPTION: Application #
+CAPTION: Company Name
+CAPTION: Company Address
+CAPTION: Device Trade Name
+TEXT: The subject device(s) is in conformity with the requirements of the following documents:
+TEXT: Organization
+TEXT: Designation Number and Edition/Date
+TEXT: Recognition #
+TEXT: Additional Information (e.g., limitations on the validity of the Declaration of Conformity)
+TEXT: Signed for and on behalf of the applicant company:
+TEXT: Place and Issuance Date:
+CAPTION: Full Name and Title:
+CAPTION: Signature
+TEXT: 510(k) Summary
+CAPTION: Prepared on:
+TEXT: Contact Details 21 CFR 807.92(a)(1)
+CAPTION: Applicant Name
+CAPTION: Applicant Address
+CAPTION: Applicant Contact Telephone
+CAPTION: Applicant Contact
+CAPTION: Applicant Contact Email
+CAPTION: Correspondent Name
+CAPTION: Correspondent Address
+CAPTION: Correspondent Contact Telephone
+CAPTION: Correspondent Contact
+CAPTION: Correspondent Contact Email
+TEXT: Device Name 21 CFR 807.92(a)(2)
+CAPTION: Device Trade Name
+CAPTION: Common Name
+CAPTION: Classification Name
+CAPTION: Regulation Number
+CAPTION: Product Code(s)
+TEXT: Legally Marketed Predicate Devices 21 CFR 807.92(a)(3)
+TEXT: Predicate #
+TEXT: Predicate Trade Name (Primary Predicate is listed first)
+TEXT: Product Code
+TEXT: Device Description Summary 21 CFR 807.92(a)(4)
+TEXT: Intended Use/Indications for Use 21 CFR 807.92(a)(5)
+TEXT: Indications for Use Comparison 21 CFR 807.92(a)(5)
+TEXT: Technological Comparison 21 CFR 807.92(a)(6)
+TEXT: Non-Clinical and/or Clinical Tests Summary & Conclusions 21 CFR 807.92(b)
+TEXT: Additional Information Response
+CAPTION: Is this a response to an Additional Information request?
+ITEMS: |Yes|No
+ITEMS: 0|1|2
+TEXT: Changes that are necessary to resolve deficiencies should be made in the respective section. For example, if additional Sterilization information will be provided to resolve a deficiency, this documentation should be added to the Sterilization documentation that is already present. If attachments need to be updated, remove the old attachments and replace them with the new attachments (be sure to give new attachments a different name in comparison to the old attachments to ensure they are distinguished). Data that are typed in can also be modified. If you need to respond to subsequent Additional Information requests or Technical Screening holds, you should replace the deficiencies below with those from the latest Additional Information or Technical Screening request when responding. Although previously submitted data and attachments will remain in the FDA database, old data superseded by new data will not be considered the final data in our final review.
+TEXT: For PMA 30-Day Notices, additional information requests are responses to a deficiency letter, where FDA finds such notice inadequate, and a 135-Day PMA Supplement is needed. This response to the deficiency letter is reviewed in the 135-Day PMA Supplement, which has been converted from a 30-Day Notice.
+CAPTION: Delete All Responses
+TEXT: Please restate the deficiency to which you are responding. Begin the statement by the deficiency reference (e.g., 2(a)).
+TEXT: Provide your response to the deficiency. For multi-part deficiencies, respond separately to each (i.e., click the Add Response button for each part).
+CAPTION: Add Reference
+TEXT: Add references to attachments in this eSTAR.
+CAPTION: Open Reference
+ITEMS: 
+CAPTION: Delete Reference
+CAPTION: Add Response
+CAPTION: Move Up
+CAPTION: Move Down
+CAPTION: Delete Response
+TEXT: Provide a summary of the unsolicited information you are providing.
+TEXT: Verification
+CAPTION: Export Data
+TEXT: If you want to save the data in this eSTAR in XML format, you can click the Export Data button to the left. Attachments will not be included in the generated XML file.
+CAPTION: Import Data
+TEXT: You can import the XML data of another eSTAR into this eSTAR by clicking the Import Data button to the left, and choosing the XML file. Attachments will not be imported.
+CAPTION: Admin Functions
+TEXT: FOR ADMINISTRATOR USE ONLY
+TEXT: Registration and Listing
+TEXT: Owners or operators of places of business (also called establishments or facilities) that are involved in the production and distribution of medical devices intended for use in the United States (U.S.) are required to register annually with the FDA. This process is known as establishment registration. Congress has authorized FDA to collect an annual establishment registration fee for device establishment registrations. A detailed list of all those establishment types that have to pay the registration fee can be found at the Who Must Register, List and Pay the Fee website. There are no reductions in annual establishment registration fees for small businesses or any other group. Most establishments that are required to register with the FDA are also required to list the devices that are made there and the activities that are performed on those devices. If a device requires premarket approval or notification before being marketed in the U.S., then the owner/operator should also submit the FDA premarket submission number (510(k), De Novo, PMA, PDP, HDE). The owner/operator cannot list the device until the premarket submission has been cleared, granted, or approved to market in the United States. Registration and listing provides FDA with the location of medical device establishments and the devices manufactured at those establishments. Knowing where devices are made increases the nation's ability to prepare for and respond to public health emergencies. For details about registering and listing your device, please see the Device Registration and Listing website. If you encounter an issue or wish to contact us regarding the Electronic Registration and Listing System known as the FDA Unified Registration and Listing System (FURLS)/Device Registration and Listing Module (DRLM), please send an email to reglist@cdrh.fda.gov .
+TEXT: Delivery Directions
+TEXT: Please submit this eSTAR PDF for review to the Center for Devices and Radiological Health (CDRH) using the CDRH Portal unless your medical device is regulated by the Center for Biologics Evaluation and Research (CBER) or is a combination product where CBER is the lead center. You do not need to send any documentation in physical form using mail couriers. For CBER-regulated medical devices or for combination products where CBER is the lead center, please refer to Regulatory Submissions in Electronic and Paper Format for CBER-Regulated Products for information on how to submit to CBER through the Electronic Submission Gateway .
+TEXT: Delivery Directions
+TEXT: Please submit via email ( devicelicensing-homologationinstruments@hc-sc.gc.ca ) (20 MB max. by email) or on compact disc of USB to the address below: Bureau of Licensing Services Medical Device Directorate Health Canada 11 Holland Ave. Address Locator 3002A Ottawa, ON K1A 0K9
+TEXT: ***Start***
+CAPTION: Submission Complete
+TEXT: 0
+ITEMS: 1|0|2
+TEXT: 0
+TEXT: Form FDA 4078 Built by Patrick Axtell and Lili Duan, FDA/CDRH/OPEQ/ORP
+TEXT: 0
+TEXT: 0

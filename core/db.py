@@ -86,6 +86,9 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT NOT NULL, user TEXT, action TEXT,
     target TEXT, ip TEXT
 );
+CREATE TABLE IF NOT EXISTS sboms (
+    scan_id INTEGER PRIMARY KEY, data TEXT NOT NULL, created_at TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS ai_cache (
     key TEXT PRIMARY KEY, answer TEXT, hits TEXT, not_found INTEGER, at TEXT
 );

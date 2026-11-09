@@ -1,0 +1,66 @@
+TEXT: Cybersecurity
+TEXT: Is the premarket submission for a device modification(s) to an existing FDA authorized device, and is the cybersecurity of the device unaffected by the modification(s)?
+ITEMS: |Yes, the cybersecurity of the authorized device is unaffected|No, the device was not previously authorized|No, the cybersecurity of the authorized device is affected
+ITEMS: 0|1|2|3
+TEXT: General Information
+TEXT: Risk Management
+TEXT: Cybersecurity Management Plan / Plan for Continuing Support
+TEXT: Risk Management - Report
+TEXT: Please attach your security risk management report detailing a separate, parallel, and interconnected security risk management process. This is different from your safety risk management process.
+TEXT: Risk Management - Threat Model
+TEXT: Please attach your threat model addressing all the end-to-end elements of the system.
+TEXT: List the Threat Methodology (e.g. STRIDE, Attack Trees, Kill Chain, DREAD) that you used.
+CAPTION: Does the threat model documentation include Architecture Views (Global System View, Multi-Patient Harm View, Updateability/Patchability View, and Security Use Case Views)?
+ITEMS: |Yes|No
+ITEMS: 0|1|2
+TEXT: Risk Management - Cybersecurity Risk Assessment
+TEXT: Please attach your Cybersecurity Risk Assessment
+CAPTION: Please cite the page number(s) of the attachment directly above where you describe your methodology and your acceptance criteria .
+CAPTION: Does the Cybersecurity Risk Assessment avoid using probabilities for the likelihood assessment and use exploitability instead?
+ITEMS: |Yes|No
+ITEMS: 0|1|2
+TEXT: Risk Management - Software Bill of Materials (SBOM) and Related Information
+TEXT: Please attach your Software Bill of Materials (SBOM).
+TEXT: Please attach a document to provide the software level of support and end-of-support date for each software component (e.g. OTS software) identified in the SBOM. For any component where this information was not available, provide a justification.
+TEXT: List the supported operating system(s) and associated version(s) your device(s)/system uses. Be aware that if you list any operating systems that are no longer supported or nearing end of support, this will generally be considered an inaccurate response. Type "N/A" if your device(s) does not use an operating system.
+TEXT: Please attach a safety and security assessment of cybersecurity vulnerabilities in the component software used by the device for all software components in the SBOM and a description of any controls that address the vulnerability.
+TEXT: Vulnerabilities with Uncontrolled Risk
+TEXT: Please attach a document(s) with a description of whether there are currently any critical vulnerabilities that could cause uncontrolled risks.
+TEXT: Please attach a document(s) with a description of whether any vulnerabilities with uncontrolled risk were remediated in the device since the last authorization. If so, describe how the remediation was performed following the recommendations in FDA guidance "Postmarket Management of Cybersecurity in Medical Devices."
+TEXT: Assessment of Unresolved Anomalies
+TEXT: Please attach an assessment of any unresolved anomalies for cybersecurity impact. If none exist, attach a document stating that no unresolved anomalies exist.
+TEXT: Cybersecurity Metrics
+TEXT: Please attach data from monitoring cybersecurity metrics. If metric data are unavailable, please attach a justification.
+TEXT: Cybersecurity Controls
+TEXT: Please attach information on the security controls categories included in the device.
+TEXT: Please cite the page number(s) of the attachment directly above where you addressed the following controls listed in the textbox below (e.g. "A) Authentication Controls: Page 2 ").
+TEXT: A) Authentication controls: B) Authorization controls: C) Cryptography controls: D) Code, data, and execution integrity controls: E) Confidentiality controls: F) Event detection and logging controls: G) Resiliency and recovery controls: H) Firmware and software update controls:
+TEXT: Architecture Views
+TEXT: Please attach a document(s) that contains a Global System View, Multi-Patient Harm View, Updatability/Patchability View, and Security Use Case Views. If these Architecture Views are provided in the Threat Modeling documentation provided above, please cite where each of the Architecture Views is provided.
+TEXT: Cybersecurity Testing
+TEXT: Please attach a document(s) that describes the cybersecurity testing performed and the associated test reports. Cybersecurity testing includes but may not be limited to security requirement testing, threat mitigation testing, vulnerability testing, and penetration testing. If security testing was performed by a third party, please provided the original third party test report and your assessment of any findings. Alternatively, provide a justification for why particular testing was not performed.
+TEXT: Cybersecurity Labeling
+TEXT: Please specifically cite the attachment(s) and page number(s) where cybersecurity information is documented in the labeling, as specified in the help text to the right for all the recommended elements . If there is separate cybersecurity labeling, attach this in the labeling section above.
+TEXT: Cybersecurity Management Plan
+TEXT: Please attach a Cybersecurity Management Plan.
+CAPTION: Please cite the page number(s) of the attachment directly above where you include the information specified in the help text to the right for all the recommended elements .
+CAPTION: Please cite the page number(s) of the attachment directly above where you include a description of and justification for the time-lines to make patches on a regular cycle and out of cycle.
+TEXT: Interoperability
+CAPTION: How many Electronic Interfaces are there?
+ITEMS: 0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20
+ITEMS: 0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20
+TEXT: Electronic Interface
+CAPTION: Name the Electronic Interface
+CAPTION: Is the electronic interface inactive (i.e. not meant to connect, exchange, or use data with or from other medical devices, products, technologies, or systems)?
+ITEMS: |Yes|No
+ITEMS: 0|1|2
+CAPTION: Are the interfaces only meant for service or maintenance?
+ITEMS: |Yes|No
+ITEMS: 0|1|2
+TEXT: Is the data flow only meant for transferring, storing, converting formats, or displaying clinical laboratory test and not intended to interpret or analyze clinical laboratory test or other device data, results, and findings?
+CAPTION: The caption is in the textbox to the left of this dropdown
+ITEMS: |Yes|No
+ITEMS: 0|1|2
+TEXT: Describe the Electronic Interface
+TEXT: Interoperability Risk Assessment / Verification and Validation
+CAPTION: Please specifically cite the attachment(s) and page number(s) where the interoperability labeling is located. (Note: If there is separate interoperability labeling for the device, please attach this in the Labeling section above.)

@@ -1,0 +1,316 @@
+# =============================================================================
+#  MediHub - Medical Device Embedded Firmware Static Analysis Ruleset
+#  Version : 2.0
+#  Date    : 2026-08-02
+#  Author  : Sangji University Industry-Academic Cooperation Foundation
+#  For     : SM Solutions Co., Ltd.
+#  Ref     : Change Request R-20 / Dev Spec SPEC-3
+#
+#  IMPORTANT - ENCODING
+#  This file is intentionally ASCII-only. Korean display text lives in the
+#  companion file  medihub-rule-messages.ko.json  and is joined by rule id.
+#  Do NOT add non-ASCII characters here: the scanner reads this config using
+#  the system default encoding, and on a Windows cp949 locale a non-ASCII
+#  byte causes the whole ruleset to fail to load (verified 2026-08-02).
+#
+#  WHY THIS FILE EXISTS
+#  On 2026-08-02 the SecPump-Vuln wireless insulin pump firmware (29 files,
+#  5,383 lines) was uploaded to MediHub and scanned with the existing
+#  "CWE Top 25" ruleset. Result: 0 findings, grade A, score 100.
+#  That code contains a buffer overflow the upstream repository documents as
+#  deliberately introduced:
+#      SecPump-Vuln/Src/PumpService.c  ProcessVulnReq()
+#        char VulnBuffer[4];
+#        MaliciousMemCpy(VulnBuffer, AttackBuffer, 112);
+#  This is CWE-787, ranked #2 in CWE Top 25 (2024). The public Semgrep C
+#  ruleset also returns 0 findings, so this is a coverage gap common to
+#  generic rulesets, not a defect of any one tool. These rules close that gap.
+#
+#  VERIFICATION (this exact file)
+#      SecPump-Vuln    (29 files) -> 6 findings
+#      SecPump-Vanilla (22 files) -> 5 findings
+#      difference = 1 = PumpService.c:401 medihub-c-stack-buffer-overflow
+#  The two builds differ by exactly the ground-truth defect, which shows the
+#  ruleset discriminates rather than warning indiscriminately.
+#  False positives removed during development: the CWE-134 rule initially
+#  matched 20 occurrences of printf("literal"); the pattern-not clauses
+#  reduced that to 0. Do not remove those clauses.
+#
+#  HOW TO RUN (run alongside the existing ruleset, do not replace it)
+#      opengrep scan \
+#        --config <existing CWE Top 25 ruleset> \
+#        --config ./rulesets/medihub-medical-fw.yaml \
+#        --sarif --output result.sarif \
+#        <target path>
+#  Merge both result sets; de-duplicate only where file+line+cwe all match.
+#
+#  HOW TO MAP RESULTS (no new development required)
+#      metadata.cwe               -> report column "CWE ID"
+#      metadata.medihub-severity  -> report column "severity" AND grading input
+#      metadata.medihub-cvss      -> report "CVSS score"
+#      rule id                    -> key into medihub-rule-messages.ko.json
+#                                    for Korean name / description / remediation
+#  Use metadata.medihub-severity, NOT the SARIF severity field. SARIF severity
+#  is a scanner-internal level and does not follow CVSS v3.1 bands.
+#
+#  PATH EXCLUSION MUST BE APPLIED FIRST (Change Request R-04)
+#      venv/  site-packages/  node_modules/  .git/  build/  dist/
+#      third_party/  external/  vendor/  Middlewares/  Drivers/
+#  Report excluded files separately as "reference (excluded): N".
+#
+#  ACCEPTANCE TESTS (both must pass to close R-20)
+#      T1 Detection    : scanning SecPump-Vuln yields >= 1 CWE-787 finding
+#                        at or near PumpService.c line 401.
+#      T2 Discrimination: scanning SecPump-Vanilla yields fewer CWE-787
+#                        findings than T1. Identical results mean the rule
+#                        is not actually running.
+#
+#  MAINTENANCE
+#  Sangji University owns and maintains this rule data. SM Solutions runs it
+#  and wires the results; do not edit rules. If a rule produces excessive
+#  false positives, report rule id + file:line + 3-5 lines of source to the
+#  client rather than modifying the rule.
+#
+#  CHANGE LOG
+#      v1.0  2026-08-02  3 rules (buffer overflow, unbounded funcs, memcpy)
+#      v2.0  2026-08-02  8 rules; added crypto, PRNG, credential, format
+#                        string; removed 20 format-string false positives;
+#                        verified discrimination on vanilla vs vuln builds;
+#                        converted to ASCII-only after cp949 load failure.
+# =============================================================================
+
+rules:
+
+  # ---------------------------------------------------------------------------
+  # [1/8] CWE-787 - copy into a fixed-size stack buffer without a bounds check
+  #
+  # Matches:
+  #     char buf[4];              <- fixed-size array declaration
+  #     ...
+  #     memcpy(buf, src, 112);    <- copy into it with no size check
+  #
+  # Device impact: corrupting the stack can overwrite the return address and
+  # hijack firmware control flow. On an infusion pump that means the delivered
+  # dose can be altered, which is direct patient harm.
+  #
+  # This is the primary rule of this set and the one the generic ruleset lacks.
+  # Verified: detects SecPump-Vuln PumpService.c:401 (ground truth).
+  # ---------------------------------------------------------------------------
+  - id: medihub-c-stack-buffer-overflow
+    patterns:
+      - pattern: |
+          $T $DST[$N];
+          ...
+          $F($DST, $SRC, $LEN);
+    message: >-
+      CWE-787 Out-of-bounds Write: data is copied into a fixed-size stack buffer
+      without a bounds check. Ensure the copied length can never exceed the
+      buffer size.
+    languages: [c]
+    severity: ERROR
+    metadata:
+      cwe: "CWE-787"
+      medihub-severity: "High"
+      medihub-cvss: "8.8"
+      fda-reference: "Cybersecurity Final Guidance 2026-02-03 / Security Testing"
+
+  # ---------------------------------------------------------------------------
+  # [2/8] CWE-120 - string functions that cannot bound the destination
+  #
+  # strcpy / strcat / sprintf / gets / vsprintf take no destination size, so
+  # overflow cannot be prevented structurally. Replace with strncpy / strncat /
+  # snprintf / fgets and derive the limit from sizeof(dest).
+  # ---------------------------------------------------------------------------
+  - id: medihub-c-unbounded-string-functions
+    pattern-either:
+      - pattern: strcpy(...)
+      - pattern: strcat(...)
+      - pattern: sprintf(...)
+      - pattern: gets(...)
+      - pattern: vsprintf(...)
+    message: >-
+      CWE-120: a string function that does not bound the destination buffer is
+      used. Replace with the size-limited variant (strncpy / strncat /
+      snprintf / fgets).
+    languages: [c]
+    severity: WARNING
+    metadata:
+      cwe: "CWE-120"
+      medihub-severity: "Medium"
+      medihub-cvss: "5.5"
+      fda-reference: "Cybersecurity Final Guidance 2026-02-03 / Security Testing"
+
+  # ---------------------------------------------------------------------------
+  # [3/8] CWE-20 - external input converted to a number without validation
+  #
+  # atof / atoi / atol cannot signal conversion failure (they return 0, so a
+  # malformed input is indistinguishable from a real zero) and perform no range
+  # check. This rule matters most on this platform. Real matches found:
+  #     PumpService.c:391   BolusConfig = atof((const char *)att_data);
+  #                         -> BLE input becomes the insulin bolus amount
+  #     InsulinController.c:114  MeasuredGlucose = atof(GlucoseBuffer);
+  #                         -> serial input becomes the control loop input
+  # Fix: strtod / strtol, check endptr and errno, then clamp to the clinically
+  # allowed range.
+  # ---------------------------------------------------------------------------
+  - id: medihub-c-unchecked-numeric-conversion
+    pattern-either:
+      - pattern: atof(...)
+      - pattern: atoi(...)
+      - pattern: atol(...)
+    message: >-
+      CWE-20: external input is converted to a number without validation.
+      Conversion failure cannot be detected and no range check is performed.
+      Use strtod / strtol, check endptr and errno, then clamp to the clinically
+      allowed range.
+    languages: [c]
+    severity: WARNING
+    metadata:
+      cwe: "CWE-20"
+      medihub-severity: "Medium"
+      medihub-cvss: "5.3"
+      fda-reference: "Cybersecurity Final Guidance 2026-02-03 / Security Risk Assessment"
+
+  # ---------------------------------------------------------------------------
+  # [4/8] CWE-787 review list - enumerate memcpy-family calls
+  #
+  # Not an automatic verdict: this builds a manual review list. Severity is Low
+  # so it does not distort the grade. FDA requires a security impact assessment
+  # of unresolved anomalies, so recording reviewed-but-not-fixed items with a
+  # rationale is itself submission evidence.
+  # ---------------------------------------------------------------------------
+  - id: medihub-c-memcpy-review
+    pattern-either:
+      - pattern: memcpy(...)
+      - pattern: memmove(...)
+    message: >-
+      CWE-787 review candidate: memcpy-family call. Verify the destination
+      capacity is always at least the copied length. If not remediated, record
+      the rationale in the unresolved anomalies assessment.
+    languages: [c]
+    severity: INFO
+    metadata:
+      cwe: "CWE-787"
+      medihub-severity: "Low"
+      medihub-cvss: "3.1"
+      fda-reference: "Cybersecurity Final Guidance 2026-02-03 / Unresolved Anomalies"
+
+  # ---------------------------------------------------------------------------
+  # [5/8] CWE-798 - credential or key material hard-coded in source
+  #
+  # Heuristic on the variable name. Firmware can be extracted and reverse
+  # engineered, so an embedded secret is effectively public. Because this is a
+  # name-based heuristic it can produce false positives; severity is Medium on
+  # the assumption a human confirms the value before it is treated as real.
+  # ---------------------------------------------------------------------------
+  - id: medihub-hardcoded-credential
+    patterns:
+      - pattern: $T $VAR[] = "...";
+      - metavariable-regex:
+          metavariable: $VAR
+          regex: (?i).*(pass|pwd|secret|token|apikey|api_key|privkey|private_key|cred).*
+    message: >-
+      CWE-798: a value that appears to be a credential or key is written
+      directly in source. Firmware can be extracted, so embedded secrets are
+      not protected. Provision the value through a secure element or a
+      provisioning step instead.
+    languages: [c]
+    severity: WARNING
+    metadata:
+      cwe: "CWE-798"
+      medihub-severity: "Medium"
+      medihub-cvss: "6.5"
+      fda-reference: "Cybersecurity Final Guidance 2026-02-03 / Security Architecture"
+      review-required: "true"
+
+  # ---------------------------------------------------------------------------
+  # [6/8] CWE-327 - broken or deprecated cryptographic algorithm
+  #
+  # MD5 and SHA-1 have demonstrated collisions and cannot be used for integrity
+  # verification; DES and RC4 are retired. If firmware image verification uses
+  # MD5 or SHA-1, signature forgery is possible.
+  # Links to the crypto-identification module delivered 2026-07 (see R-14): this
+  # rule surfaces the same condition inside the static analysis pipeline so both
+  # report the same way.
+  # ---------------------------------------------------------------------------
+  - id: medihub-weak-crypto-algorithm
+    pattern-either:
+      - pattern: MD5(...)
+      - pattern: MD5_Init(...)
+      - pattern: SHA1(...)
+      - pattern: SHA1_Init(...)
+      - pattern: DES_set_key(...)
+      - pattern: RC4(...)
+      - pattern: EVP_md5(...)
+      - pattern: EVP_sha1(...)
+    message: >-
+      CWE-327: a broken or deprecated cryptographic algorithm is used. Move
+      hashes to SHA-256 or stronger and symmetric ciphers to AES-128 or
+      stronger. Firmware integrity checks based on MD5 or SHA-1 are forgeable.
+    languages: [c]
+    severity: ERROR
+    metadata:
+      cwe: "CWE-327"
+      medihub-severity: "High"
+      medihub-cvss: "7.5"
+      fda-reference: "Cybersecurity Final Guidance 2026-02-03 / Security Controls"
+
+  # ---------------------------------------------------------------------------
+  # [7/8] CWE-338 - cryptographically weak pseudo-random number generator
+  #
+  # rand / srand / random are predictable. Used for session tokens, nonces,
+  # pairing keys or IVs, an attacker can reproduce the values. Simulation or
+  # test use is fine, so the finding needs a purpose check; severity is Medium.
+  # ---------------------------------------------------------------------------
+  - id: medihub-weak-random
+    pattern-either:
+      - pattern: rand()
+      - pattern: srand(...)
+      - pattern: random()
+    message: >-
+      CWE-338: a predictable pseudo-random number generator is used. If the
+      value serves a security purpose (token, nonce, key, IV), replace it with
+      a hardware RNG or a CSPRNG. If the use is non-security, record that
+      rationale.
+    languages: [c]
+    severity: WARNING
+    metadata:
+      cwe: "CWE-338"
+      medihub-severity: "Medium"
+      medihub-cvss: "5.3"
+      fda-reference: "Cybersecurity Final Guidance 2026-02-03 / Security Controls"
+      review-required: "true"
+
+  # ---------------------------------------------------------------------------
+  # [8/8] CWE-134 - externally controlled format string
+  #
+  # printf(buf) lets an input containing %n or %x read or write memory.
+  # The correct form is printf("%s", buf).
+  #
+  # FALSE POSITIVE HISTORY - DO NOT REMOVE THE pattern-not CLAUSES
+  # The first draft also matched printf("literal string"), producing 20 false
+  # positives on SecPump-Vuln. The four pattern-not clauses below exclude
+  # literal arguments and brought that count to 0.
+  # ---------------------------------------------------------------------------
+  - id: medihub-format-string
+    patterns:
+      - pattern-either:
+          - pattern: printf($VAR);
+          - pattern: fprintf($F, $VAR);
+          - pattern: sprintf($B, $VAR);
+          - pattern: snprintf($B, $N, $VAR);
+      - pattern-not: printf("...");
+      - pattern-not: fprintf($F, "...");
+      - pattern-not: sprintf($B, "...");
+      - pattern-not: snprintf($B, $N, "...");
+    message: >-
+      CWE-134: a variable is used directly as the format string. Input
+      containing %n or %x can read or write memory. Fix the format string as a
+      literal and pass the variable as an argument, e.g. printf("%s", var).
+    languages: [c]
+    severity: ERROR
+    metadata:
+      cwe: "CWE-134"
+      medihub-severity: "High"
+      medihub-cvss: "8.1"
+      fda-reference: "Cybersecurity Final Guidance 2026-02-03 / Security Testing"

@@ -36,10 +36,12 @@ def _defaults():
         ("scan.exclude_paths", "정적분석 집계 제외 경로(서드파티·빌드)",
          "venv,site-packages,node_modules,.git,build,dist,out,third_party,external,vendor,deps,Middlewares,Drivers,CMSIS,__pycache__",
          "정책", "메디가이드 내부 기준", "분석 범위"),
+        ("scan.community_packs", "함께 적용할 공개 룰팩 (쉼표로 구분, 빈 값 = 자체 룰만)", "p/cwe-top-25", "표준", "MITRE / Semgrep Registry", "CWE Top 25 Most Dangerous Software Weaknesses"),
         ("scan.ruleset_label", "적용 룰셋 표시 이름", "CWE Top 25 + 의료기기 펌웨어 v2.0", "정책", "메디가이드 내부 기준", "룰셋"),
         ("submission.fda_paths", "§524B 적용 제출 경로", "510(k),De Novo,PMA,PDP,HDE", "규정", "FD&C Act", "§524B(a)"),
         ("evidence.max_mb", "증빙 파일 최대 크기(MB)", "50", "정책", "메디가이드 내부 기준", "업로드 제한"),
         ("evidence.allowed_ext", "증빙 허용 형식 (형식검사 F1)", "pdf,docx,xlsx,json,xml,spdx,txt,md,zip", "정책", "메디가이드 내부 기준", "형식 준수성"),
+        ("sbom.osv_enabled", "SBOM 구성요소의 알려진 취약점을 OSV.dev에서 조회 (1=사용, 0=끔)", "1", "정책", "OSV.dev", "OSV API v1"),
         ("ai.top_k", "AI 매뉴얼 검색 근거 개수", "5", "정책", "메디가이드 내부 기준", "근거 인용형 답변"),
         ("ai.per_doc", "문서당 최대 근거 수", "2", "정책", "메디가이드 내부 기준", "근거 인용형 답변"),
     ]

@@ -84,6 +84,22 @@
 </table>
 <div class="sevrow">{% for k in ['Critical','High','Medium','Low'] %}<div class="sv {{ k }}"><b>{{ s.sev[k] }}</b>{{ k }}</div>{% endfor %}</div>
 
+{% if s.sbom %}
+<h3>소프트웨어 구성요소 (SBOM)</h3>
+<table class="kv2">
+  <tr><th>형식</th><td>CycloneDX 1.5 JSON (기계판독)</td></tr>
+  <tr><th>구성요소</th><td>{{ s.sbom.n }}개 ({% for k, v in s.sbom.ecos.items() %}{{ k }} {{ v }}{{ ', ' if not loop.last }}{% endfor %})</td></tr>
+  <tr><th>알려진 취약점</th><td>{{ s.sbom.vulnerable }}개 구성요소, {{ s.sbom.n_vulns }}건{% if s.sbom.sev %} ({% for k, v in s.sbom.sev.items() %}{{ k }} {{ v }}{{ ', ' if not loop.last }}{% endfor %}){% endif %} · 출처 OSV.dev{% if s.sbom.error %} · {{ s.sbom.error }}{% endif %}</td></tr>
+  {% if s.sbom.manual %}<tr><th>수동 확인</th><td>임베디드 C 라이브러리 {{ s.sbom.manual }}개는 패키지 단위 취약점 DB가 없어 NVD에서 버전별로 확인해야 합니다.</td></tr>{% endif %}
+</table>
+{% if s.sbom_vuln %}
+<table class="grid">
+  <tr><th>구성요소</th><th>버전</th><th>최고 심각도</th><th>건수</th><th>수정 버전</th><th>대표 ID</th></tr>
+  {% for v in s.sbom_vuln %}<tr><td>{{ v.name }}</td><td class="c">{{ v.version }}</td><td class="c">{% if v.worst in ('Critical','High','Medium','Low') %}<span class="sevt {{ v.worst }}">{{ v.worst }}</span>{% else %}{{ v.worst }}{% endif %}</td><td class="c">{{ v.n }}</td><td class="c">{{ v.fixed or '—' }}</td><td class="mono">{{ v.ids|join(', ') }}</td></tr>{% endfor %}
+</table>
+{% endif %}
+{% endif %}
+
 <h2>4. 주요 취약점 상세 (상위 {{ [s.findings|length, 20]|min }}건)</h2>
 <table class="grid">
   <tr><th>#</th><th>CWE ID</th><th>취약점명</th><th>심각도<span class="tag std">표준</span></th><th>파일:라인</th></tr>

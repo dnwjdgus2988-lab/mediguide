@@ -108,6 +108,8 @@ extra = []
 for folder, name, model, maker, desc in [
     ("seeds-5", "[검증] 결함 시드 5종 (인슐린펌프 관용구)", "SEED-5", "상지대 검증용 시드",
      "CWE-120/134/327/338/798 결함을 인슐린펌프 코드 관용구로 심은 시험 파일 5종"),
+    ("oref0", "[검증] OpenAPS oref0 인공췌장 SW", "oref0-0.7.1", "OpenAPS (MIT License)",
+     "인공췌장 알고리즘 오픈소스(JavaScript). 정적분석보다 SBOM 기반 구성요소 취약점이 주요 시연 대상"),
     ("realfw", "[검증] 공개 펌웨어 6종 (STM32·FreeRTOS·libopencm3)", "REALFW-6", "공개 소스 (각 저장소 라이선스)",
      "STM32F4 BSP·HAL, USB 미들웨어, FreeRTOS 커널, libopencm3 예제 등 공개 임베디드 펌웨어"),
 ]:

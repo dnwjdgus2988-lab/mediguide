@@ -1,5 +1,6 @@
 """업무 로직: 사용자·의료기기·증빙·정적분석·평가(체크리스트)·리포트·대시보드 통계."""
 import hashlib
+import json
 import os
 import secrets
 import shutil
@@ -7,7 +8,7 @@ import threading
 from datetime import datetime
 from pathlib import Path
 
-from core import checklist, db, policy, scanner, standards
+from core import checklist, db, policy, sbom, scanner, standards
 from core.config import UPLOADS
 
 SEV = ["Critical", "High", "Medium", "Low"]
@@ -195,7 +196,7 @@ def triage(fid, disposition, assessed_severity, rationale, action, user):
                                 "action": action, "triaged_by": user, "triaged_at": db.now()})
 
 
-STEP_LABELS = ["파일 업로드 완료", "압축 해제 완료", "소스코드 파싱 완료", "정적분석 실행", "CWE 룰셋 매핑", "보안성 등급 산출", "리포트 생성"]
+STEP_LABELS = ["파일 업로드 완료", "압축 해제 완료", "소스코드 파싱 완료", "정적분석 실행", "CWE 룰셋 매핑", "SBOM 생성 · 취약점 DB 조회", "보안성 등급 산출", "리포트 생성"]
 
 
 def start_scan(dev, archive: Path, source_name, version, user, background=True):
@@ -240,8 +241,9 @@ def _run_scan(scan_id, dev, archive: Path, user):
         name, _ = scanner.find_engine()
         steps[3]["label"] = f"{'Opengrep' if name == 'opengrep' else 'Semgrep'} 정적분석 실행"
         _set_step(scan_id, steps, 3, "run")
-        res = scanner.scan(src, excludes)
-        _set_step(scan_id, steps, 3, "done", f"{res['duration']:.0f}초")
+        packs = [x.strip() for x in policy.get("scan.community_packs", "p/cwe-top-25").split(",") if x.strip()]
+        res = scanner.scan(src, excludes, packs)
+        _set_step(scan_id, steps, 3, "done", f"{res['duration']:.0f}초" + (f", 공개 룰팩 {', '.join(res['packs'])} {res['pack_note']}" if res["packs"] else ""))
         cnt = {s: 0 for s in SEV}
         with db.conn() as c:
             for f in res["findings"]:
@@ -251,6 +253,14 @@ def _run_scan(scan_id, dev, archive: Path, user):
                           (scan_id, f["rule_id"], f["cwe"], f["severity"], f["title"], f["cvss"], f["file"], f["line"],
                            f["end_line"], f["code"], f["snippet"], f["snippet_start"], f["message"]))
         _set_step(scan_id, steps, 4, "done", f"취약점 {len(res['findings'])}건")
+        _set_step(scan_id, steps, 5, "run")
+        try:
+            sb = sbom.generate(src, policy.get("sbom.osv_enabled", "1") == "1")
+            db.run("INSERT OR REPLACE INTO sboms(scan_id, data, created_at) VALUES(?,?,?)", (scan_id, db.jdump(sb), db.now()))
+            sm = sbom.summary(sb)
+            _set_step(scan_id, steps, 5, "done", f"구성요소 {sm['n']}개, 알려진 취약점 {sm['n_vulns']}건" + (" — OSV 조회 실패" if sb["error"] else ""))
+        except Exception as e:  # noqa: BLE001 — SBOM 실패가 정적분석 결과를 막지 않게
+            _set_step(scan_id, steps, 5, "fail", f"SBOM 생성 실패: {str(e)[:60]}")
         db.update("scans", scan_id, {
             "status": "완료", "engine": res["engine"], "engine_version": res["engine_version"],
             "ruleset_sha256": scanner.ruleset_sha256(), "files_scanned": res["files"], "lines_scanned": res["lines"],
@@ -265,12 +275,12 @@ def _run_scan(scan_id, dev, archive: Path, user):
             st = device_state(dev)
         g = st["grade"]
         if g:
-            _set_step(scan_id, steps, 5, "done", f"개선관리 지표 {g['final']}, 충족률 {st['result']['rate']}")
+            _set_step(scan_id, steps, 6, "done", f"개선관리 지표 {g['final']}, 충족률 {st['result']['rate']}")
             rpt = issue_report(dev, st["assessment"], user)
-            _set_step(scan_id, steps, 6, "done", rpt)
+            _set_step(scan_id, steps, 7, "done", rpt)
         else:
-            _set_step(scan_id, steps, 5, "done", "승인된 평가 없음 — 평가 승인 시 산출")
-            _set_step(scan_id, steps, 6, "skip", "평가 승인 시 발행")
+            _set_step(scan_id, steps, 6, "done", "승인된 평가가 없어 승인 때 산출")
+            _set_step(scan_id, steps, 7, "skip", "평가 승인 때 발행")
         db.audit(user, "정적분석 완료", f"{dev['name']} v{get_scan_by_id(scan_id)['version']}", "127.0.0.1")
     except Exception as e:  # noqa: BLE001 — 실패 사유를 화면에 보여 준다
         for s in steps:
@@ -282,6 +292,27 @@ def _run_scan(scan_id, dev, archive: Path, user):
     finally:
         if work.exists():
             shutil.rmtree(work, ignore_errors=True)
+
+
+def get_sbom(scan_id):
+    r = db.one("SELECT data FROM sboms WHERE scan_id=?", (scan_id,))
+    return db.jload(r["data"], None) if r else None
+
+
+def latest_sbom(dev_id):
+    s = latest_scan(dev_id)
+    return (s, get_sbom(s["id"])) if s else (None, None)
+
+
+def sbom_as_evidence(dev, user):
+    """최신 SBOM을 CycloneDX JSON으로 만들어 D08 증빙에 등록한다."""
+    s, sb = latest_sbom(dev["id"])
+    if not sb:
+        return None
+    data = json.dumps(sbom.to_cyclonedx(sb, dev, s), ensure_ascii=False, indent=1).encode("utf-8")
+    name = f"{dev['code']}_SBOM_CycloneDX-1.5.json"
+    save_evidence(dev["id"], "D08", name, data, user)
+    return name
 
 
 def scan_compare(dev_id):
@@ -353,10 +384,10 @@ def approve(asm, user, comment=""):
     scan = db.one("SELECT * FROM scans WHERE device_id=? ORDER BY id DESC LIMIT 1", (dev["id"],))
     if scan and scan["status"] == "완료":
         steps = db.jload(scan["steps"], [])
-        if len(steps) == 7 and steps[6]["state"] == "skip":
+        if len(steps) == 8 and steps[7]["state"] == "skip":
             st = device_state(dev)
-            steps[5].update(state="done", detail=f"개선관리 지표 {st['grade']['final']}, 충족률 {st['result']['rate']} — 평가 승인 시 산출")
-            steps[6].update(state="done", detail=f"{code} — 평가 승인 시 발행")
+            steps[6].update(state="done", detail=f"개선관리 지표 {st['grade']['final']}, 충족률 {st['result']['rate']} (평가 승인 때 산출)")
+            steps[7].update(state="done", detail=f"{code} (평가 승인 때 발행)")
             db.update("scans", scan["id"], {"steps": db.jdump(steps)})
     return code
 
@@ -410,7 +441,23 @@ def build_snapshot(dev, asm):
         f = slots_files.get(code)
         ev.append({"code": code, "name": name, "level": level, "qs": qs,
                    "file": {k: f[k] for k in ("filename", "size", "uploaded_at", "version", "sha256")} if f else None})
+    sb_sum, sb_vuln = None, []
     if scan:
+        sb = get_sbom(scan["id"])
+        if sb:
+            sb_sum = sbom.summary(sb)
+            sb_sum["tools"] = sb.get("tools", [])
+            sb_sum["error"] = sb.get("error", "")
+            for c in sb["components"]:
+                if c.get("vulns"):
+                    vs = [sb["vulns"].get(v, {"id": v, "severity": "확인 필요"}) for v in c["vulns"]]
+                    order = {"Critical": 0, "High": 1, "Medium": 2, "Low": 3}
+                    worst = min((order.get(v["severity"], 4) for v in vs), default=4)
+                    fixed = next((v.get("fixed", {}).get(c["purl"]) for v in vs if v.get("fixed", {}).get(c["purl"])), "")
+                    sb_vuln.append({"name": c["name"], "version": c["version"], "ecosystem": c["ecosystem"], "n": len(vs),
+                                    "worst": ["Critical", "High", "Medium", "Low", "확인 필요"][worst], "fixed": fixed,
+                                    "ids": [v["id"] for v in vs][:4]})
+            sb_vuln.sort(key=lambda x: (["Critical", "High", "Medium", "Low", "확인 필요"].index(x["worst"]), -x["n"]))
         scan = dict(scan, languages=db.jload(scan["languages"], {}))
     return {
         "device": dev, "cyber": checklist.cyber_status(dev), "section524b": checklist.section_524b(dev),
@@ -419,6 +466,7 @@ def build_snapshot(dev, asm):
         "standards": {"rows": [{k: r[k] for k in ("id", "kind", "title", "clause", "duty", "status", "evidence_req")}
                                for r in std["rows"]], "axes": std["axes"], "verdicts": std["verdicts"],
                       "counts": std["counts"]},
+        "sbom": sb_sum, "sbom_vuln": sb_vuln[:15],
         "policies": policy.snapshot(),
         "areas": checklist.AREAS,
     }

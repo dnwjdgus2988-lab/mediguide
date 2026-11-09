@@ -247,6 +247,20 @@ def device_detail(request: Request, code: str, tab: str = "info", req: str = "",
         grade = checklist.final_grade(res["rate"], st["sev"])
         scan_done = service.latest_scan(dev["id"])
         ctx.update(latest=latest, answers=answers, res=res, gr=grade, scan_done=scan_done)
+    elif tab == "sbom":
+        s, sb = service.latest_sbom(dev["id"])
+        order = {"Critical": 0, "High": 1, "Medium": 2, "Low": 3}
+        if sb:
+            from core import sbom as sbm
+            for c in sb["components"]:
+                vs = [sb["vulns"].get(v, {"id": v, "severity": "확인 필요", "summary": "", "aliases": [], "fixed": {}}) for v in c.get("vulns", [])]
+                vs.sort(key=lambda v: order.get(v["severity"], 4))
+                c["vlist"] = vs
+                c["worst"] = vs[0]["severity"] if vs else ""
+            sb["components"].sort(key=lambda c: (0 if c["vlist"] else 1, order.get(c["worst"], 4), c["ecosystem"], c["name"].lower()))
+            ctx.update(sb=sb, sbs=sbm.summary(sb), sbscan=s)
+        else:
+            ctx.update(sb=None, sbscan=s)
     elif tab == "standards":
         std = standards.evaluate(dev, answers, slots, bool(st["scan"]), list(ev.values()))
         pick = next((r for r in std["rows"] if r["id"] == req), std["rows"][0])
@@ -375,6 +389,36 @@ async def save_std(request: Request, code: str, rid: str):
     return back(f"/devices/{code}?tab=standards&req={rid}")
 
 
+@app.get("/scans/{code}/sbom.json")
+def sbom_download(request: Request, code: str):
+    from core import sbom as sbm
+    s = service.get_scan(code)
+    sb = service.get_sbom(s["id"]) if s else None
+    if not sb:
+        return PlainTextResponse("SBOM이 없습니다.", status_code=404)
+    dev = service.get_device(s["device_id"])
+    data = json.dumps(sbm.to_cyclonedx(sb, dev, s), ensure_ascii=False, indent=1)
+    u = cur_user(request)
+    db.audit(u["username"], "SBOM 내려받기", code, ip(request))
+    return Response(data, media_type="application/vnd.cyclonedx+json",
+                    headers={"Content-Disposition": f"attachment; filename={code}_SBOM_CycloneDX-1.5.json"})
+
+
+@app.post("/devices/{code}/sbom-evidence")
+def sbom_evidence(request: Request, code: str):
+    u = cur_user(request)
+    if not can_edit(u):
+        return deny(request, f"/devices/{code}?tab=sbom")
+    dev = service.get_device_by_code(code)
+    name = service.sbom_as_evidence(dev, u["username"])
+    if name:
+        db.audit(u["username"], "SBOM 증빙 등록", f"{dev['name']} / D08 {name}", ip(request))
+        flash(request, "ok", f"SBOM을 D08 증빙으로 등록했습니다 ({name}). 체크리스트 Q16에 「예」로 답하면 법정 요건이 채워집니다.")
+    else:
+        flash(request, "err", "등록할 SBOM이 없습니다. 먼저 소스코드를 분석하세요.")
+    return back(f"/devices/{code}?tab=sbom")
+
+
 @app.get("/devices/{code}/package")
 def submission_package(request: Request, code: str):
     """제출 패키지: 최신 리포트(HTML·PDF), 관할별 결과보고서, 증빙 파일, 취약점 목록(CSV)."""
@@ -396,6 +440,10 @@ def submission_package(request: Request, code: str):
             if Path(e["stored"]).exists():
                 z.write(e["stored"], f"03_증빙/{slot}_{e['filename']}")
         s = service.latest_scan(dev["id"])
+        if s and service.get_sbom(s["id"]):
+            from core import sbom as sbm
+            z.writestr(f"05_SBOM/{s['code']}_SBOM_CycloneDX-1.5.json",
+                       json.dumps(sbm.to_cyclonedx(service.get_sbom(s["id"]), dev, s), ensure_ascii=False, indent=1))
         if s:
             out = io.StringIO()
             w = csv.writer(out)

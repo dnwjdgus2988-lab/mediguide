@@ -9,8 +9,7 @@
 </div>
 <div class="tabs">
   {% for k, lab in tabs %}
-    {% if k == 'sbom' %}<a class="off" title="SBOM 자동 생성은 준비 중입니다">{{ lab }}</a>
-    {% else %}<a class="{{ 'on' if tab == k }}" href="?tab={{ k }}">{{ lab }}</a>{% endif %}
+    <a class="{{ 'on' if tab == k }}" href="?tab={{ k }}">{{ lab }}</a>
   {% endfor %}
 </div>
 <div class="tabbody">
@@ -186,6 +185,51 @@
   </div>
   {% endfor %}
   </form>
+
+{# ═══════════════ SBOM ═══════════════ #}
+{% elif tab == 'sbom' %}
+  {% if sb %}
+  <div class="toolbar">
+    <div class="small muted">{{ sbscan.code }} 소스에서 만든 CycloneDX 1.5 SBOM, {{ dt(sbscan.started_at, True) }}. 취약점은 OSV.dev 기준입니다.</div>
+    <div class="grow"></div>
+    {% if editable %}<form method="post" action="/devices/{{ dev.code }}/sbom-evidence" style="margin:0"><button class="btn outline">{{ icon('upload') }} D08 증빙으로 등록</button></form>{% endif %}
+    <a class="btn blue" href="/scans/{{ sbscan.code }}/sbom.json">{{ icon('download') }} CycloneDX JSON</a>
+  </div>
+  {% if sb.error %}<div class="alert warn">{{ sb.error }}. 구성요소 목록은 만들었고, 취약점은 인터넷 연결 후 다시 분석하면 채워집니다.</div>{% endif %}
+  <div class="kpis k4">
+    {{ kpi('var(--k-purple)', 'package', sbs.n, '구성요소') }}
+    {{ kpi('var(--k-red)', 'alert', sbs.vulnerable, '취약점이 있는 구성요소') }}
+    {{ kpi('var(--k-gold)', 'bug', sbs.n_vulns, '알려진 취약점 (OSV)') }}
+    {{ kpi('var(--k-gray)', 'question', sbs.manual, '수동 확인 필요 (임베디드 C)') }}
+  </div>
+  <div class="card" style="padding:0" data-dt>
+    <div class="tbl-tools" style="padding:16px 20px 0">
+      <span class="small muted">{% for k, v in sbs.ecos.items() %}<span class="chip gray" style="margin-right:4px">{{ k }} {{ v }}</span>{% endfor %}</span>
+      <div class="grow"></div>
+      <div class="search">{{ icon('search') }}<input data-dt-search placeholder="구성요소 검색..."></div>
+      <div class="selectbox"><label>보기</label><select data-dt-filter="v"><option value="">전체</option><option value="1">취약점 있음</option></select></div>
+    </div>
+    <div style="padding:0 20px 16px">
+    <table class="tbl">
+      <thead><tr><th class="l">구성요소</th><th>버전</th><th>생태계</th><th class="l">라이선스</th><th class="l">알려진 취약점</th><th class="l">발견 위치</th></tr></thead>
+      <tbody>{% for c in sb.components %}
+        <tr data-row data-f-v="{{ '1' if c.vlist else '' }}" data-search="{{ c.name }} {{ c.version }} {{ c.ecosystem }} {{ c.vlist|map(attribute='id')|join(' ') }}">
+          <td class="l"><b style="color:var(--ink)">{{ c.name }}</b>{% if c.scope == 'optional' %} <span class="chip gray" style="height:18px;font-size:10.5px">개발용</span>{% endif %}</td>
+          <td>{{ c.version or '—' }}</td><td>{{ c.ecosystem }}</td><td class="l small">{{ c.license or '—' }}</td>
+          <td class="l wrap" style="max-width:420px">
+            {% if c.vlist %}{% for v in c.vlist[:3] %}<div class="small" style="margin:2px 0">{% if v.severity in ('Critical','High','Medium','Low') %}<span class="chip sev-{{ v.severity }}" style="height:18px;font-size:10.5px">{{ v.severity }}</span>{% else %}<span class="chip gray" style="height:18px;font-size:10.5px">{{ v.severity }}</span>{% endif %}
+              <a href="https://osv.dev/vulnerability/{{ v.id }}" target="_blank" rel="noopener" style="color:var(--primary)">{{ (v.aliases or [v.id])[0] }}</a> {{ (v.summary or '')[:70] }}{% if v.fixed.get(c.purl) %} <span class="muted">({{ v.fixed.get(c.purl) }}에서 수정)</span>{% endif %}</div>{% endfor %}
+              {% if c.vlist|length > 3 %}<div class="small muted">외 {{ c.vlist|length - 3 }}건</div>{% endif %}
+            {% elif c.ecosystem == '임베디드(C)' %}<a class="small" href="{{ c.nvd }}" target="_blank" rel="noopener" style="color:var(--primary)">NVD에서 확인</a>
+            {% else %}<span class="small muted">없음</span>{% endif %}</td>
+          <td class="l small muted"><span class="ellip" style="max-width:220px">{{ c.source }}</span></td></tr>
+      {% endfor %}</tbody>
+    </table>
+    {{ pager() }}
+    </div>
+  </div>
+  {% elif sbscan %}<div class="empty">이 스캔에는 SBOM이 없습니다. 소스코드를 다시 올리면 SBOM도 함께 만듭니다.</div>
+  {% else %}<div class="empty">증빙 자료 탭에서 소스코드를 올리면 정적분석과 함께 SBOM을 만듭니다.</div>{% endif %}
 
 {# ═══════════════ 표준화 ═══════════════ #}
 {% elif tab == 'standards' %}

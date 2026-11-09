@@ -14,7 +14,7 @@
 |---|---|
 | 대시보드 | 등록 장비·완료 스캔·발견 취약점·진행중 평가, 심각도 분포, 고위험 기기 Top 5, 최근 스캔 |
 | 의료기기 관리 | FDA 적합성(적합·조건부 적합·부적합·해당 없음·판정 불가)별 목록, 자산 등록 |
-| └ 기기 상세 | **기본 정보**(장비 정보, 제출 정보·§524B(c) 사이버 기기 판정, 평가 회차·리포트, 변경 이력) · **스캔 결과**(회차 비교) · **증빙 자료**(소스 업로드 → 7단계 분석 진행 표시, 증빙 D01~D13) · **체크리스트**(SPDF 4개 영역 20문항, 문서 충족률·등급 상한) · **표준화**(요구항목 12개, 4축 지표, FDA·MFDS·MDR·IMDRF 판정) · 제출 패키지(zip) |
+| └ 기기 상세 | **기본 정보**(장비 정보, 제출 정보·§524B(c) 사이버 기기 판정, 평가 회차·리포트, 변경 이력) · **스캔 결과**(회차 비교) · **증빙 자료**(소스 업로드 → 7단계 분석 진행 표시, 증빙 D01~D13) · **체크리스트**(SPDF 4개 영역 20문항, 문서 충족률·등급 상한) · **표준화**(요구항목 12개, 4축 지표, FDA·MFDS·MDR·IMDRF 판정) · **SBOM**(CycloneDX 1.5, OSV.dev 취약점, D08 증빙 등록) · 제출 패키지(zip) |
 | 보안 평가 ▸ 정적분석 결과 | 스캔 목록, 스캔 상세(검출 목록 → 코드·설명·의료기기 영향·조치, **AI 조치 매뉴얼**, 검출 처분 기록) |
 | 평가 관리 | 평가 회차 목록, 작성중 → 검토대기 → 승인완료/반려 흐름, 승인 시 리포트 자동 발행 |
 | 리포트 | 9절 보안성 검증 리포트(화면·인쇄·PDF), 재발행·폐기, **관할별 결과보고서** 식약처 시험성적서 / FDA Test Report / EU Test Report |
@@ -34,7 +34,8 @@
 web/              FastAPI 웹 서버 (main.py), 화면 템플릿(templates/), 스타일·스크립트(static/)
 core/
   service.py      업무 로직 (기기·증빙·스캔·평가·리포트·대시보드)
-  scanner.py      OpenGrep(없으면 Semgrep) 실행, 제외 경로·언어 분포·해시 기록
+  scanner.py      OpenGrep(없으면 Semgrep) 실행, 자체 룰 + CWE Top 25 공개 룰팩, 제외 경로·언어 분포·해시 기록
+  sbom.py         SBOM 생성(npm·PyPI·Go·Rust·Maven + 펌웨어 내장 라이브러리), CycloneDX 1.5, OSV.dev 조회
   checklist.py    체크리스트 20문항·증빙 13종·충족률·등급·FDA 적합성
   standards.py    표준화 요구항목 12개 자동 판정, 4축 지표, 관할별 판정
   forms.py        관할별 결과보고서(식약처·FDA·EU) 데이터 구성
@@ -80,15 +81,17 @@ python -X utf8 -m uvicorn web.main:app --port 8501
 - PDF: `sudo apt install chromium-browser fonts-nanum` (없으면 브라우저 인쇄 화면으로 PDF 저장 안내)
 - 외부 공개 실행: `uvicorn web.main:app --host 0.0.0.0 --port 8501`
 
-## data_local/ 에 대해 (중요)
+## data_local/ 구성
 
-`data_local/` 에는 점검 규칙(OpenGrep 규칙·한글 문구표), 시연용 펌웨어(SecPump), 규제 원문 PDF가 들어갑니다.
-이 중 점검 규칙과 시연 자료는 **소속 연구실 과제 산출물**이라 공개 저장소에 올리지 않습니다 (`.gitignore` 처리).
-공개 여부는 지도교수 확인 후 결정하며, 대회 제출 시 '기술 활용 내역'에 활용 범위를 명시합니다.
+| 폴더 | 내용 |
+|---|---|
+| `rules/` | 의료기기 펌웨어 검사 룰 8종(OpenGrep 형식)과 한글 문구표 |
+| `samples/` | 시연용 소스: SecPump 취약판·보완판, 결함 시드 5종, OpenAPS oref0 (공개 펌웨어 묶음 `realfw/`는 용량 때문에 Git 제외) |
+| `regulations/` | 식약처·FDA 공개 규제 문서 (AI 매뉴얼 검색 대상) |
 
 ## 활용 오픈소스
 
-FastAPI · Uvicorn · Jinja2 · OpenGrep / Semgrep · PyMuPDF · Kiwi(kiwipiepy) · Ollama · EXAONE 3.5 · boto3 · Chromium(PDF)
+FastAPI · Uvicorn · Jinja2 · OpenGrep / Semgrep · CWE Top 25 룰팩 · CycloneDX · OSV.dev · Syft(선택) · PyMuPDF · Kiwi(kiwipiepy) · Ollama · EXAONE 3.5 · boto3 · Chromium(PDF)
 
 ## 유의사항
 

@@ -1,0 +1,164 @@
+===== CSTips412
+===== CSTips110
+  LOGIC: if (ApplicationType.ATRadioButton100.rawValue == 2) {//if HC
+  STR: Please include sufficient information for Health Canada to assess elements with respect to cybersecurity: Secure design, Vulnerabilities, Risks analysis, Risk control activities, and Verification and validation testing 
+  STR: ,2,0); }//if HC else {//IMDRF xfa.host.messageBox(
+===== CSTips180
+  STR: This includes a summary of the device’s maintenance plan describing the post-market processes by which the manufacturer intends to ensure the continued safety and performance of the device throughout its life cycle. These planned processes may include: TPLC vigilance, planned or corrective updates, coordinated vulnerability disclosure policies, and information sharing. TPLC Vigilance: The proactive monitoring and identification of newly discovered cybersecurity vulnerabilities, assessment of their threat, and appropriate responses.
+===== CSTips430
+===== CSTips430
+===== CSTips440
+  STR: There are numerous methodologies available to perform threat modeling. The methodology selected will likely depend on a multitude of factors including the device itself, environment of use, team performing the assessment, and strengths and weaknesses of a given methodology. Multiple threat modeling methodologies may be combined.
+===== CSTips450
+  STR: Architecture Views are described in Section V.B.2. and Appendix 2 of the Premarket Cybersecurity Guidance. Architecture Views can either be included within the Threat Modeling documentation or as standalone documents.
+===== CSTips460
+===== CSTips470
+===== CSTips480
+===== CSTips
+  LOGIC: if (SoftwareCyber.Cybersecurity.CSDropDownList412.rawValue == 1) {//if 524B questions only
+  STR: Refer to Section VII.D.2 (Changes Unlikely to Impact Cybersecurity) of the FDA Guidance "Cybersecurity in Medical Devices: Quality Management System Considerations and Content of Premarket Submissions" for additional information to meet premarket submission requirements in section 524B(b)(3) of the FD&C Act.
+  STR: ,2,0); }//if else { xfa.host.messageBox(
+  STR: Cybersecurity in Medical Devices: Quality Management System Considerations and Content of Premarket Submissions."
+===== CSTips490
+  LOGIC: else if (ApplicationType.ATRadioButton100.rawValue == 2) {//if HC
+  STR: , width: 200, elements: [ { type: 
+  STR: , elements: [ { item_id: 
+  STR: An SBOM should include both the device manufacturer-developed components and third-party components, including purchased/licensed software and open-source software, and the upstream software dependencies that are required/depended upon by proprietary, purchased/licensed, and open-source software.
+  STR: , char_height: 4, }, { item_id: 
+  STR: Manufacturers should provide machine-readable SBOMs (e.g., in SBOM formats such as SPDX or CycloneDx with serialization/file formats such as JSON, XML, or YAML) consistent with the minimum elements (also referred to as "baseline attributes") identified in the October 2021 National Telecommunications and Information Administration (NTIA) Multistakeholder Process on Software Component Transparency document "Framing Software ComponentTransparency: Establishing a Common Software Bill of Materials (SBOM)."
+  STR: , char_height: 6, }, { item_id: 
+  STR: The NTIA document also describes the depth of software dependencies that manufacturers should provide.
+  STR: , char_height: 2, }, { item_id: 
+  STR: If the information (e.g. all minimum elements) is not known for any software component, the device manufacturer should provide a justification for why it could not be obtained or determined.
+  STR: , char_height: 4, }, { item_id: 
+  STR: The SBOM could also follow another industry best practice or standard if it contains the relevant information.
+  STR: , char_height: 2, }, { type: 
+  STR: , align_children: 
+  STR: , elements: [ { type: 
+  STR: , item_id: 
+  STR: Framing Software Component Transparency: Establishing a Common Software Bill of Materials (SBOM)
+  STR: , }, ]//view elements },//view { type: 
+  STR: , }, ]//description elements }, ]//description elements },//description 
+  STR:  : function(dialog) { app.launchURL(
+  STR: , true); }, }; var dialogObject = { execDialog: function() { return app.execDialog(dialogDescriptor); }, }; return dialogObject; } var d = dialog(); d.execDialog(); //}//if /* else if (ApplicationType.ATRadioButton100.rawValue == 2) {//if HC xfa.host.messageBox(
+  STR: ,2,0); }//if HC else {//IMDRF xfa.host.messageBox(
+===== CSTips500
+  STR: Manufacturers may choose to provide these additional elements as part of the SBOM, or they may provide it separately, such as in an addendum. The FDA Guidance "Off-the-Shelf Software Use in Medical Devices" provides additional recommended submission content for OTS software used in the medical device.
+===== CSTips510
+===== CSTips520
+===== CSTips
+  STR: Refer to Section VII.D.2 (Changes Unlikely to Impact Cybersecurity) of the FDA Guidance "Cybersecurity in Medical Devices: Quality Management System Considerations and Content of Premarket Submissions" for additional information to meet premarket submission requirements in section 524B(b)(2) of the FD&C Act.
+===== CSTips530
+===== CSTips540
+===== CSTips550
+  STR: Please see the Cybersecurity guidance Section V.B.1 and Appendix 1 for more information.
+===== CSTips595
+  LOGIC: else if (ApplicationType.ATRadioButton100.rawValue == 2) {//if HC
+  STR: , width: 200, elements: [ { type: 
+  STR: , elements: [ { item_id: 
+  STR: A) Authentication: Authentication of information exists where the device and the system in which it operates are able to prove that information originated at a known and trusted source, and that the information has not been altered in transit between the original source and the point at which authenticity is verified.
+  STR: , char_height: 6, }, { item_id: 
+  STR: Authentication of entities exists where a device and the system in which it operates is able to prove the identity of an endpoint (whether hardware and/or software) from which it is sending and/or receiving information, or authorized user/operator at that endpoint.
+  STR: , char_height: 4, }, { item_id: 
+  STR: B) Authorization: Authorization is the right or a permission that is granted to a system entity (e.g. a device, server, or software function) to access a system resource. More specifically, as a defensive measure, an authorization scheme enforces privileges (i.e. "rights" associated with authenticated sessions, identities and/or roles). These privileges either permit allowed behavior, or refuse disallowed behavior to ensure that system resources are only accessed in accepted ways by accepted parties.
+  STR: , char_height: 6, }, { item_id: 
+  STR: C) Cryptography: Cryptographic algorithms and protocols are recommended to be implemented to achieve the secure by design objectives outlined in Section IV of the Cybersecurity guidance.
+  STR: , char_height: 2, }, { item_id: 
+  STR: D) Code, Data, and Execution Integrity: Please see Appendix 1.D of the cybersecurity guidance for recommendations to address integrity issues.
+  STR: , char_height: 2, }, { item_id: 
+  STR: E) Confidentiality: Manufacturers should ensure support for the confidentiality of any/all data whose disclosure could lead to patient harm (e.g. through the unauthorized use of otherwise valid credentials, lack of encryption).
+  STR: , char_height: 4, }, { item_id: 
+  STR: F) Event Detection and Logging: Event detection and logging are critical capabilities that should be present in a device and the larger system in which it operates in order to ensure that suspected and successful attempts to compromise a medical device may be identified and tracked.
+  STR: , char_height: 4, }, { item_id: 
+  STR: G) Resiliency and Recovery: Devices should be designed to be resilient to possible cyber incident scenarios (also known as "cyber-resiliency") and maintain availability. Cyber-resiliency capabilities are important for medical devices because they provide a safety margin against unknown future vulnerabilities.
+  STR: , char_height: 4, }, { item_id: 
+  STR: H) Firmware and Software Updates: Devices should be capable of being updated in a secure and timely manner to maintain safety and effectiveness throughout the product’s lifecycle.
+  STR: , char_height: 2, }, { item_id: 
+  STR: Please see the Cybersecurity guidance Appendix 1.A - 1.H for more information regarding these elements.
+  STR: , char_height: 2, }, { type: 
+  STR: , align_children: 
+  STR: , elements: [ { type: 
+  STR: , item_id: 
+  STR: Cybersecurity in Medical Devices: Quality Management System Considerations and Content of Premarket Submissions
+  STR: , }, ]//view elements },//view { type: 
+  STR: , }, ]//description elements }, ]//description elements },//description initialize: function (dialog) { dialog.enable( { 
+  STR: : false, }); }, //initialize 
+  STR:  : function(dialog) { app.launchURL(
+===== CSTips600
+  LOGIC: if (Verification.FormID.rawValue.substr(0,13) == "Form FDA 5064"){//Modify the help text for Pre-STAR(IDE)
+  STR: Form FDA 5064
+  STR: Documentation of Security Architecture Views (Global System View, Multi-Patient Harm View, Updatability/Patchability View) should include both diagrams and explanatory text. These diagrams and explanatory text should contain sufficient details to permit an understanding of how the assets within the medical device system function holistically within the associated implementation details. For the security architecture views, manufacturers should follow the recommendations outlined in Appendix 2 when determining the level of detail to include.
+  STR:  These security architecture views should:
+  STR:  • Identify security-relevant medical device system elements and their interfaces,
+  STR:  • Define security context, domains, boundaries, critical user roles, and external interfaces of the medical device system,
+  STR:  • Align the architecture with (a) the medical device system security objectives and requirements, (b) security design characteristics in order to address the identified threats, and
+  STR:  • Establish traceability of architecture elements to user and medical device system security requirements. Such traceability should exist throughout the cybersecurity risk management documentation.
+  STR:  The Security Use Case Views should cover various operational states of elements in the medical device system (e.g., power on, standby, transition states) and assess clinical functionality states of the medical device system (e.g. programming, alarming, delivering therapy, send/receive data, reporting diagnostic results) which address device safety.
+  STR:  If a particular view sufficiently captures the risks of another view identified above, we do not expect manufacturers to duplicate documentation. Additionally, if one of the views listed above is not appropriate, manufacturers should instead provide an explanation for why the view is not included.
+  STR: ,2,0); }//End If else{//not IDE xfa.host.messageBox(
+===== CSTips630
+  LOGIC: else if (ApplicationType.ATRadioButton100.rawValue == 2) {//if HC
+  STR: , width: 200, elements: [ { type: 
+  STR: , elements: [ { item_id: 
+  STR: The following security testing documentation and any associated reports or assessments should be submitted:
+  STR: , char_height: 2, }, { item_id: 
+  STR: Security requirements
+  STR: , char_height: 2, //multiline: true, //width: 200, //bold: true, //char_width: 200, //alignment: 
+  STR: , }, { item_id: 
+  STR: • Manufacturers should provide evidence that each design input requirement was implemented successfully.
+  STR: , char_height: 2, }, { item_id: 
+  STR: • Manufacturers should provide evidence of their boundary analysis and rationale for their boundary assumptions.
+  STR: , char_height: 2, }, { item_id: 
+  STR: Threat mitigation
+  STR: , char_height: 2, }, { item_id: 
+  STR: • Manufacturers should provide details and evidence of testing that demonstrates effective risk control measures according to the threat models provided in the global system, multi-patient harm, updatability and patchability, and security use case views.
+  STR: , char_height: 4, }, { item_id: 
+  STR: • Manufacturers should ensure the adequacy of each cybersecurity risk control (e.g. security effectiveness in enforcing the specified security policy, performance for maximum traffic conditions, stability, and reliability, as appropriate).
+  STR: , char_height: 4, }, { item_id: 
+  STR: Vulnerability Testing (such as section 9.4 of ANSI/ISA 62443-4-1)
+  STR: , char_height: 2, }, { item_id: 
+  STR: • Manufacturers should provide details and evidence of the following testing and analyses: Abuse or misuse cases, malformed and unexpected inputs; Robustness; Fuzz testing; Attack surface analysis; Vulnerability chaining; Closed box testing of known vulnerability scanning; Software composition analysis of binary executable files; and Static and dynamic code analysis, including testing for credentials that are "hardcoded," default, easily guessed, and easily compromised
+  STR: , char_height: 6, }, { item_id: 
+  STR: Penetration testing
+  STR: , char_height: 2, }, { item_id: 
+  STR: • The testing should identify and characterize security-related issues via tests that focus on discovering and exploiting security vulnerabilities in the product. Penetration test reports should be provided and include the following elements: Independence and technical expertise of testers; Scope of testing; Duration of testing; Testing methods employed; Test results, findings, and observations.
+  STR: , char_height: 4, }, { item_id: 
+  STR: Manufacturers should indicate in the test reports by whom the testing was performed (e.g. independent internal testers, external testers) and what level of independence those responsible for testing devices have from the developers responsible for designing devices. In some cases, it may be necessary to use third parties to ensure an appropriate level of independence between the two groups, such that vulnerabilities or other issues revealed during testing are appropriately addressed.
+  STR: , char_height: 6, }, { item_id: 
+  STR: For any third-party test reports, manufacturers should provide the original third-party report. For all testing, manufacturers should provide their assessment of any findings (e.g. vulnerabilities and anomalies) including rationales for not implementing or deferring any findings to future releases.
+  STR: , char_height: 4, }, { type: 
+  STR: , }, ]//description elements }, ]//description elements },//description initialize: function (dialog) { dialog.enable( { 
+===== CSTips660
+  LOGIC: if (Verification.FormID.rawValue.substr(0,13) == "Form FDA 5064"){//Help text for Pre-STAR(IDE)
+  STR: Form FDA 5064
+  STR: For IDEs, recommended labeling includes:
+  STR:  • Informed Consent Form with disclosure of cybersecurity risks
+  STR:  • General Cybersecurity Labeling - Connectivity and associated general cybersecurity risks as well as the update process.
+  STR: ,2,0); }//end if else{ xfa.host.messageBox(
+  STR: ,2,0); xfa.host.messageBox(
+===== CSTips
+  LOGIC: if (SoftwareCyber.Cybersecurity.CSDropDownList412.rawValue == 1) {//if 524B questions only
+  STR: Refer to Section VII.D.2 (Changes Unlikely to Impact Cybersecurity) of the FDA Guidance "Cybersecurity in Medical Devices: Quality Management System Considerations and Content of Premarket Submissions" for additional information to meet premarket submission requirements in section 524B(b)(1) of the FD&C Act.
+  STR: ,2,0); }//if else { xfa.host.messageBox(
+  STR: Cybersecurity in Medical Devices: Quality Management System Considerations and Content of Premarket Submissions."
+===== CSTips680
+  STR: To maintain the safety and effectiveness of the device after marketing authorization is achieved, manufacturers should provide a cybersecurity management plan detailing how they will identify and communicate to users’ vulnerabilities that are identified after releasing the device.
+===== CSTips690
+===== CSTips695
+  LOGIC: else if (ApplicationType.ATRadioButton100.rawValue == 2) {//if HC
+  STR: ,2,0); */ //if (ApplicationType.ATRadioButton100.rawValue == 1) {//if FDA function dialog() { var dialogDescriptor = { description: { name: 
+  STR: , width: 200, elements: [ { type: 
+  STR: , elements: [ { item_id: 
+  STR: For postmarket updates and patches to the device and related systems to address vulnerabilities with controlled risks (i.e. sufficiently low (acceptable) residual risk of patient harm due to the vulnerability), provide a description and justification for the timeline to make updates and patches on a regularly scheduled deployment cycle.
+  STR: , char_height: 4, }, { item_id: 
+  STR: For postmarket updates and patches to the device and related systems to address vulnerabilities with uncontrolled risks (i.e. unacceptable residual risk of patient harm due to inadequate compensating controls and risk mitigations), provide a description and justification for the timeline to make updates and patches as soon as possible out of cycle.
+  STR: , char_height: 6, }, { item_id: 
+  STR: For additional recommendations on remediating and reporting cybersecurity vulnerabilities, refer to FDA guidance entitled "Postmarket Management of Cybersecurity in Medical Devices".
+  STR: , char_height: 4, }, { type: 
+  STR: , align_children: 
+  STR: , elements: [ { type: 
+  STR: , item_id: 
+  STR: Postmarket Management of Cybersecurity in Medical Devices
+  STR: , }, ]//view elements },//view { type: 
+  STR: , }, ]//description elements }, ]//description elements },//description 
+  STR:  : function(dialog) { app.launchURL(

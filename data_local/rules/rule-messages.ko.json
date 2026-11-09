@@ -1,0 +1,181 @@
+{
+  "_meta": {
+    "title": "MediHub 룰 한글 표시문구 테이블",
+    "version": "2.0",
+    "date": "2026-08-02",
+    "supplier": "상지대학교 산학협력단 (검증체계)",
+    "recipient": "(주)에스엠솔루션즈",
+    "ref": "수정요청서 v2 R-20 / 개발사양서 SPEC-3",
+    "purpose": "룰 파일(medihub-medical-fw.yaml)은 인코딩 문제로 ASCII만 사용한다. 리포트에 표시할 한글 문구는 이 파일에서 rule id로 조회한다.",
+    "usage": "정적분석 결과의 rule id를 키로 rules 객체를 조회하여 리포트 4절(취약점 상세)과 5절(권고사항)을 구성한다. 조회 실패 시 스캐너의 영문 message를 그대로 사용하고 감사로그에 기록한다.",
+    "encoding": "UTF-8 (BOM 없음)",
+    "severity_source": "심각도는 반드시 이 파일의 severity 값을 사용한다. SARIF의 level 필드를 사용하지 않는다."
+  },
+  "severity_scale": {
+    "_note": "CVSS v3.1 표준 구간. FIRST 공식 정의이며 임의 설정이 아니다.",
+    "Critical": {
+      "cvss_range": "9.0-10.0",
+      "color": "#C00000",
+      "label": "치명적"
+    },
+    "High": {
+      "cvss_range": "7.0-8.9",
+      "color": "#E36C09",
+      "label": "높음"
+    },
+    "Medium": {
+      "cvss_range": "4.0-6.9",
+      "color": "#BF9000",
+      "label": "보통"
+    },
+    "Low": {
+      "cvss_range": "0.1-3.9",
+      "color": "#808080",
+      "label": "낮음"
+    }
+  },
+  "rules": {
+    "medihub-c-stack-buffer-overflow": {
+      "cwe": "CWE-787",
+      "name_ko": "경계를 벗어난 쓰기 (스택 버퍼 오버플로우)",
+      "name_en": "Out-of-bounds Write",
+      "severity": "High",
+      "cvss": 8.8,
+      "cvss_vector_note": "기밀성·무결성·가용성 모두 영향",
+      "description_ko": "고정 크기로 선언된 스택 버퍼에 길이 검증 없이 데이터를 복사합니다. 복사 길이가 버퍼 크기를 초과하면 인접 스택 영역이 손상되며, 반환 주소가 덮이는 경우 공격자가 펌웨어의 실행 흐름을 임의로 바꿀 수 있습니다.",
+      "device_impact_ko": "의료기기 환경에서 이 취약점이 악용되면 펌웨어 제어권 탈취, 주입량·동작 파라미터 조작, 기기 오작동으로 이어질 수 있습니다. 인슐린펌프·주입펌프와 같이 투여량을 제어하는 기기에서는 환자 위해로 직결됩니다.",
+      "remediation_ko": [
+        "복사 수행 전 대상 버퍼 크기와 복사 길이를 비교하는 경계 검사를 추가",
+        "대상 버퍼 크기는 상수 대신 sizeof(버퍼)로 산출하여 선언 변경 시 자동 반영",
+        "외부 입력(BLE·시리얼 등)의 최대 길이를 프로토콜 계층에서 먼저 제한",
+        "가능한 경우 크기를 인자로 받는 안전한 복사 함수로 대체"
+      ],
+      "deadline_ko": "즉시 (인허가 신청 전 필수 해결)",
+      "fda_reference_ko": "FDA 사이버보안 최종 가이던스(2026.2.3) — 사이버보안 테스트 / 취약점 테스트",
+      "review_required": false
+    },
+    "medihub-c-unbounded-string-functions": {
+      "cwe": "CWE-120",
+      "name_ko": "입력 크기를 검사하지 않는 버퍼 복사",
+      "name_en": "Buffer Copy without Checking Size of Input",
+      "severity": "Medium",
+      "cvss": 5.5,
+      "description_ko": "대상 버퍼의 크기를 인자로 받지 않는 문자열 처리 함수를 사용합니다. 이런 함수는 구조적으로 오버플로우를 방지할 수 없습니다.",
+      "device_impact_ko": "입력 길이가 예상을 초과하는 경우 메모리 손상이 발생할 수 있으며, 외부 통신 인터페이스를 통해 유입되는 데이터를 처리하는 경로에서 특히 위험합니다.",
+      "remediation_ko": [
+        "strcpy → strncpy, strcat → strncat, sprintf → snprintf, gets → fgets로 대체",
+        "크기 인자는 sizeof(대상 버퍼)로 산출",
+        "strncpy 사용 시 널 종료 문자가 보장되지 않으므로 마지막 바이트를 명시적으로 0으로 설정"
+      ],
+      "deadline_ko": "다음 배포 버전 내 해결 권고",
+      "fda_reference_ko": "FDA 사이버보안 최종 가이던스(2026.2.3) — 사이버보안 테스트",
+      "review_required": false
+    },
+    "medihub-c-unchecked-numeric-conversion": {
+      "cwe": "CWE-20",
+      "name_ko": "부적절한 입력 검증 (수치 변환)",
+      "name_en": "Improper Input Validation",
+      "severity": "Medium",
+      "cvss": 5.3,
+      "description_ko": "외부에서 수신한 입력을 검증 없이 수치로 변환합니다. atof·atoi·atol 계열 함수는 변환 실패를 알리지 못하고 실패 시 0을 반환하므로, 잘못된 입력과 실제 값 0을 구분할 수 없습니다. 범위 검사도 수행하지 않습니다.",
+      "device_impact_ko": "변환된 값이 제어 파라미터로 사용되는 경우 영향이 큽니다. 실제 검출 사례로 BLE 수신 데이터가 검증 없이 인슐린 볼루스 주입량으로 변환되거나, 시리얼 수신 혈당값이 검증 없이 제어 루프 입력으로 사용되는 경우가 확인되었습니다.",
+      "remediation_ko": [
+        "strtod·strtol로 변환하고 endptr로 파싱 성공 여부를 확인",
+        "errno로 범위 초과(ERANGE) 여부를 확인",
+        "변환 결과를 임상적으로 허용 가능한 범위로 클램핑 (예: 볼루스 최대 투여량, 혈당 측정 유효 범위)",
+        "범위를 벗어난 값 수신 시 거부하고 이벤트 로그에 기록"
+      ],
+      "deadline_ko": "제어 파라미터에 사용되는 경우 즉시, 그 외 다음 배포 버전 내",
+      "fda_reference_ko": "FDA 사이버보안 최종 가이던스(2026.2.3) — 사이버보안 위험평가",
+      "review_required": false
+    },
+    "medihub-c-memcpy-review": {
+      "cwe": "CWE-787",
+      "name_ko": "경계를 벗어난 쓰기 (검토 대상)",
+      "name_en": "Out-of-bounds Write (review candidate)",
+      "severity": "Low",
+      "cvss": 3.1,
+      "description_ko": "memcpy 계열 호출을 검토 대상으로 목록화한 항목입니다. 자동 판정 결과가 아니며, 대상 버퍼 용량이 복사 길이보다 항상 크거나 같은지 사람이 확인해야 합니다.",
+      "device_impact_ko": "확인 결과에 따라 무해할 수도, CWE-787에 해당할 수도 있습니다.",
+      "remediation_ko": [
+        "대상 버퍼 용량과 복사 길이의 관계를 확인",
+        "문제가 없다고 판단한 경우 그 사유를 미해결 이상(Unresolved Anomalies) 평가 문서에 기록",
+        "FDA는 미해결 이상에 대한 보안 영향 평가를 요구하므로, 검토 기록 자체가 제출 증빙이 됩니다"
+      ],
+      "deadline_ko": "제출 문서 작성 시점까지 검토 완료",
+      "fda_reference_ko": "FDA 사이버보안 최종 가이던스(2026.2.3) — 미해결 이상 평가",
+      "review_required": true
+    },
+    "medihub-hardcoded-credential": {
+      "cwe": "CWE-798",
+      "name_ko": "하드코딩된 자격증명 사용",
+      "name_en": "Use of Hard-coded Credentials",
+      "severity": "Medium",
+      "cvss": 6.5,
+      "description_ko": "자격증명 또는 키로 보이는 값이 소스코드에 직접 기재되어 있습니다. 변수명 기반으로 탐지한 항목이므로 실제 비밀값인지 확인이 필요합니다.",
+      "device_impact_ko": "펌웨어 이미지는 추출·역공학이 가능하므로 코드에 포함된 비밀값은 사실상 공개된 것과 같습니다. 동일 키를 전 기기가 공유하는 경우 한 대의 분석으로 전체 기기가 영향을 받습니다.",
+      "remediation_ko": [
+        "기기별 고유 키를 제조 공정의 프로비저닝 단계에서 주입",
+        "가능한 경우 보안 요소(Secure Element) 또는 MCU 보안 저장 영역에 보관",
+        "소스·저장소 이력에 남은 기존 값은 폐기 처리하고 교체"
+      ],
+      "deadline_ko": "실제 자격증명으로 확인된 경우 즉시",
+      "fda_reference_ko": "FDA 사이버보안 최종 가이던스(2026.2.3) — 보안 아키텍처 / 보안통제",
+      "review_required": true,
+      "review_note_ko": "변수명 기반 휴리스틱입니다. 리포트에 '확인 필요' 배지를 함께 표기하십시오."
+    },
+    "medihub-weak-crypto-algorithm": {
+      "cwe": "CWE-327",
+      "name_ko": "취약한 암호 알고리즘 사용",
+      "name_en": "Use of a Broken or Risky Cryptographic Algorithm",
+      "severity": "High",
+      "cvss": 7.5,
+      "description_ko": "충돌 공격이 실증되었거나 폐기된 암호 알고리즘을 사용합니다. MD5·SHA-1은 무결성 검증 용도로 사용할 수 없으며, DES·RC4는 키 길이와 구조상 안전하지 않습니다.",
+      "device_impact_ko": "펌웨어 이미지 무결성 검증에 MD5·SHA-1을 사용하는 경우 서명 위조를 통한 악성 펌웨어 설치가 가능합니다. 원격 업데이트 기능이 있는 기기에서 특히 위험합니다.",
+      "remediation_ko": [
+        "해시는 SHA-256 이상으로 교체",
+        "대칭키 암호는 AES-128 이상으로 교체",
+        "펌웨어 서명 검증 알고리즘을 재검토하고 부트로더 단계의 검증 체인을 확인",
+        "교체 후 기존 알고리즘으로 서명된 이미지를 거부하도록 정책 설정"
+      ],
+      "deadline_ko": "즉시 (인허가 신청 전 필수 해결)",
+      "fda_reference_ko": "FDA 사이버보안 최종 가이던스(2026.2.3) — 보안통제 / 암호화",
+      "review_required": false
+    },
+    "medihub-weak-random": {
+      "cwe": "CWE-338",
+      "name_ko": "암호학적으로 취약한 난수 생성기 사용",
+      "name_en": "Use of Cryptographically Weak PRNG",
+      "severity": "Medium",
+      "cvss": 5.3,
+      "description_ko": "예측 가능한 난수 생성기를 사용합니다. rand·srand·random 계열은 시드 값을 알거나 추정하면 생성 순서를 재현할 수 있습니다.",
+      "device_impact_ko": "세션 토큰, 논스, 페어링 키, 초기화 벡터 생성에 사용된 경우 공격자가 값을 재현하여 인증을 우회하거나 통신을 복호화할 수 있습니다. 시뮬레이션·시험 목적의 사용은 보안 문제가 아닙니다.",
+      "remediation_ko": [
+        "해당 난수의 용도를 먼저 확인 (보안 목적 여부)",
+        "보안 목적인 경우 MCU 내장 하드웨어 난수 발생기(TRNG) 또는 검증된 CSPRNG로 교체",
+        "비보안 용도인 경우 그 사유를 기록하여 비적용(N/A) 처리"
+      ],
+      "deadline_ko": "보안 목적으로 확인된 경우 즉시",
+      "fda_reference_ko": "FDA 사이버보안 최종 가이던스(2026.2.3) — 보안통제",
+      "review_required": true,
+      "review_note_ko": "용도 확인이 필요합니다. 비보안 용도로 확인되면 비적용 사유를 기록하고 감점에서 제외하십시오."
+    },
+    "medihub-format-string": {
+      "cwe": "CWE-134",
+      "name_ko": "외부 제어 포맷 스트링 사용",
+      "name_en": "Use of Externally-Controlled Format String",
+      "severity": "High",
+      "cvss": 8.1,
+      "description_ko": "변수를 포맷 문자열 자리에 직접 사용합니다. 해당 변수에 %n·%x 같은 포맷 지정자가 포함되면 임의 메모리 읽기 또는 쓰기가 가능합니다.",
+      "device_impact_ko": "%n 지정자를 통한 메모리 쓰기가 가능하면 제어 흐름 조작으로 이어질 수 있습니다. 외부 입력을 로그로 출력하는 경로에서 자주 발생합니다.",
+      "remediation_ko": [
+        "포맷 문자열을 리터럴로 고정하고 변수는 인자로 전달 (예: printf(\"%s\", var))",
+        "외부 입력을 그대로 출력하는 로그 경로를 전수 점검",
+        "컴파일러 경고 옵션(-Wformat-security) 활성화"
+      ],
+      "deadline_ko": "즉시 (인허가 신청 전 필수 해결)",
+      "fda_reference_ko": "FDA 사이버보안 최종 가이던스(2026.2.3) — 사이버보안 테스트",
+      "review_required": false
+    }
+  }
+}

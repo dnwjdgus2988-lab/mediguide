@@ -1,5 +1,5 @@
-# 과제 산출물·규제 원문·시연 펌웨어 — 공개 저장소에 올리지 않음 (교수님 확인 전)
-data_local/
+# 대용량 공개 펌웨어 묶음(원본 저장소에서 다시 받을 수 있음)
+data_local/samples/realfw/
 # 실행 중 생성 파일
 storage/
 __pycache__/
