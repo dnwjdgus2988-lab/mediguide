@@ -1,63 +1,146 @@
 {% extends 'base.html' %}
+{% block head %}<link rel="stylesheet" href="/static/dashboard.css?v={{ asset }}">{% endblock %}
 {% block content %}
-{{ pagehead('대시보드', ['대시보드']) }}
-<div class="kpis k4">
-  {{ kpi('var(--k-purple)', 'device', d.n_devices, '등록 장비') }}
-  {{ kpi('var(--k-blue)', 'scan', d.n_scans_done, '완료 스캔') }}
-  {{ kpi('var(--k-red)', 'alert', d.n_vulns, '발견 취약점') }}
-  {{ kpi('var(--k-gold)', 'clipboard', d.n_assess_open, '진행중 평가') }}
+{% set fc = d.fda_cnt %}{% set fct = (fc.values()|sum) or 1 %}
+<div class="dsh-head">
+  <div><h1>인허가 준비도 현황</h1>
+    <span class="muted small">등록 기기 {{ d.n_devices }}대 · 승인 평가 {{ d.n_approved }}건 · 완료 스캔 {{ d.n_scans_done }}건 · 분석 코드 {{ '{:,}'.format(d.lines) }}줄</span></div>
+  <a class="dsh-btn" href="/devices">{{ icon('upload') }} 소스 업로드</a>
 </div>
-<div class="grid2">
-  <div class="card">
-    <h3>취약점 심각도 분포</h3>
-    {% set tot = d.n_vulns %}
-    {% set cols = {'Critical':'#991b1b','High':'#b91c1c','Medium':'#b45309','Low':'#64748b'} %}
-    <div class="donut-wrap">
-      <svg width="130" height="130" viewBox="0 0 42 42" style="flex:none">
-        <circle cx="21" cy="21" r="15.915" fill="none" stroke="#eef2f6" stroke-width="5"/>
-        {% set ns = namespace(off=25) %}
-        {% for k in ['Critical','High','Medium','Low'] %}{% set v = d.sev_total[k] %}{% if tot and v %}
-          {% set pct = v / tot * 100 %}
-          <circle cx="21" cy="21" r="15.915" fill="none" stroke="{{ cols[k] }}" stroke-width="5"
-                  stroke-dasharray="{{ pct }} {{ 100 - pct }}" stroke-dashoffset="{{ ns.off }}"/>
-          {% set ns.off = ns.off - pct %}
-        {% endif %}{% endfor %}
-        <text x="21" y="21" text-anchor="middle" font-size="6" font-weight="700" fill="#121926">{{ tot }}</text>
-        <text x="21" y="26.5" text-anchor="middle" font-size="3" fill="#364152">취약점</text>
-      </svg>
-      <div class="legend">
-        {% for k in ['Critical','High','Medium','Low'] %}{% set v = d.sev_total[k] %}
-        <div class="row"><span class="dot" style="background:{{ cols[k] }}"></span>{{ k }}<span class="v">{{ v }} <small>({{ ((v / tot * 100) if tot else 0)|round|int }}%)</small></span></div>
-        {% endfor %}
+
+<div class="dsh-kpis">
+  <div class="card dsh-kpi">
+    {% set ar = d.avg_rate or 0 %}
+    <svg width="58" height="58" viewBox="0 0 42 42" style="flex:none"><circle cx="21" cy="21" r="16" fill="none" stroke="#eef1f5" stroke-width="6"/>
+      <circle cx="21" cy="21" r="16" fill="none" stroke="var(--primary)" stroke-width="6" stroke-dasharray="{{ ar }} {{ 100 - ar }}" stroke-dashoffset="25" pathLength="100"/></svg>
+    <div><div class="dsh-kv">{{ '%.1f'|format(d.avg_rate) if d.avg_rate is not none else '—' }}<small>%</small></div>
+      <div class="dsh-kl">평균 문서 충족률 · 승인 평가 {{ d.n_approved }}건</div></div>
+  </div>
+  <a class="card dsh-kpi col" href="/devices">
+    <div class="dsh-row"><b>FDA 제출 적합성</b><span class="muted small">§524B · {{ d.n_devices }}대</span></div>
+    <div class="dsh-sbar"><i style="width:{{ fc['적합'] / fct * 100 }}%;background:var(--ok)"></i><i style="width:{{ fc['조건부 적합'] / fct * 100 }}%;background:var(--k-gold)"></i><i style="width:{{ fc['부적합'] / fct * 100 }}%;background:var(--bad)"></i><i style="width:{{ fc['판정 불가'] / fct * 100 }}%;background:#cdd5df"></i></div>
+    <div class="dsh-legend"><span>적합 <b style="color:var(--ok)">{{ fc['적합'] }}</b></span><span>조건부 <b style="color:var(--k-gold)">{{ fc['조건부 적합'] }}</b></span><span>부적합 <b style="color:var(--bad)">{{ fc['부적합'] }}</b></span><span>판정 불가 <b>{{ fc['판정 불가'] }}</b></span></div>
+  </a>
+  {% set tv = d.n_vulns or 1 %}
+  <a class="card dsh-kpi col" href="/scans">
+    <div class="dsh-kv" style="color:var(--high)">{{ d.n_vulns }} <span class="dsh-kl" style="display:inline">발견 취약점</span></div>
+    <div class="dsh-sbar"><i style="width:{{ (d.sev_total['Critical'] + d.sev_total['High']) / tv * 100 }}%;background:var(--high)"></i><i style="width:{{ d.sev_total['Medium'] / tv * 100 }}%;background:var(--med)"></i><i style="width:{{ d.sev_total['Low'] / tv * 100 }}%;background:#94a3b8"></i></div>
+    <div class="dsh-kl">{% if d.sev_total['Critical'] %}Critical {{ d.sev_total['Critical'] }} · {% endif %}High {{ d.sev_total['High'] }} · Medium {{ d.sev_total['Medium'] }} · Low {{ d.sev_total['Low'] }}</div>
+  </a>
+  <a class="card dsh-kpi col" href="/scans">
+    <div class="dsh-kv">{{ d.n_done }}<small> / {{ d.n_vulns }}</small> <span class="dsh-kl" style="display:inline">처분 완료</span></div>
+    <div class="dsh-bar" style="margin:9px 0 5px"><i style="width:{{ d.n_done / tv * 100 }}%;background:var(--primary)"></i></div>
+    <div class="dsh-kl">검토 대기 {{ d.disp['검토 필요'] }}건 · 결함 {{ d.disp['확인된 결함'] }} · 약점 {{ d.disp['약점'] }} · 오탐 {{ d.disp['오탐'] }}</div>
+  </a>
+</div>
+
+<div class="dsh-grid">
+  <div class="dsh-colm">
+    {% set v = d.device_view %}
+    <div class="card dsh-car-card">
+      <h3>기기 구조 분석{% if v %} — {{ v.device.name }}{% endif %} <span class="right muted small" style="font-weight:500">검출 위치를 탑재 부품에 표시 · 5초마다 넘어감</span></h3>
+      {% if v %}
+      {% set P = {} %}{% for p in v.parts %}{% set _ = P.update({p.key: p}) %}{% endfor %}
+      {% set hs_ex = {'mcu': (51.7, 38.5), 'ble': (59.5, 33.2), 'motor': (51.3, 65.2)} %}
+      {% set tg_ex = {'mcu': ('l', 47, 30), 'ble': ('r', 63, 24), 'motor': ('r', 56, 73)} %}
+      {% set hs_bp = {'mcu': (42.4, 44.0), 'ble': (62.2, 25.4), 'motor': (67.7, 64.6)} %}
+      {% set tg_bp = {'mcu': ('l', 31, 31), 'ble': ('r', 66, 14), 'motor': ('r', 71, 80)} %}
+      <div class="dsh-car" id="dshCar">
+        <div class="dsh-slide on">
+          <img src="/static/device/exploded.jpg" alt="인슐린펌프 3D 분해도 (개념도)">
+          <div class="dsh-cap">① 3D 분해도<small>펌웨어가 탑재된 부품 · 개념도</small></div>
+          {% for k, p in P.items() %}{% set h = hs_ex[k] %}{% set t = tg_ex[k] %}
+          <div class="dsh-hs lv-{{ p.level }}" style="left:{{ h[0] }}%;top:{{ h[1] }}%"></div>
+          <div class="dsh-tag {{ t[0] }}" style="left:{{ t[1] }}%;top:{{ t[2] }}%"><b>{{ p.name }}</b>{{ p.file }} · {% if p.level == 'fp' %}오탐 처분{% else %}{{ p.finds|length }}건{% endif %}</div>
+          {% endfor %}
+        </div>
+        <div class="dsh-slide">
+          <img src="/static/device/blueprint.jpg" alt="인슐린펌프 설계도 (개념도)">
+          <div class="dsh-scan"></div>
+          <div class="dsh-cap">② 설계도 스캔<small>정적분석 검출 → 부품 위치</small></div>
+          {% for k, p in P.items() %}{% set h = hs_bp[k] %}{% set t = tg_bp[k] %}
+          <div class="dsh-hs lv-{{ p.level }}" style="left:{{ h[0] }}%;top:{{ h[1] }}%"></div>
+          <div class="dsh-tag {{ t[0] }}" style="left:{{ t[1] }}%;top:{{ t[2] }}%"><b>{{ p.name }}</b>{{ p.summary }}{% if p.level == 'fp' %} → 오탐 처분{% endif %}</div>
+          {% endfor %}
+          <div class="dsh-hs lv-med" style="left:66.9%;top:45.3%;opacity:.85"></div>
+          <div class="dsh-tag r" style="left:73.5%;top:45%"><b>인슐린 저장부</b>환자 영향: 투여량 오류</div>
+        </div>
+        <div class="dsh-slide dsh-path">
+          <img src="/static/device/blueprint.jpg" alt="" style="opacity:.25">
+          <div class="dsh-cap">③ 위험 경로<small>무선 명령이 주입까지 가는 길</small></div>
+          <div class="dsh-flow">
+            {% for k in ['ble', 'mcu', 'motor'] %}{% set p = P.get(k) %}
+            <div class="dsh-step lv-{{ p.level if p else 'none' }}"><b>{{ {'ble': 'BLE 수신', 'mcu': '명령 처리 (MCU)', 'motor': '주입량 계산'}[k] }}</b>
+              <small>{{ p.file if p else '검출 없음' }}</small>
+              {% if p %}<span class="dsh-pill">{% if p.level == 'fp' %}오탐 처분{% else %}{{ p.summary }}{% endif %}</span>{% endif %}</div>
+            <div class="dsh-arrow">→</div>
+            {% endfor %}
+            <div class="dsh-step lv-end"><b>주입 모터</b><small>환자 안전 영향</small><span class="dsh-pill">과다 · 과소 투여 위험</span></div>
+          </div>
+          <div class="dsh-pathnote">처분 기록 — {% for p in v.parts %}{{ p.name }}: {{ p.notes }}{% if not loop.last %} / {% endif %}{% endfor %}</div>
+        </div>
+        <button class="dsh-arw l" type="button" aria-label="이전" data-go="-1">‹</button><button class="dsh-arw r" type="button" aria-label="다음" data-go="1">›</button>
+        <div class="dsh-dots"><i class="on"></i><i></i><i></i></div>
       </div>
+      {% else %}
+      <div class="empty" style="padding:60px 0">부품에 연결할 검출이 아직 없습니다. 펌웨어 소스를 올려 보세요.</div>
+      {% endif %}
+    </div>
+
+    <div class="card dsh-devs">
+      <h3>기기별 준비도 · 다음 할 일 <span class="right muted small" style="font-weight:500">최종 등급(상한 반영) · FDA 적합성 · 처분 진행</span></h3>
+      {% set gc = {'A': 'var(--ok)', 'B': '#3f8a5c', 'C': 'var(--k-gold)', 'D': 'var(--bad)'} %}
+      {% set fcol = {'적합': ('#e8f5e9', 'var(--ok)'), '조건부 적합': ('#fdf1d8', '#9a6408'), '부적합': ('#fdecea', 'var(--bad)')} %}
+      {% for r in d.rows[:4] %}{% set fz = fcol.get(r.fda, ('#eef1f5', '#697586')) %}
+      <div class="dsh-dev" data-href="/devices/{{ r.device.code }}">
+        <div class="dsh-grade" style="background:{{ gc.get(r.final, '#9aa4b2') }}">{{ r.final or '–' }}</div>
+        <div class="dsh-dn"><b>{{ r.device.name }}</b> <span class="muted small">{{ r.device.code }}</span>
+          <div class="muted small">{% if r.approved %}충족률 {{ r.rate }}% · 기본 {{ r.base }}{% if r.capped %} → 상한 {{ r.final }} (High 잔존){% endif %}{% elif r.rate is not none %}자동 평가 · 승인 전{% else %}평가 없음{% endif %}</div></div>
+        <span class="dsh-chip" style="background:{{ fz[0] }};color:{{ fz[1] }}">{{ r.fda }}</span>
+        <div><div class="dsh-bar"><i style="width:{{ (r.done / r.tot * 100) if r.tot else 0 }}%;background:var(--primary)"></i></div><span class="muted small">처분 {{ r.done }}/{{ r.tot }}</span></div>
+        <a class="dsh-next" href="{{ r.next[1] }}">{{ r.next[0] }} →</a>
+      </div>
+      {% endfor %}
     </div>
   </div>
-  <div class="card">
-    <h3>고위험 기기 Top 5</h3>
-    <table class="tbl" style="font-size:12.5px">
-      <thead><tr><th class="l" style="background:none;border-bottom:1px solid var(--line)">의료기기</th><th style="background:none;border-bottom:1px solid var(--line)">최고 심각도</th><th style="background:none;border-bottom:1px solid var(--line)">심각도별</th><th style="background:none;border-bottom:1px solid var(--line)">최신 스캔</th></tr></thead>
-      <tbody>
-      {% for t in d.top %}
-        <tr data-href="/devices/{{ t.device.code }}?tab=scans"><td class="l" style="background:none"><span class="ellip" style="max-width:240px">{{ t.device.name }}</span><span class="sub">{{ t.device.code }}</span></td>
-          <td style="background:none">{{ sevchip(t.worst) }}</td>
-          <td style="background:none">{{ sevbox(t.scan.n_critical, t.scan.n_high, t.scan.n_medium, t.scan.n_low) }}</td>
-          <td style="background:none">{{ dt(t.scan.finished_at or t.scan.started_at) }}</td></tr>
-      {% else %}<tr><td colspan="4" class="empty">아직 완료된 스캔이 없습니다.</td></tr>{% endfor %}
-      </tbody>
-    </table>
-    <div style="text-align:center;margin-top:12px"><a class="linkbtn" href="/devices">전체 보기 {{ icon('arrow-right') }}</a></div>
+
+  <div class="dsh-colr">
+    <div class="card">
+      <h3>부품별 검출{% if v %} <span class="right muted small" style="font-weight:500">{{ v.scan.code }} · {{ v.n }}건</span>{% endif %}</h3>
+      {% if v %}{% for p in v.parts %}
+      <a class="dsh-part{% if loop.first %} on{% endif %}" href="/scans/{{ v.scan.code }}" data-part="{{ p.key }}">
+        <i class="lv-{{ p.level }}"></i><div><b>{{ p.name }}</b><span>{{ p.file }} · {{ p.summary }}</span><span>{{ p.notes }}</span></div></a>
+      {% endfor %}
+      <a class="dsh-ai" href="/manual">AI 조치 매뉴얼 — 검출마다 식약처 · FDA 규제 문서 근거(문서명 · 쪽)를 인용해 조치를 안내합니다</a>
+      {% else %}<div class="empty">검출 없음</div>{% endif %}
+    </div>
+    <div class="card dsh-act">
+      <h3>최근 활동 <span class="right"><a class="linkbtn" href="/admin/audit-logs">감사 로그 {{ icon('arrow-right') }}</a></span></h3>
+      {% set aic = {'정적분석 완료': ('scan', 'var(--primary)'), '정적분석 시작': ('upload', '#3a75a8'), '리포트 발행': ('file', 'var(--ok)'), '제출 패키지 내려받기': ('download', 'var(--k-gold)'), '기기 등록': ('device', '#675e94'), '검출 처분 기록': ('check', 'var(--ok)'), '증빙 자료 업로드': ('upload', '#3a75a8')} %}
+      {% for a in d.activity %}{% set ic = aic.get(a.action, ('clipboard', '#697586')) %}
+      <div class="dsh-tl"><span class="dsh-dot" style="background:{{ ic[1] }}">{{ icon(ic[0]) }}</span>
+        <div><b>{{ a.action }}</b><span class="ellip" style="max-width:240px">{{ a.target }}</span><span class="muted">{{ dt(a.at, True) }} · {{ a.user }}</span></div></div>
+      {% else %}<div class="empty">아직 활동이 없습니다.</div>{% endfor %}
+    </div>
   </div>
 </div>
-<div class="card mt16">
-  <h3>최근 스캔 <span class="cnt-pill">전체 {{ d.n_scans }}건</span><span class="right"><a class="linkbtn" href="/scans">전체 스캔 목록 {{ icon('arrow-right') }}</a></span></h3>
-  <table class="tbl">
-    <thead><tr><th>스캔 ID</th><th>대상 장비</th><th>버전</th><th>업로드일</th><th>심각도</th><th>상태</th></tr></thead>
-    <tbody>
-    {% for s in d.recent %}
-      <tr data-href="/scans/{{ s.code }}"><td>{{ s.code }}</td><td>{{ s.device_name }}</td><td>{{ s.version }}</td><td>{{ dt(s.started_at) }}</td>
-        <td>{{ sevbox(s.n_critical, s.n_high, s.n_medium, s.n_low) }}</td><td>{{ status(s.status) }}</td></tr>
-    {% else %}<tr><td colspan="6" class="empty">아직 스캔이 없습니다. 의료기기를 등록하고 소스코드를 올려 보세요.</td></tr>{% endfor %}
-    </tbody>
-  </table>
-</div>
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  var car = document.getElementById('dshCar'); if (!car) return;
+  var S = car.querySelectorAll('.dsh-slide'), D = car.querySelectorAll('.dsh-dots i'), P = document.querySelectorAll('.dsh-part'), k = 0, t;
+  var focus = ['mcu', 'motor', 'mcu'];
+  function go(n) {
+    k = (n + S.length) % S.length;
+    S.forEach(function (s, i) { s.classList.toggle('on', i === k); });
+    D.forEach(function (d, i) { d.classList.remove('on'); void d.offsetWidth; d.classList.toggle('on', i === k); });
+    P.forEach(function (p) { p.classList.toggle('on', p.dataset.part === focus[k]); });
+    clearTimeout(t); t = setTimeout(function () { go(k + 1); }, 5000);
+  }
+  car.querySelectorAll('[data-go]').forEach(function (b) { b.onclick = function () { go(k + parseInt(b.dataset.go, 10)); }; });
+  D.forEach(function (d, i) { d.onclick = function () { go(i); }; });
+  go(0);
+})();
+</script>
 {% endblock %}

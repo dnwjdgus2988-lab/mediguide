@@ -525,6 +525,43 @@ def dashboard():
     for d, s in top:
         worst = next((k for k in SEV if sev_counts(s)[k]), None)
         top_rows.append({"device": d, "scan": s, "worst": worst})
+    # ── 준비도 · FDA 적합성 · 처분 · 기기 구조 분석 (대시보드 개편)
+    states = [(d, device_state(d)) for d in devices]
+    fda_cnt = {k: sum(1 for _d, st in states if st["fda"] == k) for k in ("적합", "조건부 적합", "부적합", "판정 불가")}
+    approved = [st for _d, st in states if st["assessment"] and st["assessment"]["status"] == "승인완료" and st["result"]]
+    avg_rate = round(sum(st["result"]["rate"] for st in approved) / len(approved), 1) if approved else None
+    latest_ids = [s["id"] for _d, s in latest]
+    disp = {k: 0 for k in ("확인된 결함", "약점", "오탐", "연기", "검토 필요")}
+    if latest_ids:
+        marks = ",".join("?" * len(latest_ids))
+        for r in db.q(f"SELECT disposition, COUNT(*) AS n FROM findings WHERE scan_id IN ({marks}) GROUP BY disposition", tuple(latest_ids)):
+            disp[r["disposition"] or "검토 필요"] = disp.get(r["disposition"] or "검토 필요", 0) + r["n"]
+    n_done = sum(v for k, v in disp.items() if k != "검토 필요")
+    rows = []
+    for d, st in states:
+        s = st["scan"]
+        tot = done = 0
+        if s:
+            c = db.one("SELECT COUNT(*) AS t, SUM(CASE WHEN disposition IS NOT NULL AND disposition!='검토 필요' THEN 1 ELSE 0 END) AS d "
+                       "FROM findings WHERE scan_id=?", (s["id"],))
+            tot, done = c["t"] or 0, c["d"] or 0
+        g = st["grade"]
+        hi = (st["sev"] or {}).get("Critical", 0) + (st["sev"] or {}).get("High", 0)
+        if not s:
+            nxt = ("소스 업로드", f"/devices/{d['code']}?tab=evidence")
+        elif not st["assessment"]:
+            nxt = ("체크리스트 작성", f"/devices/{d['code']}?tab=checklist")
+        elif done < tot:
+            nxt = (f"검출 {tot - done}건 처분 기록", f"/scans/{s['code']}")
+        elif hi:
+            nxt = (f"High {hi}건 조치 후 재업로드", f"/devices/{d['code']}?tab=evidence")
+        else:
+            nxt = ("리포트 확인", "/reports")
+        rows.append({"device": d, "fda": st["fda"], "rate": st["result"]["rate"] if st["result"] else None,
+                     "final": g["final"] if g else None, "base": g["base"] if g else None,
+                     "capped": bool(g and g["cap"] and g["final"] != g["base"]), "tot": tot, "done": done, "next": nxt,
+                     "approved": bool(st["assessment"] and st["assessment"]["status"] == "승인완료")})
+    rows.sort(key=lambda r: (not r["approved"], r["rate"] is None, -(r["rate"] or 0)))
     return {
         "n_devices": len(devices),
         "n_scans_done": db.one("SELECT COUNT(*) AS n FROM scans WHERE status='완료'")["n"],
@@ -534,4 +571,50 @@ def dashboard():
         "top": top_rows,
         "recent": list_scans(limit=5),
         "n_scans": db.one("SELECT COUNT(*) AS n FROM scans")["n"],
+        "fda_cnt": fda_cnt, "avg_rate": avg_rate, "n_approved": len(approved),
+        "approved": [{"name": d["name"], "rate": st["result"]["rate"], "base": st["grade"]["base"], "final": st["grade"]["final"]}
+                     for d, st in states if st in approved],
+        "lines": sum((s["lines_scanned"] or 0) for _d, s in latest),
+        "disp": disp, "n_done": n_done, "rows": rows,
+        "activity": db.q("SELECT at, user, action, target FROM audit_logs WHERE action != '로그인' ORDER BY id DESC LIMIT 5"),
+        "device_view": device_view(latest),
     }
+
+
+# 기기 구조 분석: 소스 파일 → 탑재 부품 (SecPump 계열 STM32 펌웨어 기준)
+PART_MAP = {
+    "PumpService.c": ("mcu", "MCU 펌프 서비스", "BLE 명령 처리 · STM32F4"),
+    "InsulinController.c": ("motor", "인슐린 주입 제어", "주입량 계산 · 모터 구동"),
+    "app_x-cube-ble1.c": ("ble", "BLE 무선 모듈", "무선 수신 · X-CUBE-BLE1"),
+}
+
+
+def device_view(latest):
+    """부품에 매핑되는 검출이 가장 많은 기기 하나를 골라 부품별 검출을 묶는다."""
+    best = None
+    for d, s in latest:
+        fs = db.q("SELECT file, line, cwe, severity, disposition FROM findings WHERE scan_id=? ORDER BY line", (s["id"],))
+        hit = [f for f in fs if f["file"].rsplit("/", 1)[-1] in PART_MAP]
+        if hit and (best is None or (len(hit), -d["id"]) > (len(best[2]), -best[0]["id"])):
+            best = (d, s, hit)
+    if not best:
+        return None
+    d, s, hit = best
+    parts = {}
+    for f in hit:
+        key, name, role = PART_MAP[f["file"].rsplit("/", 1)[-1]]
+        p = parts.setdefault(key, {"key": key, "name": name, "role": role, "file": f["file"].rsplit("/", 1)[-1], "finds": []})
+        p["finds"].append(f)
+    sev_rank = {"Critical": 0, "High": 1, "Medium": 2, "Low": 3}
+    for p in parts.values():
+        open_items = [f for f in p["finds"] if f["disposition"] != "오탐"]
+        p["worst"] = min((f["severity"] for f in open_items), key=lambda x: sev_rank.get(x, 9)) if open_items else None
+        p["level"] = "high" if p["worst"] in ("Critical", "High") else ("med" if p["worst"] else "fp")
+        cwes = {}
+        for f in p["finds"]:
+            cwes.setdefault((f["cwe"], f["severity"]), 0)
+            cwes[(f["cwe"], f["severity"])] += 1
+        p["summary"] = " · ".join(f"{c} {sv} {n}" for (c, sv), n in cwes.items())
+        p["notes"] = ", ".join(f"{f['line']}행 {f['disposition'] or '검토 필요'}" for f in p["finds"])
+    order = [k for k in ("mcu", "motor", "ble") if k in parts]
+    return {"device": d, "scan": s, "parts": [parts[k] for k in order], "n": len(hit)}
